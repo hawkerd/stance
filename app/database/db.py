@@ -6,12 +6,11 @@ import logging
 
 # database layer logic - CRUD operations
 
-def create_user(db: Session, username: str, full_name: Optional[str], bio: Optional[str], email: str, password_hash: str) -> User:
+def create_user(db: Session, username: str, full_name: Optional[str], email: str, password_hash: str) -> User:
     try:
         user = User(
             username=username,
             full_name=full_name,
-            bio=bio,
             email=email,
             password_hash=password_hash
         )

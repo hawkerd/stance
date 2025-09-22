@@ -4,7 +4,6 @@ from typing import Optional
 class SignupRequest(BaseModel):
     username: str
     full_name: Optional[str] = None
-    bio: Optional[str] = None
     email: str
     password: str
 

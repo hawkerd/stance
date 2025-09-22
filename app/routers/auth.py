@@ -20,7 +20,7 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
     if get_user_by_username(db, data.username):
         raise HTTPException(status_code=400, detail="Username already exists")
     password_hash = hash_password(data.password)
-    user = create_user(db, data.username, data.full_name, data.bio, data.email, password_hash)
+    user = create_user(db, data.username, data.full_name, data.email, password_hash)
     return SignupResponse(id=user.id, username=user.username, email=user.email)
 
 
