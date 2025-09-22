@@ -63,7 +63,7 @@ def get_stance_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.put("/stances/{stance_id}", response_model=StanceUpdateRequest)
+@router.put("/stances/{stance_id}", response_model=StanceUpdateResponse)
 def update_stance_endpoint(
     stance_id: int,
     request: StanceUpdateRequest,
@@ -71,6 +71,7 @@ def update_stance_endpoint(
     user_id: int = Depends(get_current_user)
 ) -> StanceUpdateResponse:
     try:
+        logging.info(f"Updating stance {stance_id} for user {user_id}")
         # read the current stance
         stance = read_stance(db, stance_id)
         if not stance or stance.user_id != user_id:
