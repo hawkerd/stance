@@ -1,67 +1,8 @@
 from sqlalchemy.orm import Session
-from app.database.models import User, RefreshToken
+from app.database.models.refresh_token import RefreshToken
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
-
-# database layer logic - CRUD operations
-
-def create_user(db: Session, username: str, full_name: Optional[str], email: str, password_hash: str) -> User:
-    try:
-        user = User(
-            username=username,
-            full_name=full_name,
-            email=email,
-            password_hash=password_hash
-        )
-        db.add(user)
-        db.commit()
-        db.refresh(user)
-        return user
-    except Exception as e:
-        logging.error(f"Error creating user: {e}")
-        raise DatabaseError("Failed to create user")
-
-def read_user(db: Session, user_id: int) -> User:
-    try:
-        return db.query(User).filter(User.id == user_id).first()
-    except Exception as e:
-        logging.error(f"Error reading user {user_id}: {e}")
-        raise DatabaseError("Failed to read user")
-
-def update_user(db: Session, user_id: int, **kwargs) -> Optional[User]:
-    try:
-        user = db.query(User).filter(User.id == user_id).first()
-        if not user:
-            return None
-        for key, value in kwargs.items():
-            if hasattr(user, key):
-                setattr(user, key, value)
-        db.commit()
-        db.refresh(user)
-        return user
-    except Exception as e:
-        logging.error(f"Error updating user {user_id}: {e}")
-        raise DatabaseError("Failed to update user")
-
-def delete_user(db: Session, user_id: int) -> bool:
-    try:
-        user = db.query(User).filter(User.id == user_id).first()
-        if user:
-            db.delete(user)
-            db.commit()
-            return True
-    except Exception as e:
-        logging.error(f"Error deleting user {user_id}: {e}")
-        raise DatabaseError("Failed to delete user")
-    return False
-
-def get_user_by_username(db: Session, username: str) -> Optional[User]:
-    try:
-        return db.query(User).filter(User.username == username).first()
-    except Exception as e:
-        logging.error(f"Error getting user by username {username}: {e}")
-        raise DatabaseError("Failed to get user by username")
 
 def create_refresh_token(db: Session, user_id: int, hashed_token: str, expires_at, revoked: bool = False) -> RefreshToken:
     try:
