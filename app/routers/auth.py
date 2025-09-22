@@ -1,15 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db
-from app.service.auth import hash_password, verify_password, create_access_token, generate_refresh_token, refresh_token_expires_at, hash_refresh_token, verify_refresh_token
-from app.database.db import get_user_by_username, create_user, create_refresh_token, get_refresh_token_by_hash, update_refresh_token, delete_refresh_token
+from app.service.auth import hash_password, verify_password, create_access_token, generate_refresh_token, refresh_token_expires_at, hash_refresh_token
+from app.database.user import get_user_by_username, create_user
+from app.database.refresh_token import create_refresh_token, get_refresh_token_by_hash, update_refresh_token
 from app.routers.models.auth import (
     SignupRequest, SignupResponse,
     LoginRequest, TokenResponse,
     RefreshRequest, RefreshResponse,
     LogoutRequest, LogoutResponse
 )
-import datetime
 import logging
 
 router = APIRouter()
@@ -20,7 +20,7 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
     if get_user_by_username(db, data.username):
         raise HTTPException(status_code=400, detail="Username already exists")
     password_hash = hash_password(data.password)
-    user = create_user(db, data.username, data.full_name, data.bio, data.email, password_hash)
+    user = create_user(db, data.username, data.full_name, data.email, password_hash)
     return SignupResponse(id=user.id, username=user.username, email=user.email)
 
 
