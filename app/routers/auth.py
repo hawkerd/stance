@@ -2,8 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db
 from app.service.auth import hash_password, verify_password, create_access_token, generate_refresh_token, refresh_token_expires_at, hash_refresh_token
-from app.database.service.user import get_user_by_username, create_user
-from app.database.service.refresh_token import create_refresh_token, get_refresh_token_by_hash, update_refresh_token
+from app.database.user import get_user_by_username, create_user
+from app.database.refresh_token import create_refresh_token, get_refresh_token_by_hash, update_refresh_token
 from app.routers.models.auth import (
     SignupRequest, SignupResponse,
     LoginRequest, TokenResponse,
