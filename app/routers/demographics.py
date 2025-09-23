@@ -7,10 +7,13 @@ import logging
 
 router = APIRouter()
 
-@router.post("/demographics", response_model=DemographicReadResponse)
-def create_demographic_endpoint(request: DemographicCreateRequest, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> DemographicReadResponse:
+@router.post("/users/{user_id}/demographics", response_model=DemographicReadResponse)
+def create_demographic_endpoint(request: DemographicCreateRequest, user_id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)) -> DemographicReadResponse:
     try:
         logging.info(f"Creating demographic for user {user_id} with data {request.model_dump()}")
+
+        if user_id != current_user:
+            raise HTTPException(status_code=403, detail="Not authorized to create demographic for this user")
 
         # read existing demographic to prevent duplicates
         existing_demographic = get_demographic_by_user_id(db, user_id=user_id)
@@ -25,10 +28,14 @@ def create_demographic_endpoint(request: DemographicCreateRequest, db: Session =
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/demographics", response_model=DemographicReadResponse)
-def get_demographic_endpoint(db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> DemographicReadResponse:
+@router.get("/users/{user_id}/demographics", response_model=DemographicReadResponse)
+def get_demographic_endpoint(user_id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)) -> DemographicReadResponse:
     try:
         logging.info(f"Fetching demographic for user {user_id}")
+
+        if user_id != current_user:
+            raise HTTPException(status_code=403, detail="Not authorized to view this user's demographic")
+
         demographic = get_demographic_by_user_id(db, user_id=user_id)
         if not demographic:
             raise HTTPException(status_code=404, detail="Demographic not found")
@@ -37,10 +44,14 @@ def get_demographic_endpoint(db: Session = Depends(get_db), user_id: int = Depen
         logging.error(f"Error fetching demographic for user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.put("/demographics", response_model=DemographicUpdateResponse)
-def update_demographic_endpoint(request: DemographicUpdateRequest, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> DemographicUpdateResponse:
+@router.put("/users/{user_id}/demographics", response_model=DemographicUpdateResponse)
+def update_demographic_endpoint(request: DemographicUpdateRequest, user_id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)) -> DemographicUpdateResponse:
     try:
         logging.info(f"Updating demographic for user {user_id} with data {request.model_dump()}")
+
+        if user_id != current_user:
+            raise HTTPException(status_code=403, detail="Not authorized to update this user's demographic")
+
         existing_demographic = get_demographic_by_user_id(db, user_id=user_id)
         if not existing_demographic:
             raise HTTPException(status_code=404, detail="Demographic not found")

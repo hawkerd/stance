@@ -60,3 +60,10 @@ def get_all_profiles(db: Session) -> List[Profile]:
     except Exception as e:
         logging.error(f"Error getting all profiles: {e}")
         raise DatabaseError("Failed to get all profiles")
+
+def get_profile_by_user_id(db: Session, user_id: int) -> Optional[Profile]:
+    try:
+        return db.query(Profile).filter(Profile.user_id == user_id).first()
+    except Exception as e:
+        logging.error(f"Error getting profile by user_id {user_id}: {e}")
+        raise DatabaseError("Failed to get profile by user_id")
