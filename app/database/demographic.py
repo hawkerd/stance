@@ -60,3 +60,10 @@ def get_all_demographics(db: Session) -> List[Demographic]:
     except Exception as e:
         logging.error(f"Error getting all demographics: {e}")
         raise DatabaseError("Failed to get all demographics")
+    
+def get_demographic_by_user_id(db: Session, user_id: int) -> Optional[Demographic]:
+    try:
+        return db.query(Demographic).filter(Demographic.user_id == user_id).first()
+    except Exception as e:
+        logging.error(f"Error getting demographic for user {user_id}: {e}")
+        raise DatabaseError("Failed to get demographic by user ID")

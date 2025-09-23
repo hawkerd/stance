@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.dependencies import get_db
+from app.dependencies import get_db, get_is_admin
 from app.service.auth import hash_password, verify_password, create_access_token, generate_refresh_token, refresh_token_expires_at, hash_refresh_token
 from app.database.user import get_user_by_username, create_user
 from app.database.refresh_token import create_refresh_token, get_refresh_token_by_hash, update_refresh_token
@@ -20,7 +20,7 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
     if get_user_by_username(db, data.username):
         raise HTTPException(status_code=400, detail="Username already exists")
     password_hash = hash_password(data.password)
-    user = create_user(db, data.username, data.full_name, data.email, password_hash)
+    user = create_user(db, data.username, data.full_name, data.email, password_hash, False)
     return SignupResponse(id=user.id, username=user.username, email=user.email)
 
 
@@ -32,7 +32,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     
     # create tokens
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(user.id, user.is_admin)
     refresh_token = generate_refresh_token()
 
     # add refresh token to DB
@@ -42,14 +42,14 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/refresh", response_model=RefreshResponse)
-def refresh_token(data: RefreshRequest, db: Session = Depends(get_db)):
+def refresh_token(data: RefreshRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)):
     # verify the refresh token
     db_token = get_refresh_token_by_hash(db, hash_refresh_token(data.refresh_token))
     if not db_token or db_token.revoked:
         raise HTTPException(status_code=401, detail="Invalid or revoked refresh token")
     
     # create tokens
-    access_token = create_access_token(db_token.user_id)
+    access_token = create_access_token(db_token.user_id, is_admin)
     refresh_token = generate_refresh_token()
 
     update_refresh_token(db, db_token.id, hashed_token=hash_refresh_token(refresh_token), expires_at=refresh_token_expires_at())
