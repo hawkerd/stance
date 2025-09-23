@@ -8,5 +8,7 @@ class UserReadResponse(BaseModel):
     id: int
     username: str
     full_name: Optional[str] = None
-    bio: Optional[str] = None
     email: str
+
+class UserDeleteResponse(BaseModel):
+    success: bool
