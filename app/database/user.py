@@ -4,13 +4,14 @@ from typing import Optional
 from app.errors import DatabaseError
 import logging
 
-def create_user(db: Session, username: str, full_name: Optional[str], email: str, password_hash: str) -> User:
+def create_user(db: Session, username: str, full_name: Optional[str], email: str, password_hash: str, is_admin: bool) -> User:
     try:
         user = User(
             username=username,
             full_name=full_name,
             email=email,
-            password_hash=password_hash
+            password_hash=password_hash,
+            is_admin=is_admin
         )
         db.add(user)
         db.commit()

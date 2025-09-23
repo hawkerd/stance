@@ -4,7 +4,7 @@ load_dotenv()
 from fastapi import FastAPI, Depends
 from app.dependencies import get_db
 import logging
-from app.routers import users, auth, stances, demographics, profiles
+from app.routers import users, auth, stances, demographics, profiles, comments
 
 
 logging.basicConfig(level=logging.INFO)
@@ -18,6 +18,7 @@ app.include_router(auth.router)
 app.include_router(stances.router)
 app.include_router(demographics.router)
 app.include_router(profiles.router)
+app.include_router(comments.router)
 
 @app.get("/")
 async def root():

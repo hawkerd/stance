@@ -32,13 +32,14 @@ def verify_refresh_token(token: str, hashed: str) -> bool:
     return hash_refresh_token(token) == hashed
 
 # generate/ verify JWT access tokens
-def create_access_token(user_id: int) -> str:
+def create_access_token(user_id: int, is_admin: bool) -> str:
     """
     Create a signed JWT access token for a user.
     """
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = {
         "sub": str(user_id),    # subject = user ID
+        "admin": is_admin,      # is admin flag
         "exp": expire           # expiration timestamp
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
@@ -54,3 +55,13 @@ def verify_access_token(token: str) -> Optional[int]:
         return user_id
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None
+    
+def is_admin_token(token: str) -> bool:
+    """
+    Check if the JWT token belongs to an admin user.
+    """
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload.get("admin", False)
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        return False
