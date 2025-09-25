@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_is_admin
 from app.service.auth import hash_password, verify_password, create_access_token, generate_refresh_token, refresh_token_expires_at, hash_refresh_token
-from app.database.user import get_user_by_username, create_user
+from app.database.user import get_user_by_username, create_user, get_user_by_email
 from app.database.refresh_token import create_refresh_token, get_refresh_token_by_hash, update_refresh_token
 from app.routers.models.auth import (
     SignupRequest, SignupResponse,
@@ -15,16 +15,20 @@ import logging
 router = APIRouter()
 
 
-@router.post("/signup", response_model=SignupResponse)
+@router.post("/auth/signup", response_model=SignupResponse)
 def signup(data: SignupRequest, db: Session = Depends(get_db)):
     if get_user_by_username(db, data.username):
         raise HTTPException(status_code=400, detail="Username already exists")
+    
+    if get_user_by_email(db, data.email):
+        raise HTTPException(status_code=400, detail="Email already exists")
+
     password_hash = hash_password(data.password)
     user = create_user(db, data.username, data.full_name, data.email, password_hash, False)
     return SignupResponse(id=user.id, username=user.username, email=user.email)
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/auth/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     # get the user and verify the password
     user = get_user_by_username(db, data.username)
@@ -41,7 +45,7 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
     return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
 
-@router.post("/refresh", response_model=RefreshResponse)
+@router.post("/auth/refresh", response_model=RefreshResponse)
 def refresh_token(data: RefreshRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)):
     # verify the refresh token
     db_token = get_refresh_token_by_hash(db, hash_refresh_token(data.refresh_token))
@@ -57,7 +61,7 @@ def refresh_token(data: RefreshRequest, db: Session = Depends(get_db), is_admin:
     return RefreshResponse(access_token=access_token, refresh_token=refresh_token)
 
 
-@router.post("/logout", response_model=LogoutResponse)
+@router.post("/auth/logout", response_model=LogoutResponse)
 def logout(data: LogoutRequest, db: Session = Depends(get_db)):
     try:
         db_token = get_refresh_token_by_hash(db, hash_refresh_token(data.refresh_token))

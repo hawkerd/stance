@@ -61,3 +61,10 @@ def get_user_by_username(db: Session, username: str) -> Optional[User]:
     except Exception as e:
         logging.error(f"Error getting user by username {username}: {e}")
         raise DatabaseError("Failed to get user by username")
+
+def get_user_by_email(db: Session, email: str) -> Optional[User]:
+    try:
+        return db.query(User).filter(User.email == email).first()
+    except Exception as e:
+        logging.error(f"Error getting user by email {email}: {e}")
+        raise DatabaseError("Failed to get user by email")
