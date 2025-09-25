@@ -1,6 +1,13 @@
 "use client";
 
 import { createContext, useState, useEffect, ReactNode, useContext } from "react";
+import { components } from "../models/api";
+
+type TokenResponse = components["schemas"]["TokenResponse"];
+type SignupResponse = components["schemas"]["SignupResponse"];
+type LoginRequest = components["schemas"]["LoginRequest"];
+type SignupRequest = components["schemas"]["SignupRequest"];
+
 
 interface AuthContextType {
   accessToken: string | null;
@@ -8,8 +15,9 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   signup: (username: string, email: string, password: string, fullName?: string) => Promise<void>;
   logout: () => void;
-  refresh: () => Promise<void>;
+  refreshAccessToken: () => Promise<string | null>;
   isAuthenticated: boolean;
+  initialized: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,31 +25,36 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
+  const [initialized, setInitialized] = useState(false);
+
+  const setTokens = (access: string | null, refresh: string | null) => {
+    setAccessToken(access);
+    setRefreshToken(refresh);
+    if (access) localStorage.setItem("accessToken", access);
+    else localStorage.removeItem("accessToken");
+    if (refresh) localStorage.setItem("refreshToken", refresh);
+    else localStorage.removeItem("refreshToken");
+  };
 
   useEffect(() => {
     const storedAccess = localStorage.getItem("accessToken");
     const storedRefresh = localStorage.getItem("refreshToken");
-    if (storedAccess && storedRefresh) {
-      setAccessToken(storedAccess);
-      setRefreshToken(storedRefresh);
-    }
+    setTokens(storedAccess, storedRefresh);
+    setInitialized(true);
   }, []);
 
   const login = async (username: string, password: string) => {
+    const payload: LoginRequest = { username, password };
     const res = await fetch("http://localhost:8000/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) throw new Error("Login failed");
 
-    const data: { access_token: string; refresh_token: string } = await res.json();
-    setAccessToken(data.access_token);
-    setRefreshToken(data.refresh_token);
-
-    localStorage.setItem("accessToken", data.access_token);
-    localStorage.setItem("refreshToken", data.refresh_token);
+    const data: TokenResponse = await res.json();
+    setTokens(data.access_token, data.refresh_token);
   };
 
   const signup = async (
@@ -50,45 +63,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     fullName?: string
   ) => {
+    const payload: SignupRequest = { username, email, password, full_name: fullName };
     const res = await fetch("http://localhost:8000/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password, full_name: fullName }),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) throw new Error("Signup failed");
+
+    const data: SignupResponse = await res.json();
 
     // Auto-login after signup
     await login(username, password);
   };
 
   const logout = () => {
-    setAccessToken(null);
-    setRefreshToken(null);
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    setTokens(null, null);
   };
 
-  const refresh = async () => {
-    if (!refreshToken) throw new Error("No refresh token available");
+  const refreshAccessToken = async (): Promise<string | null> => {
+    if (!refreshToken) return null;
 
-    const res = await fetch("http://localhost:8000/auth/refresh", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
+    try {
+      const res = await fetch("http://localhost:8000/auth/refresh", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
 
-    if (!res.ok) {
+      if (!res.ok) {
+        logout();
+        return null;
+      }
+
+      const data: { access_token: string; refresh_token?: string } = await res.json();
+      setTokens(data.access_token, data.refresh_token || refreshToken);
+      return data.access_token;
+    } catch {
       logout();
-      throw new Error("Refresh token failed");
+      return null;
     }
-
-    const data: { access_token: string; refresh_token: string } = await res.json();
-    setAccessToken(data.access_token);
-    setRefreshToken(data.refresh_token);
-
-    localStorage.setItem("accessToken", data.access_token);
-    localStorage.setItem("refreshToken", data.refresh_token);
   };
 
   return (
@@ -99,8 +114,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         signup,
         logout,
-        refresh,
+        refreshAccessToken,
         isAuthenticated: !!accessToken,
+        initialized,
       }}
     >
       {children}

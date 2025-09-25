@@ -29,7 +29,7 @@ export default function SignupForm() {
     setIsLoading(true);
     try {
       await signup(username, email, password, fullName);
-      router.push("/dashboard"); // redirect after signup/login
+      router.push("/home/"); // redirect after signup/login
     } catch (err) {
       setError("Signup failed. Please check your details and try again.");
     } finally {

@@ -23,7 +23,7 @@ export default function LoginForm() {
 
     try {
       await login(username, password);
-      router.push("/");
+      router.push("/home");
       setError("Invalid username or password");
     } finally {
       setIsLoading(false);
