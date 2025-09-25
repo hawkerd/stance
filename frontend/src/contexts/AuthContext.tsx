@@ -8,6 +8,7 @@ interface AuthContextType {
   login: (username: string, password: string) => Promise<void>;
   signup: (username: string, email: string, password: string, fullName?: string) => Promise<void>;
   logout: () => void;
+  refresh: () => Promise<void>;
   isAuthenticated: boolean;
 }
 
@@ -68,6 +69,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("refreshToken");
   };
 
+  const refresh = async () => {
+    if (!refreshToken) throw new Error("No refresh token available");
+
+    const res = await fetch("http://localhost:8000/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+
+    if (!res.ok) {
+      logout();
+      throw new Error("Refresh token failed");
+    }
+
+    const data: { access_token: string; refresh_token: string } = await res.json();
+    setAccessToken(data.access_token);
+    setRefreshToken(data.refresh_token);
+
+    localStorage.setItem("accessToken", data.access_token);
+    localStorage.setItem("refreshToken", data.refresh_token);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -76,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         signup,
         logout,
+        refresh,
         isAuthenticated: !!accessToken,
       }}
     >
