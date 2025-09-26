@@ -70,7 +70,7 @@ def update_comment_endpoint(comment_id: int, request: CommentUpdateRequest, db: 
         logging.error(f"Error updating comment {comment_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.delete("/comments/{comment_id}")
+@router.delete("/comments/{comment_id}", response_model=CommentDeleteResponse)
 def delete_comment_endpoint(comment_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)):
     try:
         comment = read_comment(db, comment_id=comment_id)

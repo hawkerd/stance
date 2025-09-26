@@ -1,7 +1,16 @@
+
+export interface Comment {
+    id: number;
+    user_id: number;
+    parent_id?: number;
+    content: string;
+}
+
 export interface Stance {
     id: number;
     user_id: number;
     stance: string;
+    comments: Comment[];
 }
 
 export interface Issue {

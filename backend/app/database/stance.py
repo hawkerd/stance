@@ -3,6 +3,7 @@ from app.database.models.stance import Stance
 from app.database.models.user import User
 from app.database.models.event import Event
 from app.database.models.issue import Issue
+from app.database.models.comment import Comment
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
@@ -83,3 +84,10 @@ def get_stances_by_issue(db: Session, issue_id: int) -> List[Stance]:
     except Exception as e:
         logging.error(f"Error getting stances for issue {issue_id}: {e}")
         raise DatabaseError("Failed to get stances by issue")
+    
+def get_comments_by_stance(db: Session, stance_id: int) -> List[Comment]:
+    try:
+        return db.query(Comment).filter(Comment.stance_id == stance_id).all()
+    except Exception as e:
+        logging.error(f"Error getting comments for stance {stance_id}: {e}")
+        raise DatabaseError("Failed to get comments by stance")

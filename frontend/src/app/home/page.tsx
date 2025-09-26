@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useApi } from "@/app/hooks/useApi";
-import { components } from "@/models/api";
+import { useAuthApi } from "@/app/hooks/useAuthApi";
+import { components } from "@/api/models/models";
 import { useAuth } from "@/contexts/AuthContext";
+import { usersApi } from "@/api";
 
 type UserReadResponse = components["schemas"]["UserReadResponse"];
 
 export default function HomePage() {
-  const api = useApi();
+  const api = useAuthApi();
   const { initialized } = useAuth();
   const [userResponse, setUserResponse] = useState<UserReadResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,8 +20,8 @@ export default function HomePage() {
 
     const fetchUser = async () => {
       try {
-        const res = await api.get<UserReadResponse>("/users/me");
-        setUserResponse(res.data);
+        const userResponse = await usersApi.getCurrentUser(api);
+        setUserResponse(userResponse);
       } catch (err: any) {
         setError(err.response?.data?.detail || "Failed to fetch user");
       } finally {

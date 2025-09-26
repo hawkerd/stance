@@ -1,57 +1,65 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
+import StancesSection from "@/components/StancesSection";
+import { useRouter } from "next/navigation";
 import { Event } from "@/models/Issue";
-import { components } from "@/models/api";
+import { useApi } from "@/app/hooks/useApi";
+import { eventsApi, stancesApi, commentsApi } from "@/api";
 
 interface EventPageProps {
   params: Promise<{ event_id: string }>;
 }
 
-type StanceListResponse = components["schemas"]["StanceListResponse"];
-type EventReadResponse = components["schemas"]["EventReadResponse"];
-
 export default function EventPage({ params }: EventPageProps) {
-  const { event_id } = use(params);
-  const [event, setEvent] = useState<Event | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    const API = useApi();
+    const { event_id } = use(params);
+    const router = useRouter();
+    const [event, setEvent] = useState<Event | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchEvent = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`http://localhost:8000/events/${event_id}`);
-        if (!res.ok) {
-          const errBody = await res.json();
-          throw new Error(errBody.detail || "Failed to load event.");
+    useEffect(() => {
+        const fetchEvent = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const eventResponse = await eventsApi.getEvent(API, parseInt(event_id));
+            const stancesResponse = await stancesApi.getStancesByEvent(API, parseInt(event_id));
+            for (const stance of stancesResponse.stances || []) {
+                const commentsResponse = await commentsApi.getCommentsByStance(API, stance.id);
+                const eventData: Event = {
+                    id: eventResponse.id,
+                    title: eventResponse.title,
+                    description: eventResponse.description ?? undefined,
+                    stances: (stancesResponse.stances ?? []).map(s => ({
+                        ...s,
+                        comments: (commentsResponse.comments ?? []).map(c => ({
+                            ...c,
+                            parent_id: c.parent_id === null ? undefined : c.parent_id,
+                        })),
+                    })),
+                };
+            setEvent(eventData);
+            }
+        } catch (err: any) {
+            setError(err.message || "Unexpected error");
+        } finally {
+            setLoading(false);
         }
-        const data: EventReadResponse = await res.json();
-        const stancesRes = await fetch(`http://localhost:8000/stances/event/${data.id}`);
-        if (!stancesRes.ok) {
-          throw new Error("Failed to fetch stances");
-        }
-        const stancesData: StanceListResponse = await stancesRes.json();
-        const eventData: Event = {
-            id: data.id,
-            title: data.title,
-            description: data.description ?? undefined,
-            stances: stancesData.stances ?? [],
         };
-        setEvent(eventData);
-      } catch (err: any) {
-        setError(err.message || "Unexpected error");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEvent();
-  }, [event_id]);
+        fetchEvent();
+    }, [event_id]);
 
 
     return (
     <div className="max-w-3xl mx-auto py-10 px-4">
+      <button
+        className="mb-6 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+        onClick={() => router.push("/")}
+      >
+        ← Back
+      </button>
         {loading && <div className="text-gray-500 italic">Loading issue...</div>}
         {error && (
         <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-6">
@@ -77,26 +85,7 @@ export default function EventPage({ params }: EventPageProps) {
             </div>
 
             {/* Stances */}
-            {event.stances.length > 0 && (
-            <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-3">
-                Stances
-                </h2>
-                <ul className="space-y-3">
-                {event.stances.map((stance) => (
-                    <li
-                    key={stance.id}
-                    className="flex items-start bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-sm"
-                    >
-                    <span className="mr-3 font-medium text-blue-600">
-                        {stance.user_id}:
-                    </span>
-                    <span className="text-gray-700">{stance.stance}</span>
-                    </li>
-                ))}
-                </ul>
-            </div>
-            )}
+            <StancesSection stances={event.stances} />
         </>
         )}
     </div>

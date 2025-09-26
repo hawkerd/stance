@@ -32,3 +32,6 @@ class CommentUpdateResponse(BaseModel):
 
 class CommentDeleteResponse(BaseModel):
     success: bool
+
+class CommentListResponse(BaseModel):
+    comments: list[CommentReadResponse]

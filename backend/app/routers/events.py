@@ -55,7 +55,7 @@ def update_event_endpoint(event_id: int, request: EventUpdateRequest, db: Sessio
         description=event.description,
     )
 
-@router.delete("/events/{event_id}")
+@router.delete("/events/{event_id}", response_model=EventDeleteResponse)
 def delete_event_endpoint(event_id: int, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)):
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")

@@ -1,57 +1,68 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
+import StancesSection from "@/components/StancesSection";
+import { useRouter } from "next/navigation";
 import { Issue } from "@/models/Issue";
-import { components } from "@/models/api";
+import { useApi } from "@/app/hooks/useApi";
+import { stancesApi, issuesApi, commentsApi } from "@/api";
 
 interface IssuePageProps {
   params: Promise<{ issue_id: string }>;
 }
 
-type StanceListResponse = components["schemas"]["StanceListResponse"];
-type IssueReadResponse = components["schemas"]["IssueReadResponse"];
-
 export default function IssuePage({ params }: IssuePageProps) {
-  const { issue_id } = use(params);
-  const [issue, setIssue] = useState<Issue | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+    const { issue_id } = use(params);
+    const router = useRouter();
+    const [issue, setIssue] = useState<Issue | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const API = useApi();
 
-  useEffect(() => {
-    const fetchIssue = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch(`http://localhost:8000/issues/${issue_id}`);
-        if (!res.ok) {
-          const errBody = await res.json();
-          throw new Error(errBody.detail || "Failed to load issue.");
-        }
-        const data: IssueReadResponse = await res.json();
-        const stancesRes = await fetch(`http://localhost:8000/stances/issue/${data.id}`);
-        if (!stancesRes.ok) {
-          throw new Error("Failed to fetch stances");
-        }
-        const stancesData: StanceListResponse = await stancesRes.json();
-        const issueData: Issue = {
-          id: data.id,
-          title: data.title,
-          description: data.description ?? undefined,
-          stances: stancesData.stances ?? [],
+    useEffect(() => {
+        const fetchIssue = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const issueResponse = await issuesApi.getIssue(API, parseInt(issue_id));
+                const stancesResponse = await stancesApi.getStancesByIssue(API, parseInt(issue_id));
+                const stancesWithComments = await Promise.all(
+                    (stancesResponse.stances ?? []).map(async (s) => {
+                        const commentsResponse = await commentsApi.getCommentsByStance(API, s.id);
+                        return {
+                            ...s,
+                            comments: (commentsResponse.comments ?? []).map(c => ({
+                                ...c,
+                                parent_id: c.parent_id === null ? undefined : c.parent_id,
+                            })),
+                        };
+                    })
+                );
+                const issueData: Issue = {
+                    id: issueResponse.id,
+                    title: issueResponse.title,
+                    description: issueResponse.description ?? undefined,
+                    stances: stancesWithComments,
+                };
+                setIssue(issueData);
+            } catch (err: any) {
+                setError(err.message || "Unexpected error");
+            } finally {
+                setLoading(false);
+            }
         };
-        setIssue(issueData);
-      } catch (err: any) {
-        setError(err.message || "Unexpected error");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchIssue();
-  }, [issue_id]);
+        fetchIssue();
+    }, [issue_id]);
 
 
     return (
     <div className="max-w-3xl mx-auto py-10 px-4">
+      <button
+        className="mb-6 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
+        onClick={() => router.push("/")}
+      >
+        ← Back
+      </button>
         {loading && <div className="text-gray-500 italic">Loading issue...</div>}
         {error && (
         <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-6">
@@ -77,26 +88,7 @@ export default function IssuePage({ params }: IssuePageProps) {
             </div>
 
             {/* Stances */}
-            {issue.stances.length > 0 && (
-            <div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-3">
-                Stances
-                </h2>
-                <ul className="space-y-3">
-                {issue.stances.map((stance) => (
-                    <li
-                    key={stance.id}
-                    className="flex items-start bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow-sm"
-                    >
-                    <span className="mr-3 font-medium text-blue-600">
-                        {stance.user_id}:
-                    </span>
-                    <span className="text-gray-700">{stance.stance}</span>
-                    </li>
-                ))}
-                </ul>
-            </div>
-            )}
+            <StancesSection stances={issue.stances} />
         </>
         )}
     </div>

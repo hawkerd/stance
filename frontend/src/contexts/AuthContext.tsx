@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useState, useEffect, ReactNode, useContext } from "react";
-import { components } from "../models/api";
+import { components } from "@/api/models/models";
 
 type TokenResponse = components["schemas"]["TokenResponse"];
 type SignupResponse = components["schemas"]["SignupResponse"];
@@ -27,6 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
   const setTokens = (access: string | null, refresh: string | null) => {
     setAccessToken(access);
@@ -46,7 +47,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     const payload: LoginRequest = { username, password };
-    const res = await fetch("http://localhost:8000/auth/login", {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -65,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fullName?: string
   ) => {
     const payload: SignupRequest = { username, email, password, full_name: fullName };
-    const res = await fetch("http://localhost:8000/auth/signup", {
+    const res = await fetch(`${API_BASE}/auth/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -88,7 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const payload: RefreshRequest = { refresh_token: refreshToken };
-      const res = await fetch("http://localhost:8000/auth/refresh", {
+      const res = await fetch(`${API_BASE}/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

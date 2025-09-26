@@ -50,7 +50,7 @@ def update_issue_endpoint(issue_id: int, request: IssueUpdateRequest, db: Sessio
         updated_at=issue.updated_at.isoformat()
     )
 
-@router.delete("/issues/{issue_id}")
+@router.delete("/issues/{issue_id}", response_model=IssueDeleteResponse)
 def delete_issue_endpoint(issue_id: int, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)):
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")

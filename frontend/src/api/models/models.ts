@@ -177,6 +177,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stances/{stance_id}/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Comments By Stance Endpoint */
+        get: operations["get_comments_by_stance_endpoint_stances__stance_id__comments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/demographics": {
         parameters: {
             query?: never;
@@ -355,6 +372,16 @@ export interface components {
             /** Parent Id */
             parent_id?: number | null;
         };
+        /** CommentDeleteResponse */
+        CommentDeleteResponse: {
+            /** Success */
+            success: boolean;
+        };
+        /** CommentListResponse */
+        CommentListResponse: {
+            /** Comments */
+            comments: components["schemas"]["CommentReadResponse"][];
+        };
         /** CommentReadResponse */
         CommentReadResponse: {
             /** Id */
@@ -451,6 +478,11 @@ export interface components {
             /** End Time */
             end_time?: string | null;
         };
+        /** EventDeleteResponse */
+        EventDeleteResponse: {
+            /** Success */
+            success: boolean;
+        };
         /** EventListResponse */
         EventListResponse: {
             /** Events */
@@ -504,6 +536,11 @@ export interface components {
             title: string;
             /** Description */
             description: string | null;
+        };
+        /** IssueDeleteResponse */
+        IssueDeleteResponse: {
+            /** Success */
+            success: boolean;
         };
         /** IssueListResponse */
         IssueListResponse: {
@@ -1136,6 +1173,37 @@ export interface operations {
             };
         };
     };
+    get_comments_by_stance_endpoint_stances__stance_id__comments_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_demographic_endpoint_users__user_id__demographics_get: {
         parameters: {
             query?: never;
@@ -1454,7 +1522,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["CommentDeleteResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1604,7 +1672,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["EventDeleteResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1754,7 +1822,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["IssueDeleteResponse"];
                 };
             };
             /** @description Validation Error */

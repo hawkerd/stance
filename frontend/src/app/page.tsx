@@ -2,18 +2,21 @@
 
 "use client";
 import { useEffect, useState } from "react";
-import { useApi } from "@/app/hooks/useApi";
+import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { useAuth } from "@/contexts/AuthContext";
 import IssueCard from "../components/IssueCard";
-import { components } from "@/models/api";
+import { components } from "@/api/models/models";
 import EventCard from "../components/EventCard";
 import { Event, Issue } from "../models/Issue";
+import { eventsApi, issuesApi, stancesApi } from "@/api";
+import { useApi } from "./hooks/useApi";
 
 type EventListResponse = components["schemas"]["EventListResponse"];
 type IssueListResponse = components["schemas"]["IssueListResponse"];
 type StanceListResponse = components["schemas"]["StanceListResponse"];
 
 export default function Home() {
+  const authApi = useAuthApi();
   const api = useApi();
   const { initialized } = useAuth();
 
@@ -27,41 +30,34 @@ export default function Home() {
 
     const fetchEvents = async () => {
       try {
-        const eventsRes = await fetch("http://localhost:8000/events");
-        const issuesRes = await fetch("http://localhost:8000/issues");
-        if (!eventsRes.ok || !issuesRes.ok) {
-          throw new Error("Failed to fetch events/issues");
-        }
-        const eventsData: EventListResponse = await eventsRes.json();
-        const issuesData: IssueListResponse = await issuesRes.json();
+        const eventsResponse = await eventsApi.listEvents(api);
+        const issuesResponse = await issuesApi.listIssues(api);
 
-        const events: Event[] = [];
-        const issues: Issue[] = [];
+        const eventsList: Event[] = [];
+        const issuesList: Issue[] = [];
 
-        for (const eventData of eventsData.events) {
+        for (const eventData of eventsResponse.events) {
           const event: Event = { ...eventData, description: eventData.description ?? "", stances: [], start_time: eventData.start_time ?? "", end_time: eventData.end_time ?? "" };
-          const stancesRes = await fetch(`http://localhost:8000/stances/event/${event.id}`);
-          if (!stancesRes.ok) {
-            throw new Error("Failed to fetch stances");
-          }
-          const stancesData: StanceListResponse = await stancesRes.json();
-          event.stances = stancesData.stances;
-          events.push(event);
+          const stancesResponse = await stancesApi.getStancesByEvent(api, event.id);
+          event.stances = stancesResponse.stances.map((stance: any) => ({
+            ...stance,
+            comments: [],
+          }));
+          eventsList.push(event);
         }
 
-        for (const issueData of issuesData.issues) {
+        for (const issueData of issuesResponse.issues) {
           const issue: Issue = { ...issueData, description: issueData.description ?? "", stances: [] };
-          const stancesRes = await fetch(`http://localhost:8000/stances/issue/${issue.id}`);
-          if (!stancesRes.ok) {
-            throw new Error("Failed to fetch stances");
-          }
-          const stancesData: StanceListResponse = await stancesRes.json();
-          issue.stances = stancesData.stances;
-          issues.push(issue);
+          const stancesResponse = await stancesApi.getStancesByIssue(api, issue.id);
+          issue.stances = stancesResponse.stances.map((stance: any) => ({
+            ...stance,
+            comments: [],
+          }));
+          issuesList.push(issue);
         }
 
-        setEvents(events);
-        setIssues(issues);
+        setEvents(eventsList);
+        setIssues(issuesList);
       } catch (err: any) {
         setError(err.message || "Failed to fetch events/issues");
       } finally {
@@ -81,14 +77,13 @@ export default function Home() {
       <h1 className="text-2xl font-bold mb-6">Stance Feed</h1>
       <div className="w-full max-w-xl space-y-6">
         {loading && <p>Loading events...</p>}
-        {error && <p className="text-red-500">{error}</p>}
+        <p className="text-red-500">{error}</p>
         {events.map(event => (
-          <EventCard key={event.id} event={event} />
+          <EventCard key={`event-${event.id}`} event={event} />
         ))}
         {issues.map(issue => (
-          <IssueCard key={issue.id} issue={issue} />
-        ))}
-      </div>
+          <IssueCard key={`issue-${issue.id}`} issue={issue} />
+        ))}  </div>
     </main>
   );
 }
