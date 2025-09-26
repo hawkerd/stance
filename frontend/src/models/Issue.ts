@@ -7,15 +7,15 @@ export interface Stance {
 export interface Issue {
     id: number;
     title: string;
-    description: string;
+    description?: string;
     stances: Stance[];
 }
 
 export interface Event {
     id: number;
     title: string;
-    description: string;
-    start_time: string;
+    description?: string;
+    start_time?: string;
     end_time?: string;
     location?: string;
     stances: Stance[];
