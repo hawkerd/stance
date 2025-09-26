@@ -7,7 +7,8 @@ type TokenResponse = components["schemas"]["TokenResponse"];
 type SignupResponse = components["schemas"]["SignupResponse"];
 type LoginRequest = components["schemas"]["LoginRequest"];
 type SignupRequest = components["schemas"]["SignupRequest"];
-
+type RefreshRequest = components["schemas"]["RefreshRequest"];
+type RefreshResponse = components["schemas"]["RefreshResponse"];
 
 interface AuthContextType {
   accessToken: string | null;
@@ -86,10 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!refreshToken) return null;
 
     try {
+      const payload: RefreshRequest = { refresh_token: refreshToken };
       const res = await fetch("http://localhost:8000/auth/refresh", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ refresh_token: refreshToken }),
+        body: JSON.stringify(payload),
       });
 
       if (!res.ok) {
@@ -97,8 +99,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return null;
       }
 
-      const data: { access_token: string; refresh_token?: string } = await res.json();
-      setTokens(data.access_token, data.refresh_token || refreshToken);
+      const data: RefreshResponse = await res.json();
+      setTokens(data.access_token, data.refresh_token);
       return data.access_token;
     } catch {
       logout();

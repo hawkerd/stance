@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_is_admin
 from app.service.auth import hash_password, verify_password, create_access_token, generate_refresh_token, refresh_token_expires_at, hash_refresh_token
-from app.database.user import get_user_by_username, create_user, get_user_by_email
+from app.database.user import get_user_by_username, create_user, get_user_by_email, is_user_admin
 from app.database.refresh_token import create_refresh_token, get_refresh_token_by_hash, update_refresh_token
 from app.routers.models.auth import (
     SignupRequest, SignupResponse,
@@ -46,12 +46,15 @@ def login(data: LoginRequest, db: Session = Depends(get_db)):
 
 
 @router.post("/auth/refresh", response_model=RefreshResponse)
-def refresh_token(data: RefreshRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)):
+def refresh_token(data: RefreshRequest, db: Session = Depends(get_db)):
     # verify the refresh token
     db_token = get_refresh_token_by_hash(db, hash_refresh_token(data.refresh_token))
     if not db_token or db_token.revoked:
         raise HTTPException(status_code=401, detail="Invalid or revoked refresh token")
     
+    # check whether user is admin
+    is_admin = is_user_admin(db, db_token.user_id)
+
     # create tokens
     access_token = create_access_token(db_token.user_id, is_admin)
     refresh_token = generate_refresh_token()

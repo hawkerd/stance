@@ -33,3 +33,6 @@ class StanceUpdateResponse(BaseModel):
 
 class StanceDeleteResponse(BaseModel):
     success: bool
+
+class StanceListResponse(BaseModel):
+    stances: list[StanceReadResponse]

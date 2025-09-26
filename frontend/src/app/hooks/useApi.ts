@@ -1,9 +1,14 @@
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect } from "react";
 
 export const useApi = (): AxiosInstance => {
   const { accessToken, refreshAccessToken, logout } = useAuth();
+  const tokenRef = useRef(accessToken);
+
+  useEffect(() => {
+    tokenRef.current = accessToken;
+  }, [accessToken]);
 
   return useMemo(() => {
     const instance = axios.create({
@@ -12,8 +17,8 @@ export const useApi = (): AxiosInstance => {
     });
 
     instance.interceptors.request.use((config) => {
-      if (accessToken) {
-        config.headers!["Authorization"] = `Bearer ${accessToken}`;
+      if (tokenRef.current) {
+        config.headers!["Authorization"] = `Bearer ${tokenRef.current}`;
       }
       return config;
     });
@@ -25,9 +30,14 @@ export const useApi = (): AxiosInstance => {
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
           const newToken = await refreshAccessToken();
+          console.log("Refreshed token:", newToken);
           if (newToken) {
-            originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-            return instance(originalRequest);
+            tokenRef.current = newToken;
+            originalRequest.headers = {
+              ...originalRequest.headers,
+              Authorization: `Bearer ${newToken}`,
+            };
+            return instance.request(originalRequest);
           } else {
             logout();
           }
@@ -37,5 +47,5 @@ export const useApi = (): AxiosInstance => {
     );
 
     return instance;
-  }, [accessToken, refreshAccessToken, logout]);
+  }, [refreshAccessToken, logout]);
 };

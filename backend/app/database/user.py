@@ -68,3 +68,11 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
     except Exception as e:
         logging.error(f"Error getting user by email {email}: {e}")
         raise DatabaseError("Failed to get user by email")
+    
+def is_user_admin(db: Session, user_id: int) -> bool:
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        return user.is_admin if user else False
+    except Exception as e:
+        logging.error(f"Error checking if user {user_id} is admin: {e}")
+        raise DatabaseError("Failed to check if user is admin")

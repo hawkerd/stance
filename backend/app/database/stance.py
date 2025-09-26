@@ -70,3 +70,16 @@ def get_stances_by_user(db: Session, user_id: int) -> List[Stance]:
     except Exception as e:
         logging.error(f"Error getting stances for user {user_id}: {e}")
         raise DatabaseError("Failed to get stances by user")
+    
+def get_stances_by_event(db: Session, event_id: int) -> List[Stance]:
+    try:
+        return db.query(Stance).filter(Stance.event_id == event_id).all()
+    except Exception as e:
+        logging.error(f"Error getting stances for event {event_id}: {e}")
+        raise DatabaseError("Failed to get stances by event")
+def get_stances_by_issue(db: Session, issue_id: int) -> List[Stance]:
+    try:
+        return db.query(Stance).filter(Stance.issue_id == issue_id).all()
+    except Exception as e:
+        logging.error(f"Error getting stances for issue {issue_id}: {e}")
+        raise DatabaseError("Failed to get stances by issue")

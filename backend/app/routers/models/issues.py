@@ -21,3 +21,6 @@ class IssueUpdateResponse(BaseModel):
 
 class IssueDeleteResponse(BaseModel):
     success: bool
+
+class IssueListResponse(BaseModel):
+    issues: list[IssueReadResponse]

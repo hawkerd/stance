@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_is_admin
 from app.database.event import create_event, read_event, update_event, delete_event, get_all_events
-from app.routers.models.events import EventCreateRequest, EventReadResponse, EventUpdateRequest, EventUpdateResponse, EventDeleteResponse
+from app.routers.models.events import EventCreateRequest, EventReadResponse, EventUpdateRequest, EventUpdateResponse, EventDeleteResponse, EventListResponse
 import logging
 from datetime import datetime
 
@@ -64,15 +64,17 @@ def delete_event_endpoint(event_id: int, db: Session = Depends(get_db), is_admin
         raise HTTPException(status_code=400, detail="Failed to delete event")
     return EventDeleteResponse(success=True)
 
-@router.get("/events", response_model=list[EventReadResponse])
+@router.get("/events", response_model=EventListResponse)
 def get_all_events_endpoint(db: Session = Depends(get_db)):
     events = get_all_events(db)
-    return [
-        EventReadResponse(
-            id=event.id,
-            title=event.title,
-            description=event.description,
-            start_time=event.start_time.isoformat() if event.start_time else None,
-            end_time=event.end_time.isoformat() if event.end_time else None,
-        ) for event in events
-    ]
+    return EventListResponse(
+        events=[
+            EventReadResponse(
+                id=event.id,
+                title=event.title,
+                description=event.description,
+                start_time=event.start_time.isoformat() if event.start_time else None,
+                end_time=event.end_time.isoformat() if event.end_time else None,
+            ) for event in events
+        ]
+    )

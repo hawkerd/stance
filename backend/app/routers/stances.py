@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
-from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user
-from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse
+from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_stances_by_event, get_stances_by_issue
+from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse
 import logging
 
 router = APIRouter()
@@ -114,5 +114,47 @@ def delete_stance_endpoint(
             raise HTTPException(status_code=400, detail="Failed to delete stance")
 
         return StanceDeleteResponse(success=True)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
+@router.get("/stances/issue/{issue_id}", response_model=StanceListResponse)
+def get_stances_by_issue_endpoint(
+    issue_id: int,
+    db: Session = Depends(get_db)
+) -> StanceListResponse:
+    try:
+        stances = get_stances_by_issue(db, issue_id)
+        return StanceListResponse(
+            stances=[
+                StanceReadResponse(
+                    id=stance.id,
+                    user_id=stance.user_id,
+                    event_id=stance.event_id,
+                    issue_id=stance.issue_id,
+                    stance=stance.stance
+                ) for stance in stances
+            ]
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
+@router.get("/stances/event/{event_id}", response_model=StanceListResponse)
+def get_stances_by_event_endpoint(
+    event_id: int,
+    db: Session = Depends(get_db)
+) -> StanceListResponse:
+    try:
+        stances = get_stances_by_event(db, event_id)
+        return StanceListResponse(
+            stances=[
+                StanceReadResponse(
+                    id=stance.id,
+                    user_id=stance.user_id,
+                    event_id=stance.event_id,
+                    issue_id=stance.issue_id,
+                    stance=stance.stance
+                ) for stance in stances
+            ]
+        )
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")

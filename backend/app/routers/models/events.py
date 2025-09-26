@@ -29,3 +29,6 @@ class EventUpdateResponse(BaseModel):
 
 class EventDeleteResponse(BaseModel):
     success: bool
+
+class EventListResponse(BaseModel):
+    events: list[EventReadResponse]

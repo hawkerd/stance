@@ -143,6 +143,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stances/issue/{issue_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stances By Issue Endpoint */
+        get: operations["get_stances_by_issue_endpoint_stances_issue__issue_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stances/event/{event_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stances By Event Endpoint */
+        get: operations["get_stances_by_event_endpoint_stances_event__event_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/demographics": {
         parameters: {
             query?: never;
@@ -417,6 +451,11 @@ export interface components {
             /** End Time */
             end_time?: string | null;
         };
+        /** EventListResponse */
+        EventListResponse: {
+            /** Events */
+            events: components["schemas"]["EventReadResponse"][];
+        };
         /** EventReadResponse */
         EventReadResponse: {
             /** Id */
@@ -465,6 +504,11 @@ export interface components {
             title: string;
             /** Description */
             description: string | null;
+        };
+        /** IssueListResponse */
+        IssueListResponse: {
+            /** Issues */
+            issues: components["schemas"]["IssueReadResponse"][];
         };
         /** IssueReadResponse */
         IssueReadResponse: {
@@ -606,6 +650,11 @@ export interface components {
         StanceDeleteResponse: {
             /** Success */
             success: boolean;
+        };
+        /** StanceListResponse */
+        StanceListResponse: {
+            /** Stances */
+            stances: components["schemas"]["StanceReadResponse"][];
         };
         /** StanceReadResponse */
         StanceReadResponse: {
@@ -1025,6 +1074,68 @@ export interface operations {
             };
         };
     };
+    get_stances_by_issue_endpoint_stances_issue__issue_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                issue_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stances_by_event_endpoint_stances_event__event_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                event_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_demographic_endpoint_users__user_id__demographics_get: {
         parameters: {
             query?: never;
@@ -1372,7 +1483,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventReadResponse"][];
+                    "application/json": components["schemas"]["EventListResponse"];
                 };
             };
         };
@@ -1522,7 +1633,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["IssueReadResponse"][];
+                    "application/json": components["schemas"]["IssueListResponse"];
                 };
             };
         };

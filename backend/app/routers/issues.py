@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_is_admin
 from app.database.issue import create_issue, read_issue, update_issue, delete_issue, get_all_issues
-from app.routers.models.issues import IssueCreateRequest, IssueReadResponse, IssueUpdateRequest, IssueUpdateResponse, IssueDeleteResponse
+from app.routers.models.issues import IssueCreateRequest, IssueReadResponse, IssueUpdateRequest, IssueUpdateResponse, IssueDeleteResponse, IssueListResponse
 import logging
 
 router = APIRouter()
@@ -59,15 +59,17 @@ def delete_issue_endpoint(issue_id: int, db: Session = Depends(get_db), is_admin
         raise HTTPException(status_code=400, detail="Failed to delete issue")
     return IssueDeleteResponse(success=True)
 
-@router.get("/issues", response_model=list[IssueReadResponse])
+@router.get("/issues", response_model=IssueListResponse)
 def get_all_issues_endpoint(db: Session = Depends(get_db)):
     issues = get_all_issues(db)
-    return [
-        IssueReadResponse(
-            id=issue.id,
-            title=issue.title,
-            description=issue.description,
-            created_at=issue.created_at.isoformat(),
-            updated_at=issue.updated_at.isoformat()
-        ) for issue in issues
-    ]
+    return IssueListResponse(
+        issues=[
+            IssueReadResponse(
+                id=issue.id,
+                title=issue.title,
+                description=issue.description,
+                created_at=issue.created_at.isoformat(),
+                updated_at=issue.updated_at.isoformat()
+            ) for issue in issues
+        ]
+    )
