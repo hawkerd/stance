@@ -11,10 +11,6 @@ import { Event, Issue } from "../models/Issue";
 import { eventsApi, issuesApi, stancesApi } from "@/api";
 import { useApi } from "./hooks/useApi";
 
-type EventListResponse = components["schemas"]["EventListResponse"];
-type IssueListResponse = components["schemas"]["IssueListResponse"];
-type StanceListResponse = components["schemas"]["StanceListResponse"];
-
 export default function Home() {
   const authApi = useAuthApi();
   const api = useApi();
@@ -74,18 +70,19 @@ export default function Home() {
   }
   return (
     <main className="flex min-h-screen flex-col items-center justify-start p-8 bg-gradient-to-br from-purple-50 via-white to-pink-50">
-      <h1 className="text-3xl font-extrabold text-purple-700 mb-8 drop-shadow-sm tracking-tight">Stance Feed</h1>
-      <div className="w-full max-w-2xl space-y-8">
+  <div className="w-full max-w-4xl space-y-8">
         {loading && <div className="text-purple-500 text-center">Loading events...</div>}
         {error && <div className="text-red-500 text-center font-medium">{error}</div>}
-        {events.map(event => (
-          <div key={`event-${event.id}`} className="rounded-2xl bg-white/80 shadow-lg border border-purple-100 p-4">
+        {events.map((event, idx) => (
+          <div key={`event-frag-${event.id}`}>
             <EventCard event={event} />
+            <div key={`event-divider-${event.id}`} className="border-t border-gray-200 w-[90%] mx-auto" />
           </div>
         ))}
-        {issues.map(issue => (
-          <div key={`issue-${issue.id}`} className="rounded-2xl bg-white/80 shadow-lg border border-purple-100 p-4">
+        {issues.map((issue, idx) => (
+          <div key={`issue-frag-${issue.id}`}>
             <IssueCard issue={issue} />
+            <div key={`issue-divider-${issue.id}`} className="border-t border-gray-200 w-[90%] mx-auto" />
           </div>
         ))}
       </div>

@@ -17,6 +17,7 @@ export interface Issue {
     id: number;
     title: string;
     description?: string;
+    location?: string;
     stances: Stance[];
 }
 

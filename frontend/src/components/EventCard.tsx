@@ -7,39 +7,61 @@ export default function EventCard({ event }: { event: Event }) {
   const router = useRouter();
 
   return (
-    <div className="border border-blue-200 shadow-sm rounded-xl p-5 mb-5 bg-gradient-to-br from-blue-50 to-white">
-      <div className="flex items-center mb-2">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 mr-3">
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 1.343-3 3s1.343 3 3 3 3-1.343 3-3-1.343-3-3-3zm0 0V4m0 10v4m8-8h-4m-4 0H4" /></svg>
-        </span>
-        <h2 className="text-xl font-semibold text-blue-800 flex-1">{event.title}</h2>
-        <button
-          className="ml-2 p-1 rounded hover:bg-blue-100 transition"
-          title="View details"
-          onClick={() => router.push(`/events/${event.id}`)}
-        >
-          <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12H9m0 0l3-3m-3 3l3 3" />
-          </svg>
-        </button>
-      </div>
-      <p className="mb-3 text-gray-700 leading-relaxed">{event.description}</p>
-
-      <div className="text-sm text-gray-500 mt-2 flex flex-wrap gap-x-4 gap-y-1">
-        <span>Start: <span className="font-medium text-blue-700">{event.start_time}</span></span>
-        {event.end_time && <span>End: <span className="font-medium text-blue-700">{event.end_time}</span></span>}
-        {event.location && <span>Location: <span className="font-medium text-blue-700">{event.location}</span></span>}
-      </div>
-
-      {stances.length > 0 && (
-        <div className="mt-3">
-          <div className="space-y-1">
-            {stances.map((stance) => (
-              <StanceCard key={stance.id} stance={stance} />
-            ))}
+    <>
+      {/* Placeholder for future image(s) */}
+      <div className="w-[90%] flex flex-row mx-auto">
+        <div className="w-1/2 min-w-0">
+          <div className="aspect-[2/1] bg-gray-200 rounded mb-2 flex items-center justify-center text-gray-400 text-sm select-none">
+            Image(s) coming soon
+          </div>
+          <div>
+            <div
+              className="flex items-center mb-2 cursor-pointer hover:bg-gray-100 rounded transition"
+              onClick={() => router.push(`/events/${event.id}`)}
+              title="View details"
+            >
+              <h2 className="text-xl font-semibold text-black flex-1">{event.title}</h2>
+            </div>
+            {/* Calendar and date/range under the title */}
+            <div className="flex items-center mb-2 ml-1">
+              <svg className="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <rect x="3" y="7" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.5" fill="#fff" />
+                <path d="M16 3v4M8 3v4M3 11h18" stroke="currentColor" strokeWidth="1.5" />
+              </svg>
+              <span className="text-sm text-gray-700">
+                {event.start_time}
+                {event.end_time && (
+                  <>
+                    <span className="mx-1">–</span>
+                    {event.end_time}
+                  </>
+                )}
+              </span>
+            </div>
+            <p className="mb-3 text-gray-700 leading-relaxed">{event.description}</p>
+            <div className="text-sm text-gray-500 mt-2 flex flex-wrap gap-x-4 gap-y-1">
+              {event.location && (
+                <span className="flex items-center">
+                  <svg className="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 21c-4.418 0-8-5.373-8-10a8 8 0 1116 0c0 4.627-3.582 10-8 10z" />
+                    <circle cx="12" cy="11" r="3" />
+                  </svg>
+                  <span className="font-medium text-black">{event.location}</span>
+                </span>
+              )}
+            </div>
           </div>
         </div>
-      )}
-    </div>
+        {stances.length > 0 && (
+          <div className="flex flex-col justify-start items-stretch w-1/2 ml-8">
+            <div className="space-y-1">
+              {stances.map((stance) => (
+                <StanceCard key={stance.id} stance={stance} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

@@ -1,51 +1,81 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import SidebarItem from "./SidebarItem";
+import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 
 const TopBar: React.FC = () => {
   const { isAuthenticated, logout } = useAuth();
 
   return (
-    <header
-      className="w-full bg-gradient-to-r from-purple-600 via-purple-500 to-pink-400 text-white shadow-md py-3 px-6 flex items-center justify-between border-b border-purple-200/40 rounded-b-2xl"
-      style={{ minHeight: 64 }}
+    <aside
+      className="h-screen w-56 bg-white text-purple-700 shadow-md flex flex-col items-stretch border-r border-purple-200/40 py-8 px-4 sticky top-0"
+      style={{ minWidth: 200 }}
     >
-      <div className="flex items-center gap-4">
-        <Link
-          href="/"
-          className="font-extrabold text-xl tracking-tight text-white hover:text-purple-100 transition-colors"
-        >
+  <div className="mb-6 text-2xl tracking-tight text-purple-700 select-none pl-4" style={{ fontWeight: 'normal' }}>Stance</div>
+      <div className="flex flex-col gap-2">
+        <SidebarItem href="/" icon={
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125h3.75c.621 0 1.125-.504 1.125-1.125V15.75c0-.621.504-1.125 1.125-1.125h1.5c.621 0 1.125.504 1.125 1.125v4.125c0 .621.504 1.125 1.125 1.125h3.75c.621 0 1.125-.504 1.125-1.125V9.75" />
+          </svg>
+        }>
           Home
-        </Link>
-      </div>
-      <div className="flex items-center gap-3">
+        </SidebarItem>
+        <SidebarItem href="/search" icon={
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z" />
+          </svg>
+        }>
+          Search
+        </SidebarItem>
         {isAuthenticated ? (
-          <>
-            <Link
-              href="/profile"
-              className="px-4 py-1.5 rounded-full bg-white/10 border border-purple-200/40 text-white font-semibold shadow-sm hover:bg-purple-100 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-300 transition"
-            >
-              Profile
-            </Link>
-            <button
-              onClick={logout}
-              className="px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-700 to-pink-500 border border-purple-200/40 text-white font-semibold shadow-sm hover:bg-purple-200 hover:text-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 transition"
-            >
-              Log out
-            </button>
-          </>
+          <SidebarItem href="/profile" icon={
+            <span className="w-6 h-6 flex items-center justify-center overflow-hidden rounded-full bg-gray-200">
+              <Image src="/profile.png" alt="Profile" width={24} height={24} className="object-cover w-full h-full" />
+            </span>
+          }>
+            Profile
+          </SidebarItem>
         ) : (
-          <Link
-            href="/login"
-            className="px-4 py-1.5 rounded-full bg-white/10 border border-purple-200/40 text-white font-semibold shadow-sm hover:bg-purple-100 hover:text-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-300 transition"
-          >
+          <SidebarItem href="/login" icon={
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3A2.25 2.25 0 008.25 5.25V9m7.5 0v10.5A2.25 2.25 0 0113.5 21h-3A2.25 2.25 0 018.25 19.5V9m7.5 0H8.25m7.5 0a2.25 2.25 0 012.25 2.25v7.5A2.25 2.25 0 0115.75 21h-7.5A2.25 2.25 0 016 19.5v-7.5A2.25 2.25 0 018.25 9h7.5z" />
+            </svg>
+          }>
             Sign in
-          </Link>
+          </SidebarItem>
         )}
       </div>
-    </header>
+      <div className="flex-1" />
+      {/* Options item at the bottom */}
+      <div className="mb-2">
+        <SidebarItem
+          href="/options"
+          icon={
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5m-16.5 5.25h16.5m-16.5 5.25h16.5" />
+            </svg>
+          }
+          className="font-normal text-black"
+        >
+          Options
+        </SidebarItem>
+      </div>
+        {/*
+        {isAuthenticated && (
+          <button
+            onClick={logout}
+            className="mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-700 to-pink-500 text-white font-semibold shadow-sm hover:bg-purple-200 hover:text-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-300 transition flex items-center gap-3"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3A2.25 2.25 0 008.25 5.25V9m7.5 0v10.5A2.25 2.25 0 0113.5 21h-3A2.25 2.25 0 018.25 19.5V9m7.5 0H8.25m7.5 0a2.25 2.25 0 012.25 2.25v7.5A2.25 2.25 0 0115.75 21h-7.5A2.25 2.25 0 016 19.5v-7.5A2.25 2.25 0 018.25 9h7.5z" />
+            </svg>
+            Log out
+          </button>
+        )}
+        */}
+    </aside>
   );
 };
 
