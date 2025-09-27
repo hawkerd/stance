@@ -6,7 +6,7 @@ from app.routers.models.events import EventCreateRequest, EventReadResponse, Eve
 import logging
 from datetime import datetime
 
-router = APIRouter()
+router = APIRouter(tags=["events"])
 
 @router.post("/events", response_model=EventReadResponse)
 def create_event_endpoint(request: EventCreateRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)) -> EventReadResponse:

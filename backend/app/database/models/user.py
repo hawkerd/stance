@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from app.database.connect import Base
 
 class User(Base):
@@ -13,3 +14,10 @@ class User(Base):
     is_admin = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
+
+    demographic = relationship("Demographic", back_populates="user", uselist=False)
+    profile = relationship("Profile", back_populates="user", uselist=False)
+    refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
+    comment_reactions = relationship("CommentReaction", back_populates="user", cascade="all, delete-orphan")
+    stances = relationship("Stance", back_populates="user", cascade="all, delete-orphan")

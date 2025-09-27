@@ -7,6 +7,7 @@ export type StanceCreateResponse = components["schemas"]["StanceCreateResponse"]
 export type StanceUpdateResponse = components["schemas"]["StanceUpdateResponse"];
 export type StanceDeleteResponse = components["schemas"]["StanceDeleteResponse"];
 export type StanceListResponse = components["schemas"]["StanceListResponse"];
+export type CommentListResponse = components["schemas"]["CommentListResponse"];
 
 /**
  * Create a new stance
@@ -72,5 +73,16 @@ export async function getStancesByEvent(
   eventId: number
 ): Promise<StanceListResponse> {
   const res = await api.get<StanceListResponse>(`/stances/event/${eventId}`);
+  return res.data;
+}
+
+/**
+ * Fetch comments by stance ID
+ */
+export async function getCommentsByStance(
+  api: AxiosInstance,
+  stanceId: number
+): Promise<CommentListResponse> {
+  const res = await api.get<CommentListResponse>(`/stances/${stanceId}/comments`);
   return res.data;
 }

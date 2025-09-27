@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database.models.demographic import Demographic
+from app.database.models.user import User
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
@@ -63,7 +64,10 @@ def get_all_demographics(db: Session) -> List[Demographic]:
     
 def get_demographic_by_user_id(db: Session, user_id: int) -> Optional[Demographic]:
     try:
-        return db.query(Demographic).filter(Demographic.user_id == user_id).first()
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return None
+        return user.demographic
     except Exception as e:
         logging.error(f"Error getting demographic for user {user_id}: {e}")
         raise DatabaseError("Failed to get demographic by user ID")

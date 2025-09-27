@@ -53,14 +53,3 @@ export async function deleteComment(
   const res = await api.delete<CommentDeleteResponse>(`/comments/${commentId}`);
   return res.data;
 }
-
-/**
- * Fetch comments by stance ID
- */
-export async function getCommentsByStance(
-  api: AxiosInstance,
-  stanceId: number
-): Promise<CommentListResponse> {
-  const res = await api.get<CommentListResponse>(`/stances/${stanceId}/comments`);
-  return res.data;
-}

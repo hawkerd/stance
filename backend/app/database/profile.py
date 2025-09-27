@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database.models.profile import Profile
+from app.database.models.user import User
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
@@ -63,7 +64,10 @@ def get_all_profiles(db: Session) -> List[Profile]:
 
 def get_profile_by_user_id(db: Session, user_id: int) -> Optional[Profile]:
     try:
-        return db.query(Profile).filter(Profile.user_id == user_id).first()
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return None
+        return user.profile
     except Exception as e:
         logging.error(f"Error getting profile by user_id {user_id}: {e}")
         raise DatabaseError("Failed to get profile by user_id")

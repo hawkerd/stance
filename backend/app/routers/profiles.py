@@ -5,7 +5,7 @@ from app.database.profile import create_profile, get_profile_by_user_id, update_
 from app.routers.models.profiles import ProfileCreateRequest, ProfileReadResponse, ProfileUpdateRequest, ProfileUpdateResponse
 import logging
 
-router = APIRouter()
+router = APIRouter(tags=["users"])
 
 @router.post("/users/{user_id}/profile", response_model=ProfileReadResponse)
 def create_profile_endpoint(request: ProfileCreateRequest, user_id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)) -> ProfileReadResponse:

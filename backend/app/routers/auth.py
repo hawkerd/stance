@@ -12,7 +12,7 @@ from app.routers.models.auth import (
 )
 import logging
 
-router = APIRouter()
+router = APIRouter(tags=["auth"])
 
 
 @router.post("/auth/signup", response_model=SignupResponse)

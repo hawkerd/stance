@@ -342,18 +342,19 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/": {
+    "/comment-reactions/{comment_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Root */
-        get: operations["root__get"];
+        get?: never;
         put?: never;
-        post?: never;
-        delete?: never;
+        /** React To Comment */
+        post: operations["react_to_comment_comment_reactions__comment_id__post"];
+        /** Remove Comment Reaction */
+        delete: operations["remove_comment_reaction_comment_reactions__comment_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -382,6 +383,22 @@ export interface components {
             /** Comments */
             comments: components["schemas"]["CommentReadResponse"][];
         };
+        /** CommentReactionCreateRequest */
+        CommentReactionCreateRequest: {
+            /** Is Like */
+            is_like: boolean;
+        };
+        /** CommentReactionReadResponse */
+        CommentReactionReadResponse: {
+            /** Id */
+            id: number;
+            /** User Id */
+            user_id: number;
+            /** Comment Id */
+            comment_id: number;
+            /** Is Like */
+            is_like: boolean;
+        };
         /** CommentReadResponse */
         CommentReadResponse: {
             /** Id */
@@ -396,6 +413,12 @@ export interface components {
             parent_id?: number | null;
             /** Is Active */
             is_active: boolean;
+            /** Likes */
+            likes: number;
+            /** Dislikes */
+            dislikes: number;
+            /** User Reaction */
+            user_reaction: string | null;
             /** Created At */
             created_at: string;
             /** Updated At */
@@ -1836,14 +1859,20 @@ export interface operations {
             };
         };
     };
-    root__get: {
+    react_to_comment_comment_reactions__comment_id__post: {
         parameters: {
             query?: never;
             header?: never;
-            path?: never;
+            path: {
+                comment_id: number;
+            };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommentReactionCreateRequest"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {
@@ -1851,7 +1880,45 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": unknown;
+                    "application/json": components["schemas"]["CommentReactionReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_comment_reaction_comment_reactions__comment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                comment_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

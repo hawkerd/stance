@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, CheckConstraint
 from sqlalchemy.sql import func
+from sqlalchemy.orm import relationship
 from app.database.connect import Base
 
 class Stance(Base):
@@ -19,3 +20,8 @@ class Stance(Base):
             name="event_or_issue_only"
         ),
     )
+
+    event = relationship("Event", back_populates="stances")
+    issue = relationship("Issue", back_populates="stances")
+    user = relationship("User", back_populates="stances")
+    comments = relationship("Comment", back_populates="stance", cascade="all, delete-orphan")

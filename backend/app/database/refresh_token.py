@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database.models.refresh_token import RefreshToken
+from app.database.models.user import User
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
@@ -36,7 +37,10 @@ def get_refresh_token_by_hash(db: Session, hashed_token: str) -> Optional[Refres
 
 def get_user_refresh_tokens(db: Session, user_id: int) -> List[RefreshToken]:
     try:
-        return db.query(RefreshToken).filter(RefreshToken.user_id == user_id).all()
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return []
+        return user.refresh_tokens
     except Exception as e:
         logging.error(f"Error getting refresh tokens for user {user_id}: {e}")
         raise DatabaseError("Failed to get user refresh tokens")

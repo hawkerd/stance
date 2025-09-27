@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.dependencies import get_db, get_current_user
+from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.database.comment import create_comment, read_comment, update_comment, delete_comment, get_all_comments
 from app.routers.models.comments import CommentCreateRequest, CommentReadResponse, CommentUpdateRequest, CommentUpdateResponse, CommentDeleteResponse
 import logging
+from typing import Optional
 
-router = APIRouter()
+router = APIRouter(tags=["comments"])
 
 @router.post("/comments", response_model=CommentReadResponse)
 def create_comment_endpoint(request: CommentCreateRequest, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> CommentReadResponse:
@@ -20,6 +21,9 @@ def create_comment_endpoint(request: CommentCreateRequest, db: Session = Depends
             content=comment.content,
             parent_id=comment.parent_id,
             is_active=comment.is_active,
+            likes=0,
+            dislikes=0,
+            user_reaction=None,
             created_at=str(comment.created_at),
             updated_at=str(comment.updated_at) if comment.updated_at else None
         )
@@ -28,11 +32,23 @@ def create_comment_endpoint(request: CommentCreateRequest, db: Session = Depends
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/comments/{comment_id}", response_model=CommentReadResponse)
-def get_comment_endpoint(comment_id: int, db: Session = Depends(get_db)) -> CommentReadResponse:
+def get_comment_endpoint(comment_id: int, db: Session = Depends(get_db), current_user_id: Optional[int] = Depends(get_current_user_optional)) -> CommentReadResponse:
     try:
         comment = read_comment(db, comment_id=comment_id)
         if not comment:
             raise HTTPException(status_code=404, detail="Comment not found")
+        
+        # calculate likes and dislikes
+        likes = sum(1 for r in comment.reactions if r.is_like)
+        dislikes = sum(1 for r in comment.reactions if not r.is_like)
+
+        # user reaction
+        if current_user_id is None:
+            user_reaction = None
+        else:
+            user_reaction_obj = next((r for r in comment.reactions if r.user_id == current_user_id), None)
+            user_reaction = None if not user_reaction_obj else "like" if user_reaction_obj.is_like else "dislike"
+
         return CommentReadResponse(
             id=comment.id,
             user_id=comment.user_id,
@@ -40,6 +56,9 @@ def get_comment_endpoint(comment_id: int, db: Session = Depends(get_db)) -> Comm
             content=comment.content,
             parent_id=comment.parent_id,
             is_active=comment.is_active,
+            likes=likes,
+            dislikes=dislikes,
+            user_reaction=user_reaction,
             created_at=str(comment.created_at),
             updated_at=str(comment.updated_at) if comment.updated_at else None
         )

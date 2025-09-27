@@ -5,7 +5,7 @@ from app.database.user import read_user, delete_user
 from app.routers.models.users import UserReadResponse, UserDeleteResponse
 import logging
 
-router = APIRouter()
+router = APIRouter(tags=["users"])
 
 @router.get("/users/me", response_model=UserReadResponse)
 def get_current_user_endpoint(db: Session = Depends(get_db), current_user: int = Depends(get_current_user)) -> UserReadResponse:

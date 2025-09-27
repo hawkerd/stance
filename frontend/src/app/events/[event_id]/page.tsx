@@ -4,15 +4,15 @@ import React, { useEffect, useState, use } from "react";
 import StancesSection from "@/components/StancesSection";
 import { useRouter } from "next/navigation";
 import { Event } from "@/models/Issue";
-import { useApi } from "@/app/hooks/useApi";
-import { eventsApi, stancesApi, commentsApi } from "@/api";
+import { useAuthApi } from "@/app/hooks/useAuthApi";
+import { eventsApi, stancesApi } from "@/api";
 
 interface EventPageProps {
   params: Promise<{ event_id: string }>;
 }
 
 export default function EventPage({ params }: EventPageProps) {
-    const API = useApi();
+    const API = useAuthApi();
     const { event_id } = use(params);
     const router = useRouter();
     const [event, setEvent] = useState<Event | null>(null);
@@ -26,22 +26,30 @@ export default function EventPage({ params }: EventPageProps) {
         try {
             const eventResponse = await eventsApi.getEvent(API, parseInt(event_id));
             const stancesResponse = await stancesApi.getStancesByEvent(API, parseInt(event_id));
-            for (const stance of stancesResponse.stances || []) {
-                const commentsResponse = await commentsApi.getCommentsByStance(API, stance.id);
-                const eventData: Event = {
-                    id: eventResponse.id,
-                    title: eventResponse.title,
-                    description: eventResponse.description ?? undefined,
-                    stances: (stancesResponse.stances ?? []).map(s => ({
+            const stancesWithComments = await Promise.all(
+                (stancesResponse.stances ?? []).map(async (s) => {
+                    const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
+                    return {
                         ...s,
                         comments: (commentsResponse.comments ?? []).map(c => ({
                             ...c,
                             parent_id: c.parent_id === null ? undefined : c.parent_id,
+                            user_reaction: c.user_reaction === "like" || c.user_reaction === "dislike"
+                                ? (c.user_reaction as "like" | "dislike")
+                                : null,
                         })),
-                    })),
-                };
+                    };
+                })
+            );
+            const eventData: Event = {
+                id: eventResponse.id,
+                title: eventResponse.title,
+                description: eventResponse.description ?? undefined,
+                start_time: eventResponse.start_time ?? undefined,
+                end_time: eventResponse.end_time ?? undefined,
+                stances: stancesWithComments,
+            };
             setEvent(eventData);
-            }
         } catch (err: any) {
             setError(err.message || "Unexpected error");
         } finally {

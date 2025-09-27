@@ -4,8 +4,8 @@ import React, { useEffect, useState, use } from "react";
 import StancesSection from "@/components/StancesSection";
 import { useRouter } from "next/navigation";
 import { Issue } from "@/models/Issue";
-import { useApi } from "@/app/hooks/useApi";
-import { stancesApi, issuesApi, commentsApi } from "@/api";
+import { useAuthApi } from "@/app/hooks/useAuthApi";
+import { stancesApi, issuesApi } from "@/api";
 
 interface IssuePageProps {
   params: Promise<{ issue_id: string }>;
@@ -17,7 +17,7 @@ export default function IssuePage({ params }: IssuePageProps) {
     const [issue, setIssue] = useState<Issue | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const API = useApi();
+    const API = useAuthApi();
 
     useEffect(() => {
         const fetchIssue = async () => {
@@ -28,12 +28,16 @@ export default function IssuePage({ params }: IssuePageProps) {
                 const stancesResponse = await stancesApi.getStancesByIssue(API, parseInt(issue_id));
                 const stancesWithComments = await Promise.all(
                     (stancesResponse.stances ?? []).map(async (s) => {
-                        const commentsResponse = await commentsApi.getCommentsByStance(API, s.id);
+                        const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
                         return {
                             ...s,
                             comments: (commentsResponse.comments ?? []).map(c => ({
                                 ...c,
                                 parent_id: c.parent_id === null ? undefined : c.parent_id,
+                                user_reaction:
+                                    c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
+                                        ? (c.user_reaction as "like" | "dislike" | null)
+                                        : null,
                             })),
                         };
                     })
