@@ -52,43 +52,40 @@ export default function EventPage({ params }: EventPageProps) {
     }, [event_id]);
 
 
-    return (
-    <div className="max-w-3xl mx-auto py-10 px-4">
-      <button
-        className="mb-6 px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition"
-        onClick={() => router.push("/")}
-      >
-        ← Back
-      </button>
-        {loading && <div className="text-gray-500 italic">Loading issue...</div>}
-        {error && (
-        <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-6">
-            {error}
-        </div>
-        )}
-
-        {event && (
-        <>
-            {/* Title */}
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-4">
-            {event.title}
-            </h1>
-
-            {/* Description */}
-            <div className="bg-white shadow rounded-xl p-6 mb-8">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                Description
-            </h2>
-            <p className="text-gray-700 leading-relaxed">
-                {event.description || "No description provided."}
-            </p>
-            </div>
-
-            {/* Stances */}
-            <StancesSection stances={event.stances} />
-        </>
-        )}
-    </div>
-    );
+        return (
+            <main className="min-h-screen flex flex-col items-center justify-start p-8 bg-gradient-to-br from-purple-50 via-white to-pink-50">
+                <div className="w-full max-w-2xl">
+                    <button
+                        className="mb-8 px-4 py-2 bg-purple-100 text-purple-700 font-semibold rounded-lg hover:bg-purple-200 transition border border-purple-200 shadow-sm"
+                        onClick={() => router.push("/")}
+                    >
+                        Back
+                    </button>
+                    {loading && <div className="text-purple-500 italic text-center">Loading event...</div>}
+                    {error && (
+                        <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-6 text-center font-medium">
+                            {error}
+                        </div>
+                    )}
+                    {event && (
+                        <>
+                            {/* Title */}
+                            <h1 className="text-3xl font-extrabold text-purple-700 mb-6 drop-shadow-sm tracking-tight text-center">
+                                {event.title}
+                            </h1>
+                            {/* Description */}
+                            <div className="bg-white/80 shadow-lg rounded-2xl p-6 mb-10 border border-purple-100">
+                                <h2 className="text-lg font-semibold text-purple-700 mb-2">Description</h2>
+                                <p className="text-gray-700 leading-relaxed">
+                                    {event.description || "No description provided."}
+                                </p>
+                            </div>
+                            {/* Stances */}
+                            <StancesSection stances={event.stances} />
+                        </>
+                    )}
+                </div>
+            </main>
+        );
 
 }

@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, useState, useEffect, ReactNode, useContext } from "react";
+import { createContext, useState, useEffect, ReactNode, useContext, use } from "react";
 import { components } from "@/api/models/models";
+import { useApi } from "@/app/hooks/useApi";
+import { authApi } from "@/api";
 
 type TokenResponse = components["schemas"]["TokenResponse"];
 type SignupResponse = components["schemas"]["SignupResponse"];
@@ -27,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
-  const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
+  const API = useApi();
 
   const setTokens = (access: string | null, refresh: string | null) => {
     setAccessToken(access);
@@ -47,16 +49,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (username: string, password: string) => {
     const payload: LoginRequest = { username, password };
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    const res = await authApi.login(API, payload);
 
-    if (!res.ok) throw new Error("Login failed");
-
-    const data: TokenResponse = await res.json();
-    setTokens(data.access_token, data.refresh_token);
+    setTokens(res.access_token, res.refresh_token);
   };
 
   const signup = async (
@@ -66,15 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     fullName?: string
   ) => {
     const payload: SignupRequest = { username, email, password, full_name: fullName };
-    const res = await fetch(`${API_BASE}/auth/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) throw new Error("Signup failed");
-
-    const data: SignupResponse = await res.json();
+    const res = await authApi.signup(API, payload);
 
     // Auto-login after signup
     await login(username, password);
@@ -89,20 +76,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const payload: RefreshRequest = { refresh_token: refreshToken };
-      const res = await fetch(`${API_BASE}/auth/refresh`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await authApi.refreshToken(API, payload);
 
-      if (!res.ok) {
-        logout();
-        return null;
-      }
-
-      const data: RefreshResponse = await res.json();
-      setTokens(data.access_token, data.refresh_token);
-      return data.access_token;
+      setTokens(res.access_token, res.refresh_token);
+      return res.access_token;
     } catch {
       logout();
       return null;

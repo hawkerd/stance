@@ -29,14 +29,14 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
   };
 
   return (
-    <div className="flex flex-col bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm hover:shadow-md transition mb-4">
-      <span className="text-sm font-semibold text-blue-700 mb-1">
+    <div className="flex flex-col bg-white/80 border border-purple-100 rounded-2xl p-5 shadow-lg hover:shadow-xl transition mb-6">
+      <span className="text-sm font-semibold text-purple-700 mb-1">
         User {stance.user_id}
       </span>
-      <p className="text-gray-800 leading-relaxed mb-2">{stance.stance}</p>
+      <p className="text-gray-800 leading-relaxed mb-3">{stance.stance}</p>
 
       <div className="mb-2">
-        <div className="font-semibold text-xs text-gray-500 mb-1">Comments</div>
+        <div className="font-semibold text-xs text-purple-500 mb-1">Comments</div>
         {stance.comments && stance.comments.length > 0 ? (
           stance.comments.map((comment: CommentType) => (
             <CommentComponent key={comment.id} comment={comment} />
@@ -49,7 +49,7 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
       {onAddComment && (
         <form onSubmit={handleSubmit} className="flex flex-col gap-2 mt-2">
           <textarea
-            className="border rounded p-2 text-sm"
+            className="border border-purple-200 rounded-lg p-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 bg-purple-50"
             rows={2}
             placeholder="Add a comment..."
             value={commentContent}
@@ -58,7 +58,7 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
           />
           <button
             type="submit"
-            className="self-end bg-blue-500 text-white px-3 py-1 rounded text-xs hover:bg-blue-600 disabled:opacity-50"
+            className="self-end bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-sm hover:bg-purple-700 hover:to-pink-600 disabled:opacity-50 transition"
             disabled={submitting || !commentContent.trim()}
           >
             {submitting ? "Posting..." : "Post Comment"}

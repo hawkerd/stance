@@ -73,17 +73,22 @@ export default function Home() {
     return <p>Initializing...</p>;
   }
   return (
-    <main className="flex min-h-screen flex-col items-center justify-start p-8 bg-gray-50">
-      <h1 className="text-2xl font-bold mb-6">Stance Feed</h1>
-      <div className="w-full max-w-xl space-y-6">
-        {loading && <p>Loading events...</p>}
-        <p className="text-red-500">{error}</p>
+    <main className="flex min-h-screen flex-col items-center justify-start p-8 bg-gradient-to-br from-purple-50 via-white to-pink-50">
+      <h1 className="text-3xl font-extrabold text-purple-700 mb-8 drop-shadow-sm tracking-tight">Stance Feed</h1>
+      <div className="w-full max-w-2xl space-y-8">
+        {loading && <div className="text-purple-500 text-center">Loading events...</div>}
+        {error && <div className="text-red-500 text-center font-medium">{error}</div>}
         {events.map(event => (
-          <EventCard key={`event-${event.id}`} event={event} />
+          <div key={`event-${event.id}`} className="rounded-2xl bg-white/80 shadow-lg border border-purple-100 p-4">
+            <EventCard event={event} />
+          </div>
         ))}
         {issues.map(issue => (
-          <IssueCard key={`issue-${issue.id}`} issue={issue} />
-        ))}  </div>
+          <div key={`issue-${issue.id}`} className="rounded-2xl bg-white/80 shadow-lg border border-purple-100 p-4">
+            <IssueCard issue={issue} />
+          </div>
+        ))}
+      </div>
     </main>
   );
 }
