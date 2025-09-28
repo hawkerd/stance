@@ -53,3 +53,14 @@ export async function deleteComment(
   const res = await api.delete<CommentDeleteResponse>(`/comments/${commentId}`);
   return res.data;
 }
+
+/**
+ * Fetch replies for a comment
+ */
+export async function getCommentReplies(
+  api: AxiosInstance,
+  commentId: number
+): Promise<CommentListResponse> {
+  const res = await api.get<CommentListResponse>(`/comments/${commentId}/replies`);
+  return res.data;
+}

@@ -168,7 +168,7 @@ def get_comments_by_stance_endpoint(
     current_user_id: Optional[int] = Depends(get_current_user_optional)
 ) -> CommentListResponse:
     try:
-        comments = get_comments_by_stance(db, stance_id)
+        comments = get_comments_by_stance(db, stance_id, False)
         comment_responses = []
 
         for comment in comments:

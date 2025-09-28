@@ -94,10 +94,16 @@ def get_stances_by_issue(db: Session, issue_id: int) -> List[Stance]:
         logging.error(f"Error getting stances for issue {issue_id}: {e}")
         raise DatabaseError("Failed to get stances by issue")
     
-def get_comments_by_stance(db: Session, stance_id: int) -> List[Comment]:
+def get_comments_by_stance(db: Session, stance_id: int, nested: bool) -> List[Comment]:
     try:
         stance = db.query(Stance).filter(Stance.id == stance_id).first()
-        return stance.comments if stance else []
+        if not stance:
+            return []
+        
+        if nested:
+            return stance.comments
+        else:
+            return [comment for comment in stance.comments if comment.parent_id is None]
     except Exception as e:
         logging.error(f"Error getting comments for stance {stance_id}: {e}")
         raise DatabaseError("Failed to get comments by stance")

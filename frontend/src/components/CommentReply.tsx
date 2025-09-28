@@ -1,88 +1,65 @@
+// src/components/CommentReply.tsx
 import React, { useState } from "react";
 import { Comment } from "../models/Issue";
-import CommentReply from "./CommentReply";
 import { useAuthApi } from "../app/hooks/useAuthApi";
 import { reactToComment, removeCommentReaction } from "../api/comment_reactions";
-import { getCommentReplies } from "../api/comments";
 import { useAuth } from "../contexts/AuthContext";
 
-interface CommentProps {
-  comment: Comment;
-  setSelectedCommentId?: (id: number) => void;
+interface CommentReplyProps {
+    isDirectChild: boolean;
+    reply: Comment;
+    setSelectedCommentId?: (id: number) => void;
 }
 
-const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentId }) => {
+const CommentReply: React.FC<CommentReplyProps> = ({ reply, isDirectChild, setSelectedCommentId }) => {
   const api = useAuthApi();
   const { isAuthenticated } = useAuth();
-  const [likes, setLikes] = useState(comment.likes);
-  const [dislikes, setDislikes] = useState(comment.dislikes);
-  const [userReaction, setUserReaction] = useState<Comment["user_reaction"]>(comment.user_reaction);
+  const [likes, setLikes] = useState(reply.likes);
+  const [dislikes, setDislikes] = useState(reply.dislikes);
+  const [userReaction, setUserReaction] = useState<Comment["user_reaction"]>(reply.user_reaction);
   const [loading, setLoading] = useState(false);
-
-  const [replies, setReplies] = useState<Comment[]>([]);
-  const [showReplies, setShowReplies] = useState(false);
-  const [loadingReplies, setLoadingReplies] = useState(false);
 
   const handleReaction = async (isLike: boolean) => {
     if (loading) return;
     setLoading(true);
     try {
       if (userReaction === (isLike ? "like" : "dislike")) {
-        // remove reaction
-        await removeCommentReaction(api, comment.id);
         setUserReaction(null);
+        await removeCommentReaction(api, reply.id);
         if (isLike) setLikes(likes - 1);
         else setDislikes(dislikes - 1);
       } else {
-        // switch or add reaction
-        await reactToComment(api, comment.id, { is_like: isLike });
+        await reactToComment(api, reply.id, { is_like: isLike });
         if (isLike) {
+          setUserReaction("like");
           setLikes(likes + 1);
           if (userReaction === "dislike") setDislikes(dislikes - 1);
-          setUserReaction("like");
         } else {
+          setUserReaction("dislike");
           setDislikes(dislikes + 1);
           if (userReaction === "like") setLikes(likes - 1);
-          setUserReaction("dislike");
         }
       }
     } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleReplies = async () => {
-    if (!showReplies) {
-      setLoadingReplies(true);
-      try {
-        const fetchedReplies = await getCommentReplies(api, comment.id);
-        setReplies(
-          fetchedReplies.comments.map((reply: any) => ({
-            ...reply,
-            parent_id: reply.parent_id === null ? undefined : reply.parent_id,
-          }))
-        );
-      } catch (e) {
-        console.error("Failed to load replies", e);
-      } finally {
-        setLoadingReplies(false);
-      }
-    }
-    setShowReplies(!showReplies);
-  };
-
   return (
     <div className="rounded-xl p-3 mb-2">
       <div className="flex items-start">
-        <div className="flex-1">
-          <div className="text-xs text-purple-500 mb-1 font-semibold">User {comment.user_id}</div>
-          <div className="text-gray-800 mb-2">{comment.content}</div>
+        <div className="flex-1 ml-4">
+          <div className="mb-2">
+            <span className="text-xs text-purple-700 font-bold">User {reply.user_id}</span>
+            <span className="text-gray-800 ml-1 align-middle">{reply.content}</span>
+          </div>
           <div className="flex items-center gap-3 text-xs">
             {setSelectedCommentId && (
               <button
                 className="text-xs text-blue-500 underline hover:text-blue-700"
-                onClick={() => setSelectedCommentId(comment.id)}
+                onClick={() => setSelectedCommentId(reply.id)}
                 type="button"
               >
                 Reply
@@ -90,7 +67,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
             )}
           </div>
         </div>
-        <div className="ml-2 flex flex-col items-center gap-1 text-gray-400 min-w-[32px]">
+        <div className="flex flex-col items-center gap-1 text-gray-400 min-w-[32px]">
           {/* Upvote arrow */}
           <button
             className={`flex items-center ${userReaction === 'like' ? 'text-green-600' : 'text-gray-400'} hover:text-green-700`}
@@ -119,34 +96,8 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
           </button>
         </div>
       </div>
-      {/* Show replies toggle */}
-      {comment.parent_id === undefined && (
-        <button
-          className="text-xs text-purple-500 hover:underline mb-2 mt-2"
-          onClick={toggleReplies}
-        >
-          {showReplies ? "Hide replies" : `Show replies (${replies.length || "..."})`}
-        </button>
-      )}
-      {/* Replies */}
-      {showReplies && (
-        <div className="w-full">
-          {loadingReplies ? (
-            <div className="text-xs text-gray-400">Loading replies...</div>
-          ) : (
-            replies.map(reply => (
-              <CommentReply
-                key={reply.id}
-                reply={reply}
-                isDirectChild={reply.parent_id === comment.id}
-                setSelectedCommentId={setSelectedCommentId}
-              />
-            ))
-          )}
-        </div>
-      )}
     </div>
   );
 };
 
-export default CommentComponent;
+export default CommentReply;

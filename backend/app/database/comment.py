@@ -1,8 +1,9 @@
-from sqlalchemy import func, case, select
+from sqlalchemy import asc, func, case, select
 from sqlalchemy.orm import Session
 from app.database.models.comment import Comment
 from app.database.models.comment_reaction import CommentReaction
 from typing import Optional, List
+from app.database.models.stance import Stance
 from app.errors import DatabaseError
 import logging
 
@@ -76,3 +77,26 @@ def read_comment_likes_dislikes(db: Session, comment_id: int) -> dict:
     except Exception as e:
         logging.error(f"Error reading likes/dislikes for comment {comment_id}: {e}")
         raise DatabaseError("Failed to read likes/dislikes for comment")
+    
+def get_comment_replies(db: Session, comment_id: int) -> List[Comment]:
+    try:
+        # fetch all comments whose parent_id is comment_id or whose ancestor is comment_id
+        replies = []
+
+        def fetch_children(parent_id: int):
+            children = (
+                db.query(Comment)
+                    .filter(Comment.parent_id == parent_id)
+                    .order_by(asc(Comment.created_at))
+                    .all()
+            )
+            for child in children:
+                replies.append(child)
+                fetch_children(child.id)
+
+        fetch_children(comment_id)
+        return replies
+
+    except Exception as e:
+        logging.error(f"Error getting replies for comment {comment_id}: {e}")
+        raise DatabaseError("Failed to get replies for comment")
