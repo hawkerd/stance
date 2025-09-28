@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
-from app.database.comment import create_comment, read_comment, update_comment, delete_comment, get_all_comments, get_comment_replies
+from app.database.comment import create_comment, read_comment, update_comment, delete_comment, get_all_comments, get_comment_replies, count_comment_nested_replies
 from app.routers.models.comments import CommentCreateRequest, CommentReadResponse, CommentUpdateRequest, CommentUpdateResponse, CommentDeleteResponse, CommentListResponse
 import logging
 from typing import Optional
@@ -59,6 +59,7 @@ def get_comment_endpoint(comment_id: int, db: Session = Depends(get_db), current
             likes=likes,
             dislikes=dislikes,
             user_reaction=user_reaction,
+            count_nested=count_comment_nested_replies(db, comment.id),
             created_at=str(comment.created_at),
             updated_at=str(comment.updated_at) if comment.updated_at else None
         )
@@ -129,6 +130,7 @@ def get_comment_replies_endpoint(comment_id: int, db: Session = Depends(get_db),
                     likes=likes,
                     dislikes=dislikes,
                     user_reaction=user_reaction,
+                    count_nested=count_comment_nested_replies(db, reply.id),
                     created_at=str(reply.created_at),
                     updated_at=str(reply.updated_at) if reply.updated_at else None
                 )

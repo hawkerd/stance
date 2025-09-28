@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
+from app.database.comment import count_comment_nested_replies
 from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_stances_by_event, get_stances_by_issue, get_comments_by_stance
 from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse
 from app.routers.models.comments import CommentReadResponse, CommentListResponse
@@ -196,6 +197,7 @@ def get_comments_by_stance_endpoint(
                     likes=likes,
                     dislikes=dislikes,
                     user_reaction=user_reaction,
+                    count_nested=count_comment_nested_replies(db, comment.id),
                     created_at=str(comment.created_at),
                     updated_at=str(comment.updated_at) if comment.updated_at else None
                 )

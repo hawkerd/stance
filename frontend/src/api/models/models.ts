@@ -436,6 +436,8 @@ export interface components {
             dislikes: number;
             /** User Reaction */
             user_reaction: string | null;
+            /** Count Nested */
+            count_nested: number;
             /** Created At */
             created_at: string;
             /** Updated At */

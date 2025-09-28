@@ -49,23 +49,34 @@ const CommentReply: React.FC<CommentReplyProps> = ({ reply, isDirectChild, setSe
 
   return (
     <div className="rounded-xl p-3 mb-2">
-      <div className="flex items-start">
-        <div className="flex-1 ml-4">
+      <div className="flex items-start gap-3 group">
+        <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-base font-bold mt-0.5">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+        </div>
+        <div className="flex-1 ml-0">
           <div className="mb-2">
             <span className="text-xs text-purple-700 font-bold">User {reply.user_id}</span>
             <span className="text-gray-800 ml-1 align-middle">{reply.content}</span>
           </div>
-          <div className="flex items-center gap-3 text-xs">
-            {setSelectedCommentId && (
-              <button
-                className="text-xs text-blue-500 underline hover:text-blue-700"
-                onClick={() => setSelectedCommentId(reply.id)}
-                type="button"
-              >
-                Reply
-              </button>
-            )}
-          </div>
+        </div>
+        <div className="flex flex-col items-center gap-1 text-gray-400 min-w-[32px]">
+          {setSelectedCommentId && (
+            <button
+              className="mb-1 hover:text-blue-500 transition opacity-0 group-hover:opacity-100 focus:opacity-100"
+              onClick={() => setSelectedCommentId(reply.id)}
+              type="button"
+              aria-label="Reply"
+              title="Reply"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7 7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18" />
+              </svg>
+            </button>
+          )}
         </div>
         <div className="flex flex-col items-center gap-1 text-gray-400 min-w-[32px]">
           {/* Upvote arrow */}

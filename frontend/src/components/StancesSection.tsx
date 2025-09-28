@@ -27,20 +27,27 @@ const StancesSection: React.FC<StancesSectionProps> = ({ stances: initialStances
       setStances(prevStances =>
         prevStances.map(stance =>
           stance.id === stanceId
-            ? {
-                ...stance,
-                comments: [
-                  ...(stance.comments || []),
-                  {
-                    ...newComment,
-                    parent_id:
-                      newComment.parent_id === null
-                        ? undefined
-                        : newComment.parent_id,
-                  },
-                ],
-              }
-            : stance
+        ? {
+            ...stance,
+            comments: [
+          ...(stance.comments || []),
+          {
+            ...newComment,
+            parent_id: newComment.parent_id ?? undefined,
+            user_reaction:
+              newComment.user_reaction === "like" ||
+              newComment.user_reaction === "dislike" ||
+              newComment.user_reaction === null
+            ? newComment.user_reaction
+            : null,
+            count_nested_replies:
+              typeof newComment.count_nested === "number"
+            ? newComment.count_nested
+            : 0,
+          },
+            ],
+          }
+        : stance
         )
       );
     } catch (err: any) {
@@ -51,15 +58,12 @@ const StancesSection: React.FC<StancesSectionProps> = ({ stances: initialStances
   if (!stances || stances.length === 0) return null;
 
   return (
-    <section className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-      <h2 className="text-xl font-semibold text-blue-800 mb-4 border-b border-gray-200 pb-2">
-        {title}
-      </h2>
+    <section>
       <ul className="space-y-4">
         {stances.map((stance) => (
           <li
-            key={`stance-${stance.id}`} // Ensure unique key
-            className="bg-gray-50 border border-gray-200 rounded-lg p-4 hover:shadow transition"
+            key={`stance-${stance.id}`}
+            className="border border-purple-100 rounded-xl"
           >
             <Stance stance={stance} onAddComment={handleAddComment} />
           </li>

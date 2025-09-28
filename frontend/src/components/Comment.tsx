@@ -74,21 +74,32 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
 
   return (
     <div className="rounded-xl p-3 mb-2">
-      <div className="flex items-start">
+      <div className="flex items-start gap-3 group">
+        <div className="w-7 h-7 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-base font-bold mt-0.5">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+        </div>
         <div className="flex-1">
           <div className="text-xs text-purple-500 mb-1 font-semibold">User {comment.user_id}</div>
           <div className="text-gray-800 mb-2">{comment.content}</div>
-          <div className="flex items-center gap-3 text-xs">
-            {setSelectedCommentId && (
-              <button
-                className="text-xs text-blue-500 underline hover:text-blue-700"
-                onClick={() => setSelectedCommentId(comment.id)}
-                type="button"
-              >
-                Reply
-              </button>
-            )}
-          </div>
+        </div>
+        <div className="ml-2 flex flex-col items-center gap-1 text-gray-400 min-w-[32px]">
+          {setSelectedCommentId && (
+            <button
+              className="mb-1 hover:text-blue-500 transition opacity-0 group-hover:opacity-100 focus:opacity-100"
+              onClick={() => setSelectedCommentId(comment.id)}
+              type="button"
+              aria-label="Reply"
+              title="Reply"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7 7-7" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 12h18" />
+              </svg>
+            </button>
+          )}
         </div>
         <div className="ml-2 flex flex-col items-center gap-1 text-gray-400 min-w-[32px]">
           {/* Upvote arrow */}
@@ -119,13 +130,26 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
           </button>
         </div>
       </div>
-      {/* Show replies toggle */}
-      {comment.parent_id === undefined && (
+      {/* Show replies flipper arrow */}
+      {comment.parent_id === undefined && comment.count_nested_replies > 0 && (
         <button
-          className="text-xs text-purple-500 hover:underline mb-2 mt-2"
+          className="flex items-center justify-center mb-2 mt-2 text-purple-500 hover:text-purple-700 transition"
           onClick={toggleReplies}
+          aria-label={showReplies ? "Hide replies" : "Show replies"}
+          title={showReplies ? "Hide replies" : "Show replies"}
         >
-          {showReplies ? "Hide replies" : `Show replies (${replies.length || "..."})`}
+          <svg
+            className={`w-5 h-5 transition-transform duration-200 ${showReplies ? "rotate-180" : "rotate-0"}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 9l7 7 7-7" />
+          </svg>
+          <span className="ml-2 text-xs font-medium">
+            {showReplies ? "Hide" : `Show ${comment.count_nested_replies}`}
+          </span>
         </button>
       )}
       {/* Replies */}

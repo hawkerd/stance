@@ -100,3 +100,21 @@ def get_comment_replies(db: Session, comment_id: int) -> List[Comment]:
     except Exception as e:
         logging.error(f"Error getting replies for comment {comment_id}: {e}")
         raise DatabaseError("Failed to get replies for comment")
+
+def count_comment_nested_replies(db: Session, comment_id: int) -> int:
+    try:
+        count = 0
+
+        def count_children(parent_id: int):
+            nonlocal count
+            children = db.query(Comment).filter(Comment.parent_id == parent_id).all()
+            count += len(children)
+            for child in children:
+                count_children(child.id)
+
+        count_children(comment_id)
+        return count
+
+    except Exception as e:
+        logging.error(f"Error counting replies for comment {comment_id}: {e}")
+        raise DatabaseError("Failed to count replies for comment")
