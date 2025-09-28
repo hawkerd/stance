@@ -4,6 +4,9 @@ export interface Comment {
     user_id: number;
     parent_id?: number;
     content: string;
+    likes: number;
+    dislikes: number;
+    user_reaction: "like" | "dislike" | null;
 }
 
 export interface Stance {
@@ -17,6 +20,7 @@ export interface Issue {
     id: number;
     title: string;
     description?: string;
+    location?: string;
     stances: Stance[];
 }
 

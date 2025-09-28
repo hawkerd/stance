@@ -13,6 +13,9 @@ class CommentReadResponse(BaseModel):
     content: str
     parent_id: Optional[int] = None
     is_active: bool
+    likes: int
+    dislikes: int
+    user_reaction: str | None
     created_at: str
     updated_at: Optional[str]
 

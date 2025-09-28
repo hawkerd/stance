@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.dependencies import get_db, get_current_user
+from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_stances_by_event, get_stances_by_issue, get_comments_by_stance
 from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse
 from app.routers.models.comments import CommentReadResponse, CommentListResponse
 import logging
+from typing import Optional
 
-router = APIRouter()
+router = APIRouter(tags=["stances"])
 
 @router.post("/stances", response_model=StanceCreateResponse)
 def create_stance_endpoint(
@@ -163,12 +164,28 @@ def get_stances_by_event_endpoint(
 @router.get("/stances/{stance_id}/comments", response_model=CommentListResponse)
 def get_comments_by_stance_endpoint(
     stance_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user_id: Optional[int] = Depends(get_current_user_optional)
 ) -> CommentListResponse:
     try:
-        comments = get_comments_by_stance(db, stance_id)
-        return CommentListResponse(
-            comments=[
+        comments = get_comments_by_stance(db, stance_id, False)
+        comment_responses = []
+
+        for comment in comments:
+            likes = sum(1 for r in comment.reactions if r.is_like)
+            dislikes = sum(1 for r in comment.reactions if not r.is_like)
+
+            if current_user_id is None:
+                user_reaction = None
+            else:
+                user_reaction_obj = next((r for r in comment.reactions if r.user_id == current_user_id), None)
+                user_reaction = (
+                    "like" if user_reaction_obj and user_reaction_obj.is_like else
+                    "dislike" if user_reaction_obj and not user_reaction_obj.is_like else
+                    None
+                )
+
+            comment_responses.append(
                 CommentReadResponse(
                     id=comment.id,
                     user_id=comment.user_id,
@@ -176,10 +193,16 @@ def get_comments_by_stance_endpoint(
                     content=comment.content,
                     parent_id=comment.parent_id,
                     is_active=comment.is_active,
+                    likes=likes,
+                    dislikes=dislikes,
+                    user_reaction=user_reaction,
                     created_at=str(comment.created_at),
                     updated_at=str(comment.updated_at) if comment.updated_at else None
-                ) for comment in comments
-            ]
-        )
+                )
+            )
+
+        return CommentListResponse(comments=comment_responses)
+
     except Exception as e:
+        logging.error(f"Error getting comments for stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

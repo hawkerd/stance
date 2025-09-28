@@ -5,7 +5,7 @@ from app.database.demographic import create_demographic, read_demographic, updat
 from app.routers.models.demographics import DemographicCreateRequest, DemographicReadResponse, DemographicUpdateRequest, DemographicUpdateResponse
 import logging
 
-router = APIRouter()
+router = APIRouter(tags=["users"])
 
 @router.post("/users/{user_id}/demographics", response_model=DemographicReadResponse)
 def create_demographic_endpoint(request: DemographicCreateRequest, user_id: int, db: Session = Depends(get_db), current_user: int = Depends(get_current_user)) -> DemographicReadResponse:

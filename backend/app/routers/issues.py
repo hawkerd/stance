@@ -5,7 +5,7 @@ from app.database.issue import create_issue, read_issue, update_issue, delete_is
 from app.routers.models.issues import IssueCreateRequest, IssueReadResponse, IssueUpdateRequest, IssueUpdateResponse, IssueDeleteResponse, IssueListResponse
 import logging
 
-router = APIRouter()
+router = APIRouter(tags=["issues"])
 
 @router.post("/issues", response_model=IssueReadResponse)
 def create_issue_endpoint(request: IssueCreateRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)) -> IssueReadResponse:

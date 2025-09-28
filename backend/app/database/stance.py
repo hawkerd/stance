@@ -67,27 +67,43 @@ def get_all_stances(db: Session) -> List[Stance]:
 
 def get_stances_by_user(db: Session, user_id: int) -> List[Stance]:
     try:
-        return db.query(Stance).filter(Stance.user_id == user_id).all()
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return []
+        return user.stances
     except Exception as e:
         logging.error(f"Error getting stances for user {user_id}: {e}")
         raise DatabaseError("Failed to get stances by user")
     
 def get_stances_by_event(db: Session, event_id: int) -> List[Stance]:
     try:
-        return db.query(Stance).filter(Stance.event_id == event_id).all()
+        event = db.query(Event).filter(Event.id == event_id).first()
+        if not event:
+            return []
+        return event.stances
     except Exception as e:
         logging.error(f"Error getting stances for event {event_id}: {e}")
         raise DatabaseError("Failed to get stances by event")
 def get_stances_by_issue(db: Session, issue_id: int) -> List[Stance]:
     try:
-        return db.query(Stance).filter(Stance.issue_id == issue_id).all()
+        issue = db.query(Issue).filter(Issue.id == issue_id).first()
+        if not issue:
+            return []
+        return issue.stances
     except Exception as e:
         logging.error(f"Error getting stances for issue {issue_id}: {e}")
         raise DatabaseError("Failed to get stances by issue")
     
-def get_comments_by_stance(db: Session, stance_id: int) -> List[Comment]:
+def get_comments_by_stance(db: Session, stance_id: int, nested: bool) -> List[Comment]:
     try:
-        return db.query(Comment).filter(Comment.stance_id == stance_id).all()
+        stance = db.query(Stance).filter(Stance.id == stance_id).first()
+        if not stance:
+            return []
+        
+        if nested:
+            return stance.comments
+        else:
+            return [comment for comment in stance.comments if comment.parent_id is None]
     except Exception as e:
         logging.error(f"Error getting comments for stance {stance_id}: {e}")
         raise DatabaseError("Failed to get comments by stance")

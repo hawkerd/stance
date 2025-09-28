@@ -5,7 +5,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.dependencies import get_db
 import logging
-from app.routers import users, auth, stances, demographics, profiles, comments, events, issues
+from app.routers import users, auth, stances, demographics, profiles, comments, events, issues, comment_reactions
 
 
 logging.basicConfig(level=logging.INFO)
@@ -33,7 +33,4 @@ app.include_router(profiles.router)
 app.include_router(comments.router)
 app.include_router(events.router)
 app.include_router(issues.router)
-
-@app.get("/")
-async def root():
-    return {"message": "Stance!"}
+app.include_router(comment_reactions.router)
