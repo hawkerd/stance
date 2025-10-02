@@ -40,7 +40,33 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
         </div>
         <span className="text-sm font-semibold text-purple-700">User {stance.user_id}</span>
       </div>
-      <p className="text-gray-800 leading-relaxed mb-3">{stance.stance}</p>
+      <h2 className="text-2xl md:text-3xl font-extrabold text-purple-700 mb-4 tracking-tight drop-shadow-sm">
+        {stance.stance}
+        <span className="ml-2 text-base font-medium text-purple-400 align-middle">({stance.blocks.length} blocks)</span>
+      </h2>
+
+      {/* Stance Blocks */}
+        {stance.blocks && stance.blocks.length > 0 && (
+          <article className="mb-4 leading-relaxed text-gray-800">
+            {stance.blocks.map((block, idx) => (
+              <React.Fragment key={block.id}>
+                {block.content && (
+                  <p className="mb-4 whitespace-pre-line">{block.content}</p>
+                )}
+                {block.media_url && (
+                  <div className="flex justify-center my-6">
+                    <img
+                      src={block.media_url}
+                      alt="Stance media"
+                      className="rounded shadow max-h-96"
+                      style={{ maxWidth: "100%" }}
+                    />
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
+          </article>
+        )}
 
       <div className="mb-2">
         {stance.comments && stance.comments.length > 0 ? (

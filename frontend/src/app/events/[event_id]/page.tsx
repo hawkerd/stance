@@ -5,7 +5,7 @@ import StancesSection from "@/components/StancesSection";
 import { useRouter } from "next/navigation";
 import { Event } from "@/models/Issue";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { eventsApi, stancesApi } from "@/api";
+import { eventsApi, stancesApi, stanceBlocksApi } from "@/api";
 
 interface EventPageProps {
   params: Promise<{ event_id: string }>;
@@ -26,18 +26,26 @@ export default function EventPage({ params }: EventPageProps) {
         try {
             const eventResponse = await eventsApi.getEvent(API, parseInt(event_id));
             const stancesResponse = await stancesApi.getStancesByEvent(API, parseInt(event_id));
-            const stancesWithComments = await Promise.all(
+            const stances = await Promise.all(
                 (stancesResponse.stances ?? []).map(async (s) => {
                     const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
+                    const blocksResponse = await stanceBlocksApi.listStanceBlocks(API, s.id);
+
                     return {
                         ...s,
                         comments: (commentsResponse.comments ?? []).map(c => ({
                             ...c,
                             parent_id: c.parent_id === null ? undefined : c.parent_id,
-                            user_reaction: c.user_reaction === "like" || c.user_reaction === "dislike"
-                                ? (c.user_reaction as "like" | "dislike")
-                                : null,
+                            user_reaction:
+                                c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
+                                    ? (c.user_reaction as "like" | "dislike" | null)
+                                    : null,
                             count_nested_replies: c.count_nested,
+                        })),
+                        blocks: (blocksResponse.blocks ?? []).map(b => ({
+                            ...b,
+                            content: b.content ?? undefined,
+                            media_url: b.media_url ?? undefined,
                         })),
                     };
                 })
@@ -48,7 +56,7 @@ export default function EventPage({ params }: EventPageProps) {
                 description: eventResponse.description ?? undefined,
                 start_time: eventResponse.start_time ?? undefined,
                 end_time: eventResponse.end_time ?? undefined,
-                stances: stancesWithComments,
+                stances: stances,
             };
             setEvent(eventData);
         } catch (err: any) {

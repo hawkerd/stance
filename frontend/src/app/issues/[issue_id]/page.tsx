@@ -5,7 +5,7 @@ import StancesSection from "@/components/StancesSection";
 import { useRouter } from "next/navigation";
 import { Issue } from "@/models/Issue";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { stancesApi, issuesApi } from "@/api";
+import { stancesApi, issuesApi, stanceBlocksApi } from "@/api";
 
 interface IssuePageProps {
   params: Promise<{ issue_id: string }>;
@@ -26,9 +26,11 @@ export default function IssuePage({ params }: IssuePageProps) {
             try {
                 const issueResponse = await issuesApi.getIssue(API, parseInt(issue_id));
                 const stancesResponse = await stancesApi.getStancesByIssue(API, parseInt(issue_id));
-                const stancesWithComments = await Promise.all(
+                const stances = await Promise.all(
                     (stancesResponse.stances ?? []).map(async (s) => {
                         const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
+                        const blocksResponse = await stanceBlocksApi.listStanceBlocks(API, s.id);
+
                         return {
                             ...s,
                             comments: (commentsResponse.comments ?? []).map(c => ({
@@ -40,6 +42,11 @@ export default function IssuePage({ params }: IssuePageProps) {
                                         : null,
                                 count_nested_replies: c.count_nested,
                             })),
+                            blocks: (blocksResponse.blocks ?? []).map(b => ({
+                                ...b,
+                                content: b.content ?? undefined,
+                                media_url: b.media_url ?? undefined,
+                            })),
                         };
                     })
                 );
@@ -47,7 +54,7 @@ export default function IssuePage({ params }: IssuePageProps) {
                     id: issueResponse.id,
                     title: issueResponse.title,
                     description: issueResponse.description ?? undefined,
-                    stances: stancesWithComments,
+                    stances: stances,
                 };
                 setIssue(issueData);
             } catch (err: any) {

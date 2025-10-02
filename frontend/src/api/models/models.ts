@@ -377,6 +377,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stances/{stance_id}/blocks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Stance Blocks Endpoint */
+        get: operations["list_stance_blocks_endpoint_stances__stance_id__blocks_get"];
+        put?: never;
+        /** Create Stance Block Endpoint */
+        post: operations["create_stance_block_endpoint_stances__stance_id__blocks_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stances/{stance_id}/blocks/{block_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Stance Block Endpoint */
+        get: operations["read_stance_block_endpoint_stances__stance_id__blocks__block_id__get"];
+        /** Update Stance Block Endpoint */
+        put: operations["update_stance_block_endpoint_stances__stance_id__blocks__block_id__put"];
+        post?: never;
+        /** Delete Stance Block Endpoint */
+        delete: operations["delete_stance_block_endpoint_stances__stance_id__blocks__block_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -468,6 +505,11 @@ export interface components {
             created_at: string;
             /** Updated At */
             updated_at: string | null;
+        };
+        /** DeleteStanceBlockResponse */
+        DeleteStanceBlockResponse: {
+            /** Success */
+            success: boolean;
         };
         /** DemographicCreateRequest */
         DemographicCreateRequest: {
@@ -702,6 +744,40 @@ export interface components {
             username: string;
             /** Email */
             email: string;
+        };
+        /** StanceBlockCreateRequest */
+        StanceBlockCreateRequest: {
+            /** Content */
+            content?: string | null;
+            /** Media Url */
+            media_url?: string | null;
+            /** Sort Order */
+            sort_order: number;
+        };
+        /** StanceBlockListResponse */
+        StanceBlockListResponse: {
+            /** Blocks */
+            blocks: components["schemas"]["StanceBlockReadResponse"][];
+        };
+        /** StanceBlockReadResponse */
+        StanceBlockReadResponse: {
+            /** Id */
+            id: number;
+            /** Content */
+            content?: string | null;
+            /** Media Url */
+            media_url?: string | null;
+            /** Sort Order */
+            sort_order: number;
+        };
+        /** StanceBlockUpdateRequest */
+        StanceBlockUpdateRequest: {
+            /** Content */
+            content?: string | null;
+            /** Media Url */
+            media_url?: string | null;
+            /** Sort Order */
+            sort_order?: number | null;
         };
         /** StanceCreateRequest */
         StanceCreateRequest: {
@@ -1961,6 +2037,172 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_stance_blocks_endpoint_stances__stance_id__blocks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceBlockListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_stance_block_endpoint_stances__stance_id__blocks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceBlockCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceBlockReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_stance_block_endpoint_stances__stance_id__blocks__block_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+                block_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceBlockReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_stance_block_endpoint_stances__stance_id__blocks__block_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+                block_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceBlockUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceBlockReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_stance_block_endpoint_stances__stance_id__blocks__block_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+                block_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeleteStanceBlockResponse"];
+                };
             };
             /** @description Validation Error */
             422: {

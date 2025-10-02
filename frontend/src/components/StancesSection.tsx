@@ -8,10 +8,9 @@ import { commentsApi } from "@/api";
 
 export interface StancesSectionProps {
   stances: StanceType[];
-  title?: string;
 }
 
-const StancesSection: React.FC<StancesSectionProps> = ({ stances: initialStances, title = "Stances" }) => {
+const StancesSection: React.FC<StancesSectionProps> = ({ stances: initialStances }) => {
   const API = useAuthApi();
   const [stances, setStances] = useState<StanceType[]>(initialStances);
 
