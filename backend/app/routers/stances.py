@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.database.comment import count_comment_nested_replies
 from app.routers.models.stance_blocks import StanceBlockListResponse, StanceBlockReadResponse
-from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_stances_by_event, get_stances_by_issue, get_comments_by_stance
+from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_stances_by_event, get_stances_by_issue, get_comments_by_stance, get_all_stances
 from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse
 from app.routers.models.comments import CommentReadResponse, CommentListResponse
 import logging
@@ -63,6 +63,24 @@ def get_stance_endpoint(
             event_id=stance.event_id,
             issue_id=stance.issue_id,
             stance=stance.stance
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.get("/stances", response_model=StanceListResponse)
+def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
+    try:
+        stances = get_all_stances(db)
+        return StanceListResponse(
+            stances=[
+                StanceReadResponse(
+                    id=stance.id,
+                    user_id=stance.user_id,
+                    event_id=stance.event_id,
+                    issue_id=stance.issue_id,
+                    stance=stance.stance
+                ) for stance in stances
+            ]
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")

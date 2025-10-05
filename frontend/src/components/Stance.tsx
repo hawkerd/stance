@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Stance as StanceType, Comment as CommentType } from "../models/Issue";
 import CommentComponent from "./Comment";
+import ReactPlayer from "react-player";
 
 interface StanceProps {
   stance: StanceType;
@@ -46,27 +47,37 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
       </h2>
 
       {/* Stance Blocks */}
-        {stance.blocks && stance.blocks.length > 0 && (
-          <article className="mb-4 leading-relaxed text-gray-800">
-            {stance.blocks.map((block, idx) => (
-              <React.Fragment key={block.id}>
-                {block.content && (
-                  <p className="mb-4 whitespace-pre-line">{block.content}</p>
-                )}
-                {block.media_url && (
-                  <div className="flex justify-center my-6">
+      {stance.blocks && stance.blocks.length > 0 && (
+        <article className="mb-4 leading-relaxed text-gray-800">
+          {stance.blocks.map((block) => (
+            <React.Fragment key={block.id}>
+              {block.content && (
+                <p className="mb-4 whitespace-pre-line">{block.content}</p>
+              )}
+
+              {block.media_url && (
+                <div className="flex justify-center my-6 w-full">
+                  {ReactPlayer.canPlay && ReactPlayer.canPlay(block.media_url) ? (
+                    <ReactPlayer
+                      src={block.media_url}
+                      controls
+                      width="100%"
+                      height="360px"
+                    />
+                  ) : (
                     <img
                       src={block.media_url}
                       alt="Stance media"
                       className="rounded shadow max-h-96"
                       style={{ maxWidth: "100%" }}
                     />
-                  </div>
-                )}
-              </React.Fragment>
-            ))}
-          </article>
-        )}
+                  )}
+                </div>
+              )}
+            </React.Fragment>
+          ))}
+        </article>
+      )}
 
       <div className="mb-2">
         {stance.comments && stance.comments.length > 0 ? (

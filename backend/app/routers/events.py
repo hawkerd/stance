@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.dependencies import get_db, get_is_admin
+from app.dependencies import get_db, get_is_admin, get_current_user
 from app.database.event import create_event, read_event, update_event, delete_event, get_all_events
+from app.database.stance import get_user_stance_by_event
 from app.routers.models.events import EventCreateRequest, EventReadResponse, EventUpdateRequest, EventUpdateResponse, EventDeleteResponse, EventListResponse
+from app.routers.models.stances import StanceReadResponse
 import logging
 from datetime import datetime
+from typing import Optional
 
 router = APIRouter(tags=["events"])
 
@@ -77,4 +80,17 @@ def get_all_events_endpoint(db: Session = Depends(get_db)):
                 end_time=event.end_time.isoformat() if event.end_time else None,
             ) for event in events
         ]
+    )
+
+@router.get("/events/{event_id}/stances/me", response_model=Optional[StanceReadResponse])
+def get_my_stance_for_event(event_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> Optional[StanceReadResponse]:
+    stance = get_user_stance_by_event(db, event_id=event_id, user_id=user_id)
+    if not stance:
+        return None
+    return StanceReadResponse(
+        id=stance.id,
+        user_id=stance.user_id,
+        event_id=stance.event_id,
+        issue_id=stance.issue_id,
+        stance=stance.stance
     )

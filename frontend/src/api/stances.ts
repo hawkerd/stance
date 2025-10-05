@@ -32,6 +32,14 @@ export async function getStance(
 }
 
 /**
+ * Get all stances
+ */
+export async function getAllStances(api: AxiosInstance): Promise<StanceListResponse> {
+  const res = await api.get<StanceListResponse>("/stances");
+  return res.data;
+}
+
+/**
  * Update a stance by ID
  */
 export async function updateStance(
