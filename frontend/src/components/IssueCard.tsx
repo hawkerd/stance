@@ -1,3 +1,5 @@
+"use client";
+
 import { Issue } from "../models/Issue";
 import StanceCard from "./StanceCard";
 import { useRouter } from "next/navigation";

@@ -1,4 +1,6 @@
 // src/components/CommentReply.tsx
+"use client";
+
 import React, { useState } from "react";
 import { Comment } from "../models/Issue";
 import { useAuthApi } from "../app/hooks/useAuthApi";

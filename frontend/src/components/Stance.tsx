@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Stance as StanceType, Comment as CommentType } from "../models/Issue";
 import CommentComponent from "./Comment";

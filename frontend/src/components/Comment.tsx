@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Comment } from "../models/Issue";
 import CommentReply from "./CommentReply";
