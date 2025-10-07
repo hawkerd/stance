@@ -13,3 +13,4 @@ class Issue(Base):
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     stances = relationship("Stance", back_populates="issue", cascade="all, delete-orphan")
+    images = relationship("Image", back_populates="issue", cascade="all, delete-orphan")

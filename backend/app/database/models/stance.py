@@ -26,3 +26,4 @@ class Stance(Base):
     user = relationship("User", back_populates="stances")
     comments = relationship("Comment", back_populates="stance", cascade="all, delete-orphan")
     blocks = relationship("StanceBlock", back_populates="stance", cascade="all, delete-orphan", order_by="StanceBlock.sort_order")
+    images = relationship("Image", back_populates="stance", cascade="all, delete-orphan")
