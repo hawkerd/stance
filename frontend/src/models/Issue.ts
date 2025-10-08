@@ -13,9 +13,9 @@ export interface Comment {
 export interface Stance {
     id: number;
     user_id: number;
-    stance: string;
+    headline: string;
+    content_json: string;
     comments: Comment[];
-    blocks: StanceBlock[];
 }
 
 export interface Issue {
@@ -34,10 +34,4 @@ export interface Event {
     end_time?: string;
     location?: string;
     stances: Stance[];
-}
-
-export interface StanceBlock {
-    id: number;
-    content?: string;
-    media_url?: string;
 }

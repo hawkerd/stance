@@ -6,7 +6,7 @@ import { Stance } from "../models/Issue";
 export default function StanceCard({ stance }: { stance: Stance }) {
   return (
   <div className="flex items-center px-2 py-1 rounded border border-gray-100 mb-1 text-xs">
-      <span className="font-medium text-black flex-1 break-words">{stance.stance}</span>
+      <span className="font-medium text-black flex-1 break-words">{stance.headline}</span>
       <span className="ml-2 flex flex-col items-start gap-1 text-gray-400 min-w-[32px]">
         {/* Upvote arrow */}
         <div className="flex items-center">

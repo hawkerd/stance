@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.database.comment import count_comment_nested_replies
-from app.routers.models.stance_blocks import StanceBlockListResponse, StanceBlockReadResponse
 from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_stances_by_event, get_stances_by_issue, get_comments_by_stance, get_all_stances
 from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse
 from app.routers.models.comments import CommentReadResponse, CommentListResponse
@@ -34,7 +33,8 @@ def create_stance_endpoint(
             user_id=user_id,
             event_id=request.event_id,
             issue_id=request.issue_id,
-            stance=request.stance
+            headline=request.headline,
+            content_json=request.content_json
         )
         if not stance_obj:
             raise HTTPException(status_code=400, detail="Failed to create stance")
@@ -43,7 +43,8 @@ def create_stance_endpoint(
             user_id=stance_obj.user_id,
             event_id=stance_obj.event_id,
             issue_id=stance_obj.issue_id,
-            stance=stance_obj.stance
+            headline=stance_obj.headline,
+            content_json=stance_obj.content_json
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -62,7 +63,8 @@ def get_stance_endpoint(
             user_id=stance.user_id,
             event_id=stance.event_id,
             issue_id=stance.issue_id,
-            stance=stance.stance
+            headline=stance.headline,
+            content_json=stance.content_json
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -78,7 +80,8 @@ def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
                     user_id=stance.user_id,
                     event_id=stance.event_id,
                     issue_id=stance.issue_id,
-                    stance=stance.stance
+                    headline=stance.headline,
+                    content_json=stance.content_json
                 ) for stance in stances
             ]
         )
@@ -103,7 +106,8 @@ def update_stance_endpoint(
         stance_obj = update_stance(
             db,
             stance_id=stance_id,
-            stance=request.stance
+            headline=request.headline,
+            content_json=request.content_json
         )
         if not stance_obj:
             raise HTTPException(status_code=404, detail="Stance not found or not authorized")
@@ -113,7 +117,8 @@ def update_stance_endpoint(
             user_id=stance_obj.user_id,
             event_id=stance_obj.event_id,
             issue_id=stance_obj.issue_id,
-            stance=stance_obj.stance
+            headline=stance_obj.headline,
+            content_json=stance_obj.content_json
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -153,7 +158,8 @@ def get_stances_by_issue_endpoint(
                     user_id=stance.user_id,
                     event_id=stance.event_id,
                     issue_id=stance.issue_id,
-                    stance=stance.stance
+                    headline=stance.headline,
+                    content_json=stance.content_json
                 ) for stance in stances
             ]
         )
@@ -174,7 +180,8 @@ def get_stances_by_event_endpoint(
                     user_id=stance.user_id,
                     event_id=stance.event_id,
                     issue_id=stance.issue_id,
-                    stance=stance.stance
+                    headline=stance.headline,
+                    content_json=stance.content_json
                 ) for stance in stances
             ]
         )

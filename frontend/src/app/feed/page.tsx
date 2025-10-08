@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { stancesApi, stanceBlocksApi } from "@/api"; 
+import { stancesApi } from "@/api"; 
 import StanceComponent from "@/components/Stance";
 import { useApi } from "@/app/hooks/useApi";
 import { Stance } from "@/models/Issue";
@@ -16,12 +16,12 @@ export default function HomeFeed() {
         const stancesList = await Promise.all(
         (stancesResponse.stances ?? []).map(async (s) => {
             const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
-            const blocksResponse = await stanceBlocksApi.listStanceBlocks(API, s.id);
 
             return {
             id: s.id,
             user_id: s.user_id,
-            stance: s.stance,
+            headline: s.headline,
+            content_json: s.content_json,
             comments: (commentsResponse.comments ?? []).map(c => ({
                 id: c.id,
                 user_id: c.user_id,
@@ -34,11 +34,6 @@ export default function HomeFeed() {
                     ? (c.user_reaction as "like" | "dislike" | null)
                     : null,
                 count_nested_replies: c.count_nested,
-            })),
-            blocks: (blocksResponse.blocks ?? []).map(b => ({
-                id: b.id,
-                content: b.content ?? undefined,
-                media_url: b.media_url ?? undefined,
             })),
             };
         })

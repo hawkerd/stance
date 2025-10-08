@@ -5,7 +5,7 @@ import StancesSection from "@/components/StancesSection";
 import { useRouter } from "next/navigation";
 import { Event } from "@/models/Issue";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { eventsApi, stancesApi, stanceBlocksApi } from "@/api";
+import { eventsApi, stancesApi } from "@/api";
 import { useAuth } from "@/contexts/AuthContext";
 import StanceComponent from "@/components/Stance";
 import { Stance as StanceType } from "@/models/Issue";
@@ -36,7 +36,6 @@ export default function EventPage({ params }: EventPageProps) {
             const stances = await Promise.all(
                 (stancesResponse.stances ?? []).map(async (s) => {
                     const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
-                    const blocksResponse = await stanceBlocksApi.listStanceBlocks(API, s.id);
 
                     return {
                         ...s,
@@ -48,11 +47,6 @@ export default function EventPage({ params }: EventPageProps) {
                                     ? (c.user_reaction as "like" | "dislike" | null)
                                     : null,
                             count_nested_replies: c.count_nested,
-                        })),
-                        blocks: (blocksResponse.blocks ?? []).map(b => ({
-                            ...b,
-                            content: b.content ?? undefined,
-                            media_url: b.media_url ?? undefined,
                         })),
                     };
                 })
@@ -87,10 +81,8 @@ export default function EventPage({ params }: EventPageProps) {
                     setUserStance(null);
                     return;
                 }
-                const [commentsResponse, blocksResponse] = await Promise.all([
-                    stancesApi.getCommentsByStance(API, stanceRes.id),
-                    stanceBlocksApi.listStanceBlocks(API, stanceRes.id),
-                ]);
+                const commentsResponse = await stancesApi.getCommentsByStance(API, stanceRes.id);
+
                 const stance: StanceType = {
                     ...stanceRes,
                     comments: (commentsResponse.comments ?? []).map(c => ({
@@ -101,11 +93,6 @@ export default function EventPage({ params }: EventPageProps) {
                                 ? (c.user_reaction as "like" | "dislike" | null)
                                 : null,
                         count_nested_replies: c.count_nested,
-                    })),
-                    blocks: (blocksResponse.blocks ?? []).map(b => ({
-                        ...b,
-                        content: b.content ?? undefined,
-                        media_url: b.media_url ?? undefined,
                     })),
                 };
                 setUserStance(stance);
@@ -188,7 +175,7 @@ export default function EventPage({ params }: EventPageProps) {
                         <div className="flex-1" />
                     </div>
                 </main>
-                <StanceCreateModal open={showStanceModal} onClose={() => setShowStanceModal(false)} />
+                <StanceCreateModal open={showStanceModal} onClose={() => setShowStanceModal(false)} eventId={parseInt(event_id)} />
             </>
         );
 

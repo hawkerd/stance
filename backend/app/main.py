@@ -7,8 +7,7 @@ from app.dependencies import get_db
 import logging
 from app.routers import (
     users, auth, stances, demographics, profiles, 
-    comments, events, issues, comment_reactions, 
-    stance_blocks, images
+    comments, events, issues, comment_reactions, images
 )
 
 
@@ -38,5 +37,4 @@ app.include_router(comments.router)
 app.include_router(events.router)
 app.include_router(issues.router)
 app.include_router(comment_reactions.router)
-app.include_router(stance_blocks.router)
 app.include_router(images.router)

@@ -87,5 +87,6 @@ def get_my_stance_for_issue(issue_id: int, db: Session = Depends(get_db), user_i
         user_id=stance.user_id,
         event_id=stance.event_id,
         issue_id=stance.issue_id,
-        stance=stance.stance
+        headline=stance.headline,
+        content_json=stance.content_json
     )

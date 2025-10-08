@@ -1,11 +1,17 @@
 "use client";
 
-import type { Editor } from '@tiptap/react'
-import { EditorContent, useEditor, useEditorState } from '@tiptap/react'
+import { EditorContent, useEditor, useEditorState, Editor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import FileHandler from '@tiptap/extension-file-handler'
+import Image from '@tiptap/extension-image'
+import ImageResize from 'tiptap-extension-resize-image';
+import Youtube from '@tiptap/extension-youtube';
 
-const extensions = [StarterKit]
+import { useAuthApi } from '@/app/hooks/useAuthApi';
+import { imagesApi } from '@/api';
+import { createStance, StanceCreateRequest } from '@/api/stances';
+import { useApi } from '@/app/hooks/useApi';
 
 function MenuBar({ editor }: { editor: Editor }) {
   // Read the current editor's state, and re-render the component when it changes
@@ -148,9 +154,77 @@ function MenuBar({ editor }: { editor: Editor }) {
 interface StanceCreateModalProps {
   open: boolean;
   onClose: () => void;
+  eventId?: number;
+  issueId?: number;
 }
 
-const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose }) => {
+const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose, eventId, issueId }) => {
+  const api = useAuthApi();
+  const [headline, setHeadline] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const extensions = [
+    StarterKit,
+    Image,
+    FileHandler.configure({
+      allowedMimeTypes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp'],
+      onDrop: (currentEditor, files, pos) => {
+        files.forEach(file => {
+          const fileReader = new FileReader();
+          fileReader.readAsDataURL(file);
+          fileReader.onload = async () => {
+            const padded = await padImageTo16x9(fileReader.result as string);
+            currentEditor
+              .chain()
+              .insertContentAt(pos, {
+                type: 'image',
+                attrs: {
+                  src: padded,
+                },
+              })
+              .focus()
+              .run();
+          };
+        });
+      },
+      onPaste: (currentEditor, files, htmlContent) => {
+        files.forEach(file => {
+          if (htmlContent) {
+            // if there is htmlContent, stop manual insertion & let other extensions handle insertion via inputRule
+            // you could extract the pasted file from this url string and upload it to a server for example
+            console.log(htmlContent) // eslint-disable-line no-console
+            return false
+          }
+          const fileReader = new FileReader();
+          fileReader.readAsDataURL(file);
+          fileReader.onload = async () => {
+            const padded = await padImageTo16x9(fileReader.result as string);
+            currentEditor
+              .chain()
+              .insertContentAt(currentEditor.state.selection.anchor, {
+                type: 'image',
+                attrs: {
+                  src: padded,
+                },
+              })
+              .focus()
+              .run();
+          };
+        });
+      },
+    }),
+    Youtube.configure({
+      width: 600,
+      height: 338, // 16:9 aspect ratio
+      controls: true,
+      allowFullscreen: true,
+      HTMLAttributes: {
+        class: 'tiptap-youtube',
+      },
+    })
+  ];
+  
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -173,6 +247,31 @@ const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose }) 
     }
   };
 
+  const handleSubmit = async () => {
+    if (!headline.trim()) {
+      setError('Headline is required');
+      return;
+    }
+    if (!editor) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const content_json = JSON.stringify(editor.getJSON());
+      const payload: StanceCreateRequest = {
+        headline,
+        content_json,
+        event_id: eventId,
+        issue_id: issueId,
+      };
+      await createStance(api, payload);
+      setLoading(false);
+      onClose();
+    } catch (e: any) {
+      setLoading(false);
+      setError(e?.message || 'Failed to post');
+    }
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-opacity-50 backdrop-blur-sm"
@@ -183,13 +282,70 @@ const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose }) 
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-2xl font-bold mb-4 text-purple-700">Take Your Stance</h2>
+        <input
+          type="text"
+          className="w-full mb-4 px-3 py-2 border rounded text-lg"
+          placeholder="Headline"
+          value={headline}
+          onChange={e => setHeadline(e.target.value)}
+          disabled={loading}
+        />
+        {error && <div className="text-red-600 mb-2">{error}</div>}
         <div className="tiptap">
           <MenuBar editor={editor} />
           <EditorContent editor={editor} />
+        </div>
+        <div className="flex justify-end mt-6">
+          <button
+            className="bg-purple-700 text-white px-4 py-2 rounded hover:bg-purple-800 disabled:opacity-50"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 'Posting...' : 'Post'}
+          </button>
         </div>
       </div>
     </div>
   );
 };
+
+// Helper: pad image to 16:9 with transparent background
+async function padImageTo16x9(dataUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const aspect = 16 / 9;
+      let newW = img.width;
+      let newH = img.height;
+      if (img.width / img.height > aspect) {
+        newH = Math.round(img.width / aspect);
+        newW = img.width;
+      } else {
+        newW = Math.round(img.height * aspect);
+        newH = img.height;
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = newW;
+      canvas.height = newH;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.clearRect(0, 0, newW, newH);
+        ctx.save();
+        ctx.globalAlpha = 0;
+        ctx.fillRect(0, 0, newW, newH);
+        ctx.restore();
+        // Center the image
+        const x = (newW - img.width) / 2;
+        const y = (newH - img.height) / 2;
+        ctx.drawImage(img, x, y);
+        resolve(canvas.toDataURL());
+      } else {
+        resolve(dataUrl);
+      }
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
 
 export default StanceCreateModal;

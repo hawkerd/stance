@@ -8,6 +8,6 @@ import * as stancesApi from "./stances";
 import * as usersApi from "./users";
 import * as authApi from "./auth";
 import * as commentsApi from "./comments";
-import * as stanceBlocksApi from "./stance_blocks";
+import * as imagesApi from "./images";
 
-export { issuesApi, eventsApi, profilesApi, demographicsApi, stancesApi, usersApi, authApi, commentsApi, stanceBlocksApi };
+export { issuesApi, eventsApi, profilesApi, demographicsApi, stancesApi, usersApi, authApi, commentsApi, imagesApi };

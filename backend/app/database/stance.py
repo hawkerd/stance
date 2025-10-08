@@ -8,13 +8,14 @@ from typing import Optional, List
 from app.errors import DatabaseError
 import logging
 
-def create_stance(db: Session, user_id: int, event_id: Optional[int], issue_id: Optional[int], stance: str) -> Stance:
+def create_stance(db: Session, user_id: int, event_id: Optional[int], issue_id: Optional[int], headline: str, content_json: str) -> Stance:
     try:
         stance_obj = Stance(
             user_id=user_id,
             event_id=event_id,
             issue_id=issue_id,
-            stance=stance
+            headline=headline,
+            content_json=content_json
         )
         db.add(stance_obj)
         db.commit()
@@ -37,7 +38,7 @@ def update_stance(db: Session, stance_id: int, **kwargs) -> Optional[Stance]:
         if not stance_obj:
             return None
         for key, value in kwargs.items():
-            if hasattr(stance_obj, key):
+            if key in ["headline", "content_json", "event_id", "issue_id"] and hasattr(stance_obj, key):
                 setattr(stance_obj, key, value)
         db.commit()
         db.refresh(stance_obj)

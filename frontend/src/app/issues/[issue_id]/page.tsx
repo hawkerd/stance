@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { Issue } from "@/models/Issue";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { stancesApi, issuesApi, stanceBlocksApi } from "@/api";
+import { stancesApi, issuesApi } from "@/api";
 import { StanceReadResponse } from "@/api/issues";
 import StanceCreateModal from "@/components/stance-create/StanceCreateModal";
 
@@ -37,7 +37,6 @@ export default function IssuePage({ params }: IssuePageProps) {
                 const stances = await Promise.all(
                     (stancesResponse.stances ?? []).map(async (s) => {
                         const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
-                        const blocksResponse = await stanceBlocksApi.listStanceBlocks(API, s.id);
 
                         return {
                             ...s,
@@ -49,11 +48,6 @@ export default function IssuePage({ params }: IssuePageProps) {
                                         ? (c.user_reaction as "like" | "dislike" | null)
                                         : null,
                                 count_nested_replies: c.count_nested,
-                            })),
-                            blocks: (blocksResponse.blocks ?? []).map(b => ({
-                                ...b,
-                                content: b.content ?? undefined,
-                                media_url: b.media_url ?? undefined,
                             })),
                         };
                     })
@@ -86,11 +80,8 @@ export default function IssuePage({ params }: IssuePageProps) {
                     setUserStance(null);
                     return;
                 }
-                // Fetch comments and blocks for this stance
-                const [commentsResponse, blocksResponse] = await Promise.all([
-                    stancesApi.getCommentsByStance(API, stanceRes.id),
-                    stanceBlocksApi.listStanceBlocks(API, stanceRes.id),
-                ]);
+                // Fetch comments for this stance
+                const commentsResponse = await stancesApi.getCommentsByStance(API, stanceRes.id);
                 const stance: StanceType = {
                     ...stanceRes,
                     comments: (commentsResponse.comments ?? []).map(c => ({
@@ -101,11 +92,6 @@ export default function IssuePage({ params }: IssuePageProps) {
                                 ? (c.user_reaction as "like" | "dislike" | null)
                                 : null,
                         count_nested_replies: c.count_nested,
-                    })),
-                    blocks: (blocksResponse.blocks ?? []).map(b => ({
-                        ...b,
-                        content: b.content ?? undefined,
-                        media_url: b.media_url ?? undefined,
                     })),
                 };
                 setUserStance(stance);
@@ -189,7 +175,7 @@ export default function IssuePage({ params }: IssuePageProps) {
                         <div className="flex-1" />
                     </div>
                 </main>
-                <StanceCreateModal open={showStanceModal} onClose={() => setShowStanceModal(false)} />
+                <StanceCreateModal open={showStanceModal} onClose={() => setShowStanceModal(false)} issueId={parseInt(issue_id)} />
             </>
         );
 
