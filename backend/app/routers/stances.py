@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
+from app.database.image import create_image
 from app.database.comment import count_comment_nested_replies
 from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_stances_by_event, get_stances_by_issue, get_comments_by_stance, get_all_stances
 from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse
 from app.routers.models.comments import CommentReadResponse, CommentListResponse
 import logging
 from typing import Optional
+from app.service.stance import process_stance_content_json
 
 router = APIRouter(tags=["stances"])
 
@@ -27,6 +29,8 @@ def create_stance_endpoint(
                 logging.warning(f"User {user_id} already has a stance for this event or issue")
                 raise HTTPException(status_code=400, detail="User already has a stance for this event or issue")
 
+        processed_content, image_urls = process_stance_content_json(request.content_json)
+
         # create the stance
         stance_obj = create_stance(
             db,
@@ -34,10 +38,14 @@ def create_stance_endpoint(
             event_id=request.event_id,
             issue_id=request.issue_id,
             headline=request.headline,
-            content_json=request.content_json
+            content_json=processed_content
         )
         if not stance_obj:
             raise HTTPException(status_code=400, detail="Failed to create stance")
+        
+        for url in image_urls:
+            create_image(db, stance_id=stance_obj.id, issue_id=None, event_id=None, public_url=url, file_size=0, file_type="image/png")
+
         return StanceCreateResponse(
             id=stance_obj.id,
             user_id=stance_obj.user_id,
@@ -47,6 +55,7 @@ def create_stance_endpoint(
             content_json=stance_obj.content_json
         )
     except Exception as e:
+        logging.error(f"Error creating stance: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/stances/{stance_id}", response_model=StanceReadResponse)
@@ -67,6 +76,7 @@ def get_stance_endpoint(
             content_json=stance.content_json
         )
     except Exception as e:
+        logging.error(f"Error retrieving stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/stances", response_model=StanceListResponse)
@@ -86,6 +96,7 @@ def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
             ]
         )
     except Exception as e:
+        logging.error(f"Error retrieving all stances: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.put("/stances/{stance_id}", response_model=StanceUpdateResponse)
@@ -102,15 +113,19 @@ def update_stance_endpoint(
         if not stance or stance.user_id != user_id:
             raise HTTPException(status_code=404, detail="Stance not found or not authorized")
 
+        processed_content, image_urls = process_stance_content_json(request.content_json)
         # update the stance
         stance_obj = update_stance(
             db,
             stance_id=stance_id,
             headline=request.headline,
-            content_json=request.content_json
+            content_json=processed_content
         )
         if not stance_obj:
             raise HTTPException(status_code=404, detail="Stance not found or not authorized")
+
+        for url in image_urls:
+            create_image(db, stance_id=stance_obj.id, issue_id=None, event_id=None, public_url=url, file_size=0, file_type="image/png")
         
         return StanceUpdateResponse(
             id=stance_obj.id,
@@ -121,6 +136,7 @@ def update_stance_endpoint(
             content_json=stance_obj.content_json
         )
     except Exception as e:
+        logging.error(f"Error updating stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.delete("/stances/{stance_id}", response_model=StanceDeleteResponse)
@@ -142,6 +158,7 @@ def delete_stance_endpoint(
 
         return StanceDeleteResponse(success=True)
     except Exception as e:
+        logging.error(f"Error deleting stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/stances/issue/{issue_id}", response_model=StanceListResponse)
@@ -186,6 +203,7 @@ def get_stances_by_event_endpoint(
             ]
         )
     except Exception as e:
+        logging.error(f"Error retrieving stances for event {event_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/stances/{stance_id}/comments", response_model=CommentListResponse)

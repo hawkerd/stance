@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import StanceContentRenderer from "./StanceContentRenderer";
 import { Stance as StanceType, Comment as CommentType } from "../models/Issue";
 import CommentComponent from "./Comment";
 import ReactPlayer from "react-player";
@@ -46,6 +47,13 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
       <h2 className="text-2xl md:text-3xl font-extrabold text-purple-700 mb-4 tracking-tight drop-shadow-sm">
         {stance.headline}
       </h2>
+
+      {/* Render stance content using new component */}
+      {stance.content_json && (
+        <div className="mb-4">
+          <StanceContentRenderer content_json={stance.content_json} />
+        </div>
+      )}
 
       <div className="mb-2">
         {stance.comments && stance.comments.length > 0 ? (
