@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react'
 import FileHandler from '@tiptap/extension-file-handler'
 import Image from '@tiptap/extension-image'
 import ImageResize from 'tiptap-extension-resize-image';
-import Youtube from '@tiptap/extension-youtube';
+import Embed from '../tiptap/embed';
 
 import { useAuthApi } from '@/app/hooks/useAuthApi';
 import { imagesApi } from '@/api';
@@ -214,15 +214,7 @@ const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose, ev
         });
       },
     }),
-    Youtube.configure({
-      width: 600,
-      height: 338, // 16:9 aspect ratio
-      controls: true,
-      allowFullscreen: true,
-      HTMLAttributes: {
-        class: 'tiptap-youtube',
-      },
-    })
+    Embed
   ];
   
   useEffect(() => {
