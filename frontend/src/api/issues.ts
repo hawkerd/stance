@@ -8,6 +8,7 @@ export type IssueUpdateRequest = components["schemas"]["IssueUpdateRequest"];
 export type IssueUpdateResponse = components["schemas"]["IssueUpdateResponse"];
 export type IssueDeleteResponse = components["schemas"]["IssueDeleteResponse"];
 export type IssueListResponse = components["schemas"]["IssueListResponse"];
+export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
 
 /**
  * Create a new issue (admin only).
@@ -59,5 +60,16 @@ export async function deleteIssue(
  */
 export async function listIssues(api: AxiosInstance): Promise<IssueListResponse> {
   const res = await api.get<IssueListResponse>("/issues");
+  return res.data;
+}
+
+/**
+ * Fetch the current user's stance for a specific issue.
+ */
+export async function getMyStanceForIssue(
+  api: AxiosInstance,
+  issueId: number
+): Promise<StanceReadResponse | null> {
+  const res = await api.get<StanceReadResponse | null>(`/issues/${issueId}/stances/me`);
   return res.data;
 }

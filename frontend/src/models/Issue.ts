@@ -7,12 +7,14 @@ export interface Comment {
     likes: number;
     dislikes: number;
     user_reaction: "like" | "dislike" | null;
+    count_nested_replies: number;
 }
 
 export interface Stance {
     id: number;
     user_id: number;
-    stance: string;
+    headline: string;
+    content_json: string;
     comments: Comment[];
 }
 

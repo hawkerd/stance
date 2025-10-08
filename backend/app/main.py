@@ -5,7 +5,10 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.dependencies import get_db
 import logging
-from app.routers import users, auth, stances, demographics, profiles, comments, events, issues, comment_reactions
+from app.routers import (
+    users, auth, stances, demographics, profiles, 
+    comments, events, issues, comment_reactions, images
+)
 
 
 logging.basicConfig(level=logging.INFO)
@@ -34,3 +37,4 @@ app.include_router(comments.router)
 app.include_router(events.router)
 app.include_router(issues.router)
 app.include_router(comment_reactions.router)
+app.include_router(images.router)

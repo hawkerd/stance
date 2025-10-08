@@ -29,6 +29,13 @@ const TopBar: React.FC = () => {
         }>
           Search
         </SidebarItem>
+        <SidebarItem href="/feed" icon={
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8.25h7.5M3 12h7.5m-7.5 3.75h7.5m6.75-7.5v10.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.75A2.25 2.25 0 016.75 4.5h7.5A2.25 2.25 0 0116.5 6.75z" />
+          </svg>
+        }>
+          Feed
+        </SidebarItem>
         {isAuthenticated ? (
           <SidebarItem href="/profile" icon={
             <span className="w-6 h-6 flex items-center justify-center overflow-hidden rounded-full bg-gray-200">

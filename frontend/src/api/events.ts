@@ -8,6 +8,7 @@ export type EventUpdateRequest = components["schemas"]["EventUpdateRequest"];
 export type EventUpdateResponse = components["schemas"]["EventUpdateResponse"];
 export type EventDeleteResponse = components["schemas"]["EventDeleteResponse"];
 export type EventListResponse = components["schemas"]["EventListResponse"];
+export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
 
 /**
  * Create a new event (admin only)
@@ -61,5 +62,16 @@ export async function listEvents(
   api: AxiosInstance
 ): Promise<EventListResponse> {
   const res = await api.get<EventListResponse>("/events");
+  return res.data;
+}
+
+/**
+ * Fetch the current user's stance for a specific event.
+ */
+export async function getMyStanceForEvent(
+  api: AxiosInstance,
+  eventId: number
+): Promise<StanceReadResponse | null> {
+  const res = await api.get<StanceReadResponse | null>(`/events/${eventId}/stances/me`);
   return res.data;
 }

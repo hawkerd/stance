@@ -16,6 +16,7 @@ class CommentReadResponse(BaseModel):
     likes: int
     dislikes: int
     user_reaction: str | None
+    count_nested: int
     created_at: str
     updated_at: Optional[str]
 

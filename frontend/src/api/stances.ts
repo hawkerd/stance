@@ -8,13 +8,15 @@ export type StanceUpdateResponse = components["schemas"]["StanceUpdateResponse"]
 export type StanceDeleteResponse = components["schemas"]["StanceDeleteResponse"];
 export type StanceListResponse = components["schemas"]["StanceListResponse"];
 export type CommentListResponse = components["schemas"]["CommentListResponse"];
+export type StanceCreateRequest = components["schemas"]["StanceCreateRequest"];
+export type StanceUpdateRequest = components["schemas"]["StanceUpdateRequest"];
 
 /**
  * Create a new stance
  */
 export async function createStance(
   api: AxiosInstance,
-  data: { issue_id?: number; event_id?: number; stance: string }
+  data: StanceCreateRequest
 ): Promise<StanceCreateResponse> {
   const res = await api.post<StanceCreateResponse>("/stances", data);
   return res.data;
@@ -32,12 +34,20 @@ export async function getStance(
 }
 
 /**
+ * Get all stances
+ */
+export async function getAllStances(api: AxiosInstance): Promise<StanceListResponse> {
+  const res = await api.get<StanceListResponse>("/stances");
+  return res.data;
+}
+
+/**
  * Update a stance by ID
  */
 export async function updateStance(
   api: AxiosInstance,
   stanceId: number,
-  data: { stance: string }
+  data: StanceUpdateRequest
 ): Promise<StanceUpdateResponse> {
   const res = await api.put<StanceUpdateResponse>(`/stances/${stanceId}`, data);
   return res.data;
