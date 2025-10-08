@@ -9,8 +9,8 @@ import ImageResize from 'tiptap-extension-resize-image';
 import Embed from '../tiptap/embed';
 
 import { useAuthApi } from '@/app/hooks/useAuthApi';
-import { imagesApi } from '@/api';
-import { createStance, StanceCreateRequest } from '@/api/stances';
+import { imagesApi, stancesApi } from '@/api';
+import { StanceCreateRequest } from '@/api/stances';
 import { useApi } from '@/app/hooks/useApi';
 
 function MenuBar({ editor }: { editor: Editor }) {
@@ -255,7 +255,7 @@ const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose, ev
         event_id: eventId,
         issue_id: issueId,
       };
-      await createStance(api, payload);
+      await stancesApi.createStance(api, payload);
       setLoading(false);
       onClose();
     } catch (e: any) {

@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import StanceContentRenderer from "./StanceContentRenderer";
 import { Stance as StanceType, Comment as CommentType } from "../models/Issue";
 import CommentComponent from "./Comment";
-import ReactPlayer from "react-player";
 
 interface StanceProps {
   stance: StanceType;
@@ -34,17 +33,19 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
   };
 
   return (
-    <div className="rounded-xl p-3 mb-2">
-      <div className="flex items-center gap-4 mb-1">
-        <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-2xl font-bold">
-          <svg className="w-10 h-10" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+    <div className="stance-card relative">
+      {/* Floating user profile badge in top right */}
+      <div className="absolute top-4 right-4 flex flex-col items-center z-10">
+        <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xl font-bold shadow-md border border-gray-300">
+          <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
             <circle cx="12" cy="8" r="4" />
             <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
           </svg>
         </div>
-        <span className="text-sm font-semibold text-purple-700">User {stance.user_id}</span>
+        <span className="text-xs font-semibold text-purple-700 mt-1">User {stance.user_id}</span>
       </div>
-      <h2 className="text-2xl md:text-3xl font-extrabold text-purple-700 mb-4 tracking-tight drop-shadow-sm">
+
+      <h2 className="text-2xl md:text-3xl font-extrabold text-purple-700 mb-4 tracking-tight drop-shadow-sm text-center">
         {stance.headline}
       </h2>
 
@@ -55,6 +56,10 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
         </div>
       )}
 
+      {/* Divider bar between stance and comments */}
+      <div className="w-full border-t-2 border-purple-200 my-6 opacity-80" />
+
+      {/* ...existing code for comments and form... */}
       <div className="mb-2">
         {stance.comments && stance.comments.length > 0 ? (
           stance.comments

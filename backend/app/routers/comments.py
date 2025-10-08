@@ -24,6 +24,7 @@ def create_comment_endpoint(request: CommentCreateRequest, db: Session = Depends
             likes=0,
             dislikes=0,
             user_reaction=None,
+            count_nested=count_comment_nested_replies(db, comment.id),
             created_at=str(comment.created_at),
             updated_at=str(comment.updated_at) if comment.updated_at else None
         )

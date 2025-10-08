@@ -83,6 +83,7 @@ export default Node.create<EmbedOptions>({
               allowfullscreen: 'true',
               scrolling: 'no',
               allow: 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share',
+              class: 'embed-iframe',
             },
           ],
         ];
@@ -105,6 +106,7 @@ export default Node.create<EmbedOptions>({
               allowfullscreen: 'true',
               scrolling: 'no',
               allow: 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share',
+              class: 'embed-iframe',
             },
           ],
         ];
@@ -134,6 +136,7 @@ export default Node.create<EmbedOptions>({
               allowfullscreen: 'true',
               scrolling: 'no',
               allow: 'autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share',
+              class: 'embed-iframe',
             },
           ],
         ];
@@ -174,6 +177,7 @@ export default Node.create<EmbedOptions>({
               frameborder: '0',
               allowfullscreen: 'true',
               allow: 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share',
+              class: 'embed-iframe',
             },
           ],
         ];
@@ -185,7 +189,7 @@ export default Node.create<EmbedOptions>({
       { ...this.options.HTMLAttributes, 'data-type': 'embed' },
       [
         'iframe',
-        HTMLAttributes,
+  { ...HTMLAttributes, class: 'embed-iframe' },
       ],
     ];
   },

@@ -829,8 +829,6 @@ export interface components {
         };
         /** StanceUpdateRequest */
         StanceUpdateRequest: {
-            /** Stance Id */
-            stance_id: number;
             /** Headline */
             headline?: string | null;
             /** Content Json */

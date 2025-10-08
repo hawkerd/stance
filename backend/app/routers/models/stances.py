@@ -24,7 +24,6 @@ class StanceReadResponse(BaseModel):
     content_json: str
 
 class StanceUpdateRequest(BaseModel):
-    stance_id: int
     headline: Optional[str] = None
     content_json: Optional[str] = None
 
