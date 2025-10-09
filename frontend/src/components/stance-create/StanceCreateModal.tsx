@@ -154,11 +154,10 @@ function MenuBar({ editor }: { editor: Editor }) {
 interface StanceCreateModalProps {
   open: boolean;
   onClose: () => void;
-  eventId?: number;
-  issueId?: number;
+  entityId: number;
 }
 
-const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose, eventId, issueId }) => {
+const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose, entityId }) => {
   const api = useAuthApi();
   const [headline, setHeadline] = useState('');
   const [loading, setLoading] = useState(false);
@@ -250,10 +249,9 @@ const StanceCreateModal: React.FC<StanceCreateModalProps> = ({ open, onClose, ev
     try {
       const content_json = JSON.stringify(editor.getJSON());
       const payload: StanceCreateRequest = {
+        entity_id: entityId,
         headline,
-        content_json,
-        event_id: eventId,
-        issue_id: issueId,
+        content_json
       };
       await stancesApi.createStance(api, payload);
       setLoading(false);

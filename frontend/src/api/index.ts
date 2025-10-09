@@ -1,7 +1,6 @@
 // src/api/index.ts
 
-import * as issuesApi from "./issues";
-import * as eventsApi from "./events";
+import * as entitiesApi from "./entities";
 import * as profilesApi from "./profiles";
 import * as demographicsApi from "./demographics";
 import * as stancesApi from "./stances";
@@ -10,4 +9,4 @@ import * as authApi from "./auth";
 import * as commentsApi from "./comments";
 import * as imagesApi from "./images";
 
-export { issuesApi, eventsApi, profilesApi, demographicsApi, stancesApi, usersApi, authApi, commentsApi, imagesApi };
+export { entitiesApi, profilesApi, demographicsApi, stancesApi, usersApi, authApi, commentsApi, imagesApi };

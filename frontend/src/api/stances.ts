@@ -65,24 +65,13 @@ export async function deleteStance(
 }
 
 /**
- * Get all stances for a specific issue
+ * Get all stances for a specific entity
  */
-export async function getStancesByIssue(
+export async function getStancesByEntity(
   api: AxiosInstance,
-  issueId: number
+  entityId: number
 ): Promise<StanceListResponse> {
-  const res = await api.get<StanceListResponse>(`/stances/issue/${issueId}`);
-  return res.data;
-}
-
-/**
- * Get all stances for a specific event
- */
-export async function getStancesByEvent(
-  api: AxiosInstance,
-  eventId: number
-): Promise<StanceListResponse> {
-  const res = await api.get<StanceListResponse>(`/stances/event/${eventId}`);
+  const res = await api.get<StanceListResponse>(`/stances/entity/${entityId}`);
   return res.data;
 }
 

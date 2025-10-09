@@ -7,8 +7,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import IssueCard from "../components/IssueCard";
 import { components } from "@/api/models/models";
 import EventCard from "../components/EventCard";
-import { Event, Issue } from "../models/Issue";
-import { eventsApi, issuesApi, stancesApi } from "@/api";
+import { Entity, EntityType, Event, Issue } from "../models";
+import { entitiesApi, stancesApi } from "@/api";
 import { useApi } from "./hooks/useApi";
 
 export default function Home() {
@@ -16,8 +16,7 @@ export default function Home() {
   const api = useApi();
   const { initialized } = useAuth();
 
-  const [issues, setIssues] = useState<any[]>([]);
-  const [events, setEvents] = useState<any[]>([]);
+  const [entities, setEntities] = useState<Entity[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,36 +25,23 @@ export default function Home() {
 
     const fetchEvents = async () => {
       try {
-        const eventsResponse = await eventsApi.listEvents(api);
-        const issuesResponse = await issuesApi.listIssues(api);
+        const eventsResponse = await entitiesApi.listEntities(api);
 
-        const eventsList: Event[] = [];
-        const issuesList: Issue[] = [];
+        const entitiesList: Entity[] = [];
 
-        for (const eventData of eventsResponse.events) {
-          const event: Event = { ...eventData, description: eventData.description ?? "", stances: [], start_time: eventData.start_time ?? "", end_time: eventData.end_time ?? "" };
-          const stancesResponse = await stancesApi.getStancesByEvent(api, event.id);
-          event.stances = stancesResponse.stances.map((stance: any) => ({
+        for (const entityData of eventsResponse.entities) {
+          const entity: Entity = { ...entityData, description: entityData.description ?? "", stances: [], start_time: entityData.start_time ?? null, end_time: entityData.end_time ?? null };
+          const stancesResponse = await stancesApi.getStancesByEntity(api, entity.id);
+          entity.stances = stancesResponse.stances.map((stance: any) => ({
             ...stance,
             comments: [],
           }));
-          eventsList.push(event);
+          entitiesList.push(entity);
         }
 
-        for (const issueData of issuesResponse.issues) {
-          const issue: Issue = { ...issueData, description: issueData.description ?? "", stances: [] };
-          const stancesResponse = await stancesApi.getStancesByIssue(api, issue.id);
-          issue.stances = stancesResponse.stances.map((stance: any) => ({
-            ...stance,
-            comments: [],
-          }));
-          issuesList.push(issue);
-        }
-
-        setEvents(eventsList);
-        setIssues(issuesList);
+        setEntities(entitiesList);
       } catch (err: any) {
-        setError(err.message || "Failed to fetch events/issues");
+        setError(err.message || "Failed to fetch entities");
       } finally {
         setLoading(false);
       }
@@ -73,16 +59,14 @@ export default function Home() {
   <div className="w-full max-w-4xl space-y-8">
         {loading && <div className="text-purple-500 text-center">Loading events...</div>}
         {error && <div className="text-red-500 text-center font-medium">{error}</div>}
-        {events.map((event, idx) => (
-          <div key={`event-frag-${event.id}`}>
-            <EventCard event={event} />
-            <div key={`event-divider-${event.id}`} className="border-t border-gray-200 w-[90%] mx-auto" />
-          </div>
-        ))}
-        {issues.map((issue, idx) => (
-          <div key={`issue-frag-${issue.id}`}>
-            <IssueCard issue={issue} />
-            <div key={`issue-divider-${issue.id}`} className="border-t border-gray-200 w-[90%] mx-auto" />
+        {entities.map((entity, idx) => (
+          <div key={`entity-frag-${entity.id}`}>
+            {entity.type === EntityType.EVENT ? (
+              <EventCard event={entity as Event} />
+            ) : entity.type === EntityType.ISSUE ? (
+              <IssueCard issue={entity as Issue} />
+            ) : null}
+            <div key={`entity-divider-${entity.id}`} className="border-t border-gray-200 w-[90%] mx-auto" />
           </div>
         ))}
       </div>

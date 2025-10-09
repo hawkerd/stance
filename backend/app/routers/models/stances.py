@@ -2,24 +2,21 @@ from pydantic import BaseModel
 from typing import Optional
 
 class StanceCreateRequest(BaseModel):
-    event_id: Optional[int] = None
-    issue_id: Optional[int] = None
+    entity_id: int
     headline: str
     content_json: str
 
 class StanceCreateResponse(BaseModel):
     id: int
     user_id: int
-    event_id: Optional[int] = None
-    issue_id: Optional[int] = None
+    entity_id: int
     headline: str
     content_json: str
 
 class StanceReadResponse(BaseModel):
     id: int
     user_id: int
-    event_id: Optional[int] = None
-    issue_id: Optional[int] = None
+    entity_id: int
     headline: str
     content_json: str
 
@@ -30,8 +27,7 @@ class StanceUpdateRequest(BaseModel):
 class StanceUpdateResponse(BaseModel):
     id: int
     user_id: int
-    event_id: Optional[int] = None
-    issue_id: Optional[int] = None
+    entity_id: int
     headline: str
     content_json: str
 

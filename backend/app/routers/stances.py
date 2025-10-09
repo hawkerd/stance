@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.database.image import create_image
 from app.database.comment import count_comment_nested_replies
-from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_stances_by_event, get_stances_by_issue, get_comments_by_stance, get_all_stances
+from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_comments_by_stance, get_all_stances, get_stances_by_entity
 from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse
 from app.routers.models.comments import CommentReadResponse, CommentListResponse
 import logging
@@ -19,15 +19,14 @@ def create_stance_endpoint(
     user_id: int = Depends(get_current_user)
 ) -> StanceCreateResponse:
     try:
-        logging.info(f"Creating stance for user {user_id} with event_id {request.event_id} and issue_id {request.issue_id}")
+        logging.info(f"Creating stance for user {user_id} with entity_id {request.entity_id}")
 
-        # check if the user already has a stance for this event or issue
+        # check if the user already has a stance for this entity
         existing_stances = get_stances_by_user(db, user_id)
         for stance in existing_stances:
-            if (request.event_id is not None and stance.event_id == request.event_id) or \
-               (request.issue_id is not None and stance.issue_id == request.issue_id):
-                logging.warning(f"User {user_id} already has a stance for this event or issue")
-                raise HTTPException(status_code=400, detail="User already has a stance for this event or issue")
+            if stance.entity_id == request.entity_id:
+                logging.warning(f"User {user_id} already has a stance for this entity")
+                raise HTTPException(status_code=400, detail="User already has a stance for this entity")
 
         processed_content, image_urls = process_stance_content_json(request.content_json)
 
@@ -35,8 +34,7 @@ def create_stance_endpoint(
         stance_obj = create_stance(
             db,
             user_id=user_id,
-            event_id=request.event_id,
-            issue_id=request.issue_id,
+            entity_id=request.entity_id,
             headline=request.headline,
             content_json=processed_content
         )
@@ -44,13 +42,12 @@ def create_stance_endpoint(
             raise HTTPException(status_code=400, detail="Failed to create stance")
         
         for url in image_urls:
-            create_image(db, stance_id=stance_obj.id, issue_id=None, event_id=None, public_url=url, file_size=0, file_type="image/png")
+            create_image(db, stance_id=stance_obj.id, entity_id=None, public_url=url, file_size=0, file_type="image/png")
 
         return StanceCreateResponse(
             id=stance_obj.id,
             user_id=stance_obj.user_id,
-            event_id=stance_obj.event_id,
-            issue_id=stance_obj.issue_id,
+            entity_id=stance_obj.entity_id,
             headline=stance_obj.headline,
             content_json=stance_obj.content_json
         )
@@ -70,8 +67,7 @@ def get_stance_endpoint(
         return StanceReadResponse(
             id=stance.id,
             user_id=stance.user_id,
-            event_id=stance.event_id,
-            issue_id=stance.issue_id,
+            entity_id=stance.entity_id,
             headline=stance.headline,
             content_json=stance.content_json
         )
@@ -88,8 +84,7 @@ def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
                 StanceReadResponse(
                     id=stance.id,
                     user_id=stance.user_id,
-                    event_id=stance.event_id,
-                    issue_id=stance.issue_id,
+                    entity_id=stance.entity_id,
                     headline=stance.headline,
                     content_json=stance.content_json
                 ) for stance in stances
@@ -125,13 +120,12 @@ def update_stance_endpoint(
             raise HTTPException(status_code=404, detail="Stance not found or not authorized")
 
         for url in image_urls:
-            create_image(db, stance_id=stance_obj.id, issue_id=None, event_id=None, public_url=url, file_size=0, file_type="image/png")
+            create_image(db, stance_id=stance_obj.id, entity_id=None, public_url=url, file_size=0, file_type="image/png")
         
         return StanceUpdateResponse(
             id=stance_obj.id,
             user_id=stance_obj.user_id,
-            event_id=stance_obj.event_id,
-            issue_id=stance_obj.issue_id,
+            entity_id=stance_obj.entity_id,
             headline=stance_obj.headline,
             content_json=stance_obj.content_json
         )
@@ -160,50 +154,26 @@ def delete_stance_endpoint(
     except Exception as e:
         logging.error(f"Error deleting stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
-    
-@router.get("/stances/issue/{issue_id}", response_model=StanceListResponse)
-def get_stances_by_issue_endpoint(
-    issue_id: int,
+
+@router.get("/stances/entity/{entity_id}", response_model=StanceListResponse)
+def get_stances_by_entity_endpoint(
+    entity_id: int,
     db: Session = Depends(get_db)
 ) -> StanceListResponse:
     try:
-        stances = get_stances_by_issue(db, issue_id)
+        stances = get_stances_by_entity(db, entity_id)
         return StanceListResponse(
             stances=[
                 StanceReadResponse(
                     id=stance.id,
                     user_id=stance.user_id,
-                    event_id=stance.event_id,
-                    issue_id=stance.issue_id,
+                    entity_id=stance.entity_id,
                     headline=stance.headline,
                     content_json=stance.content_json
                 ) for stance in stances
             ]
         )
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Internal server error")
-    
-@router.get("/stances/event/{event_id}", response_model=StanceListResponse)
-def get_stances_by_event_endpoint(
-    event_id: int,
-    db: Session = Depends(get_db)
-) -> StanceListResponse:
-    try:
-        stances = get_stances_by_event(db, event_id)
-        return StanceListResponse(
-            stances=[
-                StanceReadResponse(
-                    id=stance.id,
-                    user_id=stance.user_id,
-                    event_id=stance.event_id,
-                    issue_id=stance.issue_id,
-                    headline=stance.headline,
-                    content_json=stance.content_json
-                ) for stance in stances
-            ]
-        )
-    except Exception as e:
-        logging.error(f"Error retrieving stances for event {event_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
     
 @router.get("/stances/{stance_id}/comments", response_model=CommentListResponse)

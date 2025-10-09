@@ -1,34 +1,37 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
-class EventCreateRequest(BaseModel):
+class EntityCreateRequest(BaseModel):
+    type: int
     title: str
     description: Optional[str] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None
 
-class EventReadResponse(BaseModel):
+class EntityReadResponse(BaseModel):
     id: int
+    type: int
     title: str
     description: Optional[str] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None
 
-class EventUpdateRequest(BaseModel):
+class EntityUpdateRequest(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None
 
-class EventUpdateResponse(BaseModel):
+class EntityUpdateResponse(BaseModel):
     id: int
+    type: int
     title: str
     description: Optional[str] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None
 
-class EventDeleteResponse(BaseModel):
+class EntityDeleteResponse(BaseModel):
     success: bool
 
-class EventListResponse(BaseModel):
-    events: list[EventReadResponse]
+class EntityListResponse(BaseModel):
+    entities: List[EntityReadResponse]

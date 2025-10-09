@@ -18,11 +18,11 @@ async def create_image_endpoint(
 ) -> ImageCreateResponse:
     try:
         # input validation
-        fk_count = sum(x is not None for x in [request.stance_id, request.issue_id, request.event_id])
+        fk_count = sum(x is not None for x in [request.stance_id, request.entity_id])
         if fk_count != 1:
             raise HTTPException(
                 status_code=400, 
-                detail="Exactly one of stance_id, issue_id, or event_id must be provided"
+                detail="Exactly one of stance_id or entity_id must be provided"
             )
         
         if request.mime_type not in ALLOWED_IMAGE_TYPES:
@@ -41,8 +41,7 @@ async def create_image_endpoint(
         image = create_image(
             db=db,
             stance_id=request.stance_id,
-            issue_id=request.issue_id,
-            event_id=request.event_id,
+            entity_id=request.entity_id,
             public_url=public_url,
             file_size=len(request.image_content),
             file_type=request.mime_type

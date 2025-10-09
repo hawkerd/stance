@@ -3,41 +3,38 @@
 import React, { useEffect, useState, use } from "react";
 import StancesSection from "@/components/StancesSection";
 import StanceComponent from "@/components/Stance";
-import { Stance as StanceType } from "@/models/Issue";
+import { Stance, Entity, EntityType, Event, Issue } from "@/models";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { Issue } from "@/models/Issue";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { stancesApi, issuesApi, commentsApi } from "@/api";
-import { StanceReadResponse } from "@/api/issues";
+import { entitiesApi, stancesApi, commentsApi } from "@/api";
 import StanceCreateModal from "@/components/stance-create/StanceCreateModal";
 
-interface IssuePageProps {
-  params: Promise<{ issue_id: string }>;
+interface EntityPageProps {
+  params: Promise<{ entity_id: string }>;
 }
 
-export default function IssuePage({ params }: IssuePageProps) {
-    const { issue_id } = use(params);
+export default function EntityPage({ params }: EntityPageProps) {
+    const { entity_id } = use(params);
     const router = useRouter();
-    const [issue, setIssue] = useState<Issue | null>(null);
+    const [entity, setEntity] = useState<Entity | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [userStance, setUserStance] = useState<StanceType | null | undefined>(undefined);
+    const [userStance, setUserStance] = useState<Stance | null | undefined>(undefined);
     const [showStanceModal, setShowStanceModal] = useState(false);
     const API = useAuthApi();
     const { isAuthenticated } = useAuth();
 
     useEffect(() => {
-        const fetchIssue = async () => {
+        const fetchEntity = async () => {
             setLoading(true);
             setError(null);
             try {
-                const issueResponse = await issuesApi.getIssue(API, parseInt(issue_id));
-                const stancesResponse = await stancesApi.getStancesByIssue(API, parseInt(issue_id));
+                const entityResponse = await entitiesApi.getEntity(API, parseInt(entity_id));
+                const stancesResponse = await stancesApi.getStancesByEntity(API, parseInt(entity_id));
                 const stances = await Promise.all(
                     (stancesResponse.stances ?? []).map(async (s) => {
                         const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
-
                         return {
                             ...s,
                             comments: (commentsResponse.comments ?? []).map(c => ({
@@ -52,21 +49,15 @@ export default function IssuePage({ params }: IssuePageProps) {
                         };
                     })
                 );
-                const issueData: Issue = {
-                    id: issueResponse.id,
-                    title: issueResponse.title,
-                    description: issueResponse.description ?? undefined,
-                    stances: stances,
-                };
-                setIssue(issueData);
+                setEntity({ ...entityResponse, stances });
             } catch (err: any) {
                 setError(err.message || "Unexpected error");
             } finally {
                 setLoading(false);
             }
         };
-        fetchIssue();
-    }, [issue_id]);
+        fetchEntity();
+    }, [entity_id]);
 
     useEffect(() => {
         const fetchUserStance = async () => {
@@ -75,14 +66,13 @@ export default function IssuePage({ params }: IssuePageProps) {
                 return;
             }
             try {
-                const stanceRes = await issuesApi.getMyStanceForIssue(API, parseInt(issue_id));
+                const stanceRes = await entitiesApi.getMyStanceForEntity(API, parseInt(entity_id));
                 if (!stanceRes) {
                     setUserStance(null);
                     return;
                 }
-                // Fetch comments for this stance
                 const commentsResponse = await stancesApi.getCommentsByStance(API, stanceRes.id);
-                const stance: StanceType = {
+                const stance: Stance = {
                     ...stanceRes,
                     comments: (commentsResponse.comments ?? []).map(c => ({
                         ...c,
@@ -100,7 +90,7 @@ export default function IssuePage({ params }: IssuePageProps) {
             }
         };
         fetchUserStance();
-    }, [isAuthenticated, API, issue_id]);
+    }, [isAuthenticated, API, entity_id]);
 
     const handleAddComment = async (stanceId: number, content: string, parentId?: number) => {
         try {
@@ -157,13 +147,13 @@ export default function IssuePage({ params }: IssuePageProps) {
                     </div>
                     {/* Main content centered */}
                     <div className="w-full max-w-5xl mx-auto">
-                    {loading && <div className="text-purple-500 italic text-center">Loading issue...</div>}
+                    {loading && <div className="text-purple-500 italic text-center">Loading...</div>}
                     {error && (
                         <div className="bg-red-100 border border-red-300 text-red-700 p-3 rounded-lg mb-6 text-center font-medium">
                             {error}
                         </div>
                     )}
-                    {issue && (
+                    {entity && (
                         <>
                             {/* Picture Placeholder */}
                             <div className="w-full aspect-[2/1] bg-gray-200 rounded-2xl mb-8 flex items-center justify-center border border-gray-300 shadow-inner">
@@ -171,12 +161,20 @@ export default function IssuePage({ params }: IssuePageProps) {
                             </div>
                             {/* Title */}
                             <h1 className="text-3xl text-purple-700 mb-6 drop-shadow-sm tracking-tight text-left">
-                                {issue.title}
+                                {entity.title}
                             </h1>
                             {/* Description */}
                             <p className="text-gray-700 leading-relaxed mb-10">
-                                {issue.description || "No description provided."}
+                                {entity.description || "No description provided."}
                             </p>
+                            {/* Type-specific fields */}
+                            {entity.type === EntityType.EVENT && (
+                                <div className="mb-6 text-gray-600 text-sm">
+                                    <span>Start: {entity.start_time || "N/A"}</span>
+                                    <span className="mx-2">|</span>
+                                    <span>End: {entity.end_time || "N/A"}</span>
+                                </div>
+                            )}
                             {/* User's stance or Take your stance button (only if signed in) */}
                             {isAuthenticated && (
                                 <div className="flex justify-center mb-8">
@@ -198,8 +196,8 @@ export default function IssuePage({ params }: IssuePageProps) {
                             {/* Stances (excluding user's own if present) */}
                             <StancesSection
                                 stances={userStance
-                                    ? issue.stances.filter(s => s.id !== userStance.id)
-                                    : issue.stances}
+                                    ? entity.stances.filter(s => s.id !== userStance.id)
+                                    : entity.stances}
                             />
                         </>
                     )}
@@ -208,8 +206,7 @@ export default function IssuePage({ params }: IssuePageProps) {
                     <div className="flex-1" />
                 </div>
             </main>
-            <StanceCreateModal open={showStanceModal} onClose={() => setShowStanceModal(false)} issueId={parseInt(issue_id)} />
+            <StanceCreateModal open={showStanceModal} onClose={() => setShowStanceModal(false)} entityId={parseInt(entity_id)} />
         </>
     );
-
 }

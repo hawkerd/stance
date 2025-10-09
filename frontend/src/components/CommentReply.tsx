@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Comment } from "../models/Issue";
+import { Comment } from "../models";
 import { useAuthApi } from "../app/hooks/useAuthApi";
 import { reactToComment, removeCommentReaction } from "../api/comment_reactions";
 import { useAuth } from "../contexts/AuthContext";

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Stance } from "../models/Issue";
+import { Stance } from "../models";
 
 export default function StanceCard({ stance }: { stance: Stance }) {
   return (

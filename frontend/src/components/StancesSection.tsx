@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Stance from "@/components/Stance";
-import { Stance as StanceType } from "../models/Issue";
+import { Stance as StanceType } from "../models";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { commentsApi } from "@/api";
 

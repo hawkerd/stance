@@ -144,32 +144,15 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/stances/issue/{issue_id}": {
+    "/stances/entity/{entity_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Stances By Issue Endpoint */
-        get: operations["get_stances_by_issue_endpoint_stances_issue__issue_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/event/{event_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Stances By Event Endpoint */
-        get: operations["get_stances_by_event_endpoint_stances_event__event_id__get"];
+        /** Get Stances By Entity Endpoint */
+        get: operations["get_stances_by_entity_endpoint_stances_entity__entity_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -286,44 +269,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/events": {
+    "/entities": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get All Events Endpoint */
-        get: operations["get_all_events_endpoint_events_get"];
+        /** Get All Entities Endpoint */
+        get: operations["get_all_entities_endpoint_entities_get"];
         put?: never;
-        /** Create Event Endpoint */
-        post: operations["create_event_endpoint_events_post"];
+        /** Create Entity Endpoint */
+        post: operations["create_entity_endpoint_entities_post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/events/{event_id}": {
+    "/entities/{entity_id}": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Get Event Endpoint */
-        get: operations["get_event_endpoint_events__event_id__get"];
-        /** Update Event Endpoint */
-        put: operations["update_event_endpoint_events__event_id__put"];
+        /** Get Entity Endpoint */
+        get: operations["get_entity_endpoint_entities__entity_id__get"];
+        /** Update Entity Endpoint */
+        put: operations["update_entity_endpoint_entities__entity_id__put"];
         post?: never;
-        /** Delete Event Endpoint */
-        delete: operations["delete_event_endpoint_events__event_id__delete"];
+        /** Delete Entity Endpoint */
+        delete: operations["delete_entity_endpoint_entities__entity_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/events/{event_id}/stances/me": {
+    "/entities/{entity_id}/stances/me": {
         parameters: {
             query?: never;
             header?: never;
@@ -331,61 +314,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get My Stance For Event */
-        get: operations["get_my_stance_for_event_events__event_id__stances_me_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/issues": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get All Issues Endpoint */
-        get: operations["get_all_issues_endpoint_issues_get"];
-        put?: never;
-        /** Create Issue Endpoint */
-        post: operations["create_issue_endpoint_issues_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/issues/{issue_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Issue Endpoint */
-        get: operations["get_issue_endpoint_issues__issue_id__get"];
-        /** Update Issue Endpoint */
-        put: operations["update_issue_endpoint_issues__issue_id__put"];
-        post?: never;
-        /** Delete Issue Endpoint */
-        delete: operations["delete_issue_endpoint_issues__issue_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/issues/{issue_id}/stances/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get My Stance For Issue */
-        get: operations["get_my_stance_for_issue_issues__issue_id__stances_me_get"];
+        get: operations["get_my_stance_for_event_entities__entity_id__stances_me_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -561,8 +490,10 @@ export interface components {
             /** Zip Code */
             zip_code: string | null;
         };
-        /** EventCreateRequest */
-        EventCreateRequest: {
+        /** EntityCreateRequest */
+        EntityCreateRequest: {
+            /** Type */
+            type: number;
             /** Title */
             title: string;
             /** Description */
@@ -572,20 +503,22 @@ export interface components {
             /** End Time */
             end_time?: string | null;
         };
-        /** EventDeleteResponse */
-        EventDeleteResponse: {
+        /** EntityDeleteResponse */
+        EntityDeleteResponse: {
             /** Success */
             success: boolean;
         };
-        /** EventListResponse */
-        EventListResponse: {
-            /** Events */
-            events: components["schemas"]["EventReadResponse"][];
+        /** EntityListResponse */
+        EntityListResponse: {
+            /** Entities */
+            entities: components["schemas"]["EntityReadResponse"][];
         };
-        /** EventReadResponse */
-        EventReadResponse: {
+        /** EntityReadResponse */
+        EntityReadResponse: {
             /** Id */
             id: number;
+            /** Type */
+            type: number;
             /** Title */
             title: string;
             /** Description */
@@ -595,8 +528,8 @@ export interface components {
             /** End Time */
             end_time?: string | null;
         };
-        /** EventUpdateRequest */
-        EventUpdateRequest: {
+        /** EntityUpdateRequest */
+        EntityUpdateRequest: {
             /** Title */
             title?: string | null;
             /** Description */
@@ -606,10 +539,12 @@ export interface components {
             /** End Time */
             end_time?: string | null;
         };
-        /** EventUpdateResponse */
-        EventUpdateResponse: {
+        /** EntityUpdateResponse */
+        EntityUpdateResponse: {
             /** Id */
             id: number;
+            /** Type */
+            type: number;
             /** Title */
             title: string;
             /** Description */
@@ -628,10 +563,8 @@ export interface components {
         ImageCreateRequest: {
             /** Stance Id */
             stance_id?: number | null;
-            /** Issue Id */
-            issue_id?: number | null;
-            /** Event Id */
-            event_id?: number | null;
+            /** Entity Id */
+            entity_id?: number | null;
             /** Mime Type */
             mime_type: string;
             /**
@@ -644,48 +577,6 @@ export interface components {
         ImageCreateResponse: {
             /** Public Url */
             public_url: string;
-        };
-        /** IssueCreateRequest */
-        IssueCreateRequest: {
-            /** Title */
-            title: string;
-            /** Description */
-            description: string | null;
-        };
-        /** IssueDeleteResponse */
-        IssueDeleteResponse: {
-            /** Success */
-            success: boolean;
-        };
-        /** IssueListResponse */
-        IssueListResponse: {
-            /** Issues */
-            issues: components["schemas"]["IssueReadResponse"][];
-        };
-        /** IssueReadResponse */
-        IssueReadResponse: {
-            /** Id */
-            id: number;
-            /** Title */
-            title: string;
-            /** Description */
-            description: string | null;
-        };
-        /** IssueUpdateRequest */
-        IssueUpdateRequest: {
-            /** Title */
-            title: string | null;
-            /** Description */
-            description: string | null;
-        };
-        /** IssueUpdateResponse */
-        IssueUpdateResponse: {
-            /** Id */
-            id: number;
-            /** Title */
-            title: string;
-            /** Description */
-            description: string | null;
         };
         /** LoginRequest */
         LoginRequest: {
@@ -778,10 +669,8 @@ export interface components {
         };
         /** StanceCreateRequest */
         StanceCreateRequest: {
-            /** Event Id */
-            event_id?: number | null;
-            /** Issue Id */
-            issue_id?: number | null;
+            /** Entity Id */
+            entity_id: number;
             /** Headline */
             headline: string;
             /** Content Json */
@@ -793,10 +682,8 @@ export interface components {
             id: number;
             /** User Id */
             user_id: number;
-            /** Event Id */
-            event_id?: number | null;
-            /** Issue Id */
-            issue_id?: number | null;
+            /** Entity Id */
+            entity_id: number;
             /** Headline */
             headline: string;
             /** Content Json */
@@ -818,10 +705,8 @@ export interface components {
             id: number;
             /** User Id */
             user_id: number;
-            /** Event Id */
-            event_id?: number | null;
-            /** Issue Id */
-            issue_id?: number | null;
+            /** Entity Id */
+            entity_id: number;
             /** Headline */
             headline: string;
             /** Content Json */
@@ -840,10 +725,8 @@ export interface components {
             id: number;
             /** User Id */
             user_id: number;
-            /** Event Id */
-            event_id?: number | null;
-            /** Issue Id */
-            issue_id?: number | null;
+            /** Entity Id */
+            entity_id: number;
             /** Headline */
             headline: string;
             /** Content Json */
@@ -1254,43 +1137,12 @@ export interface operations {
             };
         };
     };
-    get_stances_by_issue_endpoint_stances_issue__issue_id__get: {
+    get_stances_by_entity_endpoint_stances_entity__entity_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                issue_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_stances_by_event_endpoint_stances_event__event_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                event_id: number;
+                entity_id: number;
             };
             cookie?: never;
         };
@@ -1710,7 +1562,7 @@ export interface operations {
             };
         };
     };
-    get_all_events_endpoint_events_get: {
+    get_all_entities_endpoint_entities_get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1725,12 +1577,12 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventListResponse"];
+                    "application/json": components["schemas"]["EntityListResponse"];
                 };
             };
         };
     };
-    create_event_endpoint_events_post: {
+    create_entity_endpoint_entities_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1739,7 +1591,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EventCreateRequest"];
+                "application/json": components["schemas"]["EntityCreateRequest"];
             };
         };
         responses: {
@@ -1749,7 +1601,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventReadResponse"];
+                    "application/json": components["schemas"]["EntityReadResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1763,12 +1615,12 @@ export interface operations {
             };
         };
     };
-    get_event_endpoint_events__event_id__get: {
+    get_entity_endpoint_entities__entity_id__get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                event_id: number;
+                entity_id: number;
             };
             cookie?: never;
         };
@@ -1780,7 +1632,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventReadResponse"];
+                    "application/json": components["schemas"]["EntityReadResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1794,18 +1646,18 @@ export interface operations {
             };
         };
     };
-    update_event_endpoint_events__event_id__put: {
+    update_entity_endpoint_entities__entity_id__put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                event_id: number;
+                entity_id: number;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["EventUpdateRequest"];
+                "application/json": components["schemas"]["EntityUpdateRequest"];
             };
         };
         responses: {
@@ -1815,7 +1667,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventUpdateResponse"];
+                    "application/json": components["schemas"]["EntityUpdateResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1829,12 +1681,12 @@ export interface operations {
             };
         };
     };
-    delete_event_endpoint_events__event_id__delete: {
+    delete_entity_endpoint_entities__entity_id__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                event_id: number;
+                entity_id: number;
             };
             cookie?: never;
         };
@@ -1846,7 +1698,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["EventDeleteResponse"];
+                    "application/json": components["schemas"]["EntityDeleteResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1860,193 +1712,12 @@ export interface operations {
             };
         };
     };
-    get_my_stance_for_event_events__event_id__stances_me_get: {
+    get_my_stance_for_event_entities__entity_id__stances_me_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                event_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceReadResponse"] | null;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_all_issues_endpoint_issues_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueListResponse"];
-                };
-            };
-        };
-    };
-    create_issue_endpoint_issues_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IssueCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueReadResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_issue_endpoint_issues__issue_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                issue_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueReadResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_issue_endpoint_issues__issue_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                issue_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["IssueUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueUpdateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_issue_endpoint_issues__issue_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                issue_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["IssueDeleteResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_my_stance_for_issue_issues__issue_id__stances_me_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                issue_id: number;
+                entity_id: number;
             };
             cookie?: never;
         };

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { stancesApi } from "@/api"; 
 import StanceComponent from "@/components/Stance";
 import { useApi } from "@/app/hooks/useApi";
-import { Stance } from "@/models/Issue";
+import { Stance } from "@/models";
 
 export default function HomeFeed() {
   const [stances, setStances] = useState<Stance[]>([]);
@@ -18,23 +18,24 @@ export default function HomeFeed() {
             const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
 
             return {
-            id: s.id,
-            user_id: s.user_id,
-            headline: s.headline,
-            content_json: s.content_json,
-            comments: (commentsResponse.comments ?? []).map(c => ({
-                id: c.id,
-                user_id: c.user_id,
-                parent_id: c.parent_id === null ? undefined : c.parent_id,
-                content: c.content,
-                likes: c.likes,
-                dislikes: c.dislikes,
-                user_reaction:
-                c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
-                    ? (c.user_reaction as "like" | "dislike" | null)
-                    : null,
-                count_nested_replies: c.count_nested,
-            })),
+                id: s.id,
+                user_id: s.user_id,
+                entity_id: s.entity_id,
+                headline: s.headline,
+                content_json: s.content_json,
+                comments: (commentsResponse.comments ?? []).map(c => ({
+                    id: c.id,
+                    user_id: c.user_id,
+                    parent_id: c.parent_id === null ? undefined : c.parent_id,
+                    content: c.content,
+                    likes: c.likes,
+                    dislikes: c.dislikes,
+                    user_reaction:
+                    c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
+                        ? (c.user_reaction as "like" | "dislike" | null)
+                        : null,
+                    count_nested_replies: c.count_nested,
+                })),
             };
         })
         );

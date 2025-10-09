@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import StanceContentRenderer from "./StanceContentRenderer";
-import { Stance as StanceType, Comment as CommentType } from "../models/Issue";
+import { Stance as StanceType, Comment as CommentType } from "../models";
 import CommentComponent from "./Comment";
 
 interface StanceProps {

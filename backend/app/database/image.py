@@ -4,13 +4,12 @@ from typing import Optional, List
 from app.errors import DatabaseError
 import logging
 
-def create_image(db: Session, stance_id: Optional[int], issue_id: Optional[int], event_id: Optional[int], 
+def create_image(db: Session, stance_id: Optional[int], entity_id: Optional[int], 
                 public_url: str, file_size: int, file_type: str) -> Image:
     try:
         image = Image(
             stance_id=stance_id,
-            issue_id=issue_id,
-            event_id=event_id,
+            entity_id=entity_id,
             public_url=public_url,
             file_size=file_size,
             file_type=file_type
@@ -65,16 +64,9 @@ def get_images_by_stance(db: Session, stance_id: int) -> List[Image]:
         logging.error(f"Error getting images for stance {stance_id}: {e}")
         raise DatabaseError("Failed to get images by stance")
 
-def get_images_by_issue(db: Session, issue_id: int) -> List[Image]:
+def get_images_by_entity(db: Session, entity_id: int) -> List[Image]:
     try:
-        return db.query(Image).filter(Image.issue_id == issue_id).all()
+        return db.query(Image).filter(Image.entity_id == entity_id).all()
     except Exception as e:
-        logging.error(f"Error getting images for issue {issue_id}: {e}")
-        raise DatabaseError("Failed to get images by issue")
-
-def get_images_by_event(db: Session, event_id: int) -> List[Image]:
-    try:
-        return db.query(Image).filter(Image.event_id == event_id).all()
-    except Exception as e:
-        logging.error(f"Error getting images for event {event_id}: {e}")
-        raise DatabaseError("Failed to get images by event")
+        logging.error(f"Error getting images for entity {entity_id}: {e}")
+        raise DatabaseError("Failed to get images by entity")
