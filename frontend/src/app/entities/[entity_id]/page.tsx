@@ -3,7 +3,7 @@
 import React, { useEffect, useState, use } from "react";
 import StancesSection from "@/components/StancesSection";
 import StanceComponent from "@/components/Stance";
-import { Stance, Entity, EntityType, Event, Issue } from "@/models";
+import { Stance, Entity, EntityType, Event, Issue, TagType, Tag } from "@/models";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
@@ -23,6 +23,7 @@ export default function EntityPage({ params }: EntityPageProps) {
     const [userStance, setUserStance] = useState<Stance | null | undefined>(undefined);
     const [showStanceModal, setShowStanceModal] = useState(false);
     const [currentImage, setCurrentImage] = useState(0);
+    const [hovered, setHovered] = useState(false);
     const API = useAuthApi();
     const { isAuthenticated } = useAuth();
 
@@ -168,10 +169,14 @@ export default function EntityPage({ params }: EntityPageProps) {
                                 const handlePrev = () => setCurrentImage(idx => Math.max(idx - 1, 0));
                                 const handleNext = () => setCurrentImage(idx => Math.min(idx + 1, imageUrls.length - 1));
                                 return (
-                                    <div className="w-full aspect-video bg-gray-200 rounded-2xl mb-8 flex items-center justify-center relative overflow-hidden border border-gray-300 shadow-inner">
+                                    <div
+                                        className="w-full aspect-video bg-gray-200 rounded-2xl mb-8 flex items-center justify-center relative overflow-hidden border border-gray-300 shadow-inner"
+                                        onMouseEnter={() => setHovered(true)}
+                                        onMouseLeave={() => setHovered(false)}
+                                    >
                                         {hasImages ? (
                                             <>
-                                                {currentImage > 0 && (
+                                                {imageUrls.length > 1 && hovered && currentImage > 0 && (
                                                     <button
                                                         className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
                                                         onClick={handlePrev}
@@ -186,7 +191,7 @@ export default function EntityPage({ params }: EntityPageProps) {
                                                     className="object-contain rounded w-full h-full mx-auto"
                                                     style={{ maxHeight: "100%", maxWidth: "100%" }}
                                                 />
-                                                {currentImage < imageUrls.length - 1 && (
+                                                {imageUrls.length > 1 && hovered && currentImage < imageUrls.length - 1 && (
                                                     <button
                                                         className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
                                                         onClick={handleNext}
@@ -195,9 +200,11 @@ export default function EntityPage({ params }: EntityPageProps) {
                                                         &#8594;
                                                     </button>
                                                 )}
-                                                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs bg-white bg-opacity-70 rounded px-2 py-1">
-                                                    {currentImage + 1} / {imageUrls.length}
-                                                </span>
+                                                {imageUrls.length > 1 && hovered && (
+                                                    <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs bg-white bg-opacity-70 rounded px-2 py-1">
+                                                        {currentImage + 1} / {imageUrls.length}
+                                                    </span>
+                                                )}
                                             </>
                                         ) : (
                                             <span className="text-gray-400 text-2xl font-bold">Image(s) coming soon</span>
@@ -209,6 +216,25 @@ export default function EntityPage({ params }: EntityPageProps) {
                             <h1 className="text-3xl text-purple-700 mb-6 drop-shadow-sm tracking-tight text-left">
                                 {entity.title}
                             </h1>
+                            {/* Tags */}
+                            {entity.tags && entity.tags.length > 0 && (
+                              <div className="mb-6 flex flex-wrap gap-2">
+                                {entity.tags.map((tag, idx) => (
+                                  <span
+                                    key={idx}
+                                    className={`px-3 py-1 rounded-full text-xs font-semibold shadow border ${
+                                      tag.tag_type === TagType.LOCATION
+                                        ? "bg-blue-100 text-blue-700 border-blue-300"
+                                        : "bg-green-100 text-green-700 border-green-300"
+                                    }`}
+                                    title={tag.tag_type === TagType.LOCATION ? "Location" : "Topic"}
+                                  >
+                                    {tag.name}
+                                    <span className="ml-2 text-gray-400">{tag.tag_type === TagType.LOCATION ? "📍" : "🏷️"}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            )}
                             {/* Description */}
                             <p className="text-gray-700 leading-relaxed mb-10">
                                 {entity.description || "No description provided."}

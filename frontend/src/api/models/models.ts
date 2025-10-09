@@ -498,6 +498,8 @@ export interface components {
             title: string;
             /** Images */
             images: string[];
+            /** Tags */
+            tags: components["schemas"]["TagRequest"][];
             /** Description */
             description?: string | null;
             /** Start Time */
@@ -525,6 +527,8 @@ export interface components {
             title: string;
             /** Images Json */
             images_json: string;
+            /** Tags */
+            tags: components["schemas"]["TagResponse"][];
             /** Description */
             description?: string | null;
             /** Start Time */
@@ -538,6 +542,8 @@ export interface components {
             title?: string | null;
             /** Images */
             images?: string[] | null;
+            /** Tags */
+            tags: components["schemas"]["TagRequest"][];
             /** Description */
             description?: string | null;
             /** Start Time */
@@ -739,6 +745,22 @@ export interface components {
             headline: string;
             /** Content Json */
             content_json: string;
+        };
+        /** TagRequest */
+        TagRequest: {
+            /** Name */
+            name: string;
+            /** Tag Type */
+            tag_type: number;
+        };
+        /** TagResponse */
+        TagResponse: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Tag Type */
+            tag_type: number;
         };
         /** TokenResponse */
         TokenResponse: {

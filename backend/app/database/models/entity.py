@@ -25,3 +25,4 @@ class Entity(Base):
 
     stances = relationship("Stance", back_populates="entity", cascade="all, delete-orphan")
     images = relationship("Image", back_populates="entity", cascade="all, delete-orphan")
+    tags = relationship("EntityTag", back_populates="entity", cascade="all, delete-orphan")

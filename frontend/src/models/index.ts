@@ -15,6 +15,11 @@ export enum EntityType {
     QUOTE = 4
 }
 
+export enum TagType {
+    LOCATION = 1,
+    TOPIC = 2
+}
+
 export interface Comment {
     id: number;
     user_id: number;
@@ -35,6 +40,12 @@ export interface Stance {
     comments: Comment[];
 }
 
+export interface Tag {
+    id: number;
+    name: string;
+    tag_type: TagType;
+}
+
 export interface Entity {
     id: number;
     type: EntityType;
@@ -44,4 +55,5 @@ export interface Entity {
     end_time?: string | null;
     images_json: string;
     stances: Stance[];
+    tags: Tag[];
 }

@@ -4,7 +4,12 @@ import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { createEntity, EntityCreateRequest } from "@/api/entities";
-import { EntityType } from "@/models/index";
+import { EntityType, TagType } from "@/models/index";
+
+const tagTypeOptions = [
+  { value: TagType.LOCATION, label: "Location" },
+  { value: TagType.TOPIC, label: "Topic" }
+];
 
 const NewEntityPage: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -16,12 +21,14 @@ const NewEntityPage: React.FC = () => {
     description: "",
     start_time: null,
     end_time: null,
-    images: []
+    images: [],
+    tags: []
   });
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [newTag, setNewTag] = useState<{ name: string; tag_type: TagType }>({ name: "", tag_type: TagType.TOPIC });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -89,7 +96,8 @@ const NewEntityPage: React.FC = () => {
         description: "",
         start_time: null,
         end_time: null,
-        images: []
+        images: [],
+        tags: []
       });
       setSelectedFiles([]);
     } catch (err: any) {
@@ -97,6 +105,26 @@ const NewEntityPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleTagChange = (idx: number, field: string, value: string | number) => {
+    setForm((prev) => ({
+      ...prev,
+      tags: prev.tags.map((tag, i) =>
+        i === idx ? { ...tag, [field]: value } : tag
+      )
+    }));
+  };
+
+  const handleAddTag = () => {
+    if (newTag.name.trim()) {
+      setForm((prev) => ({ ...prev, tags: [...prev.tags, { ...newTag }] }));
+      setNewTag({ name: "", tag_type: TagType.TOPIC });
+    }
+  };
+
+  const handleRemoveTag = (idx: number) => {
+    setForm((prev) => ({ ...prev, tags: prev.tags.filter((_, i) => i !== idx) }));
   };
 
   return (
@@ -138,6 +166,49 @@ const NewEntityPage: React.FC = () => {
               ))}
             </div>
           )}
+        </div>
+        <label className="block mb-2 font-semibold">Tags</label>
+        <div className="mb-4">
+          {form.tags.map((tag, idx) => (
+            <div key={idx} className="flex items-center gap-2 mb-2">
+              <input
+                type="text"
+                value={tag.name}
+                onChange={e => handleTagChange(idx, "name", e.target.value)}
+                placeholder="Tag name"
+                className="p-2 border rounded w-1/2"
+              />
+              <select
+                value={tag.tag_type}
+                onChange={e => handleTagChange(idx, "tag_type", Number(e.target.value))}
+                className="p-2 border rounded w-1/3"
+              >
+                {tagTypeOptions.map(opt => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+              <button type="button" onClick={() => handleRemoveTag(idx)} className="px-2 py-1 bg-red-100 text-red-700 rounded">Remove</button>
+            </div>
+          ))}
+          <div className="flex items-center gap-2 mt-2">
+            <input
+              type="text"
+              value={newTag.name}
+              onChange={e => setNewTag(nt => ({ ...nt, name: e.target.value }))}
+              placeholder="New tag name"
+              className="p-2 border rounded w-1/2"
+            />
+            <select
+              value={newTag.tag_type}
+              onChange={e => setNewTag(nt => ({ ...nt, tag_type: Number(e.target.value) }))}
+              className="p-2 border rounded w-1/3"
+            >
+              {tagTypeOptions.map(opt => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <button type="button" onClick={handleAddTag} className="px-2 py-1 bg-green-100 text-green-700 rounded">Add Tag</button>
+          </div>
         </div>
         <button type="submit" className="px-4 py-2 bg-purple-700 text-white rounded hover:bg-purple-800 transition" disabled={loading}>
           {loading ? "Creating..." : "+ Create Entity"}
