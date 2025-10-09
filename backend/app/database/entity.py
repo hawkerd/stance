@@ -5,11 +5,12 @@ from app.errors import DatabaseError
 import logging
 from datetime import datetime
 
-def create_entity(db: Session, type: int, title: str, description: str = None, start_time: Optional[datetime] = None, end_time: Optional[datetime] = None) -> Entity:
+def create_entity(db: Session, type: int, title: str, images_json: str, description: str = None, start_time: Optional[datetime] = None, end_time: Optional[datetime] = None) -> Entity:
     try:
         entity = Entity(
             type=type,
             title=title,
+            images_json=images_json,
             description=description,
             start_time=start_time,
             end_time=end_time
@@ -30,7 +31,7 @@ def read_entity(db: Session, entity_id: int) -> Optional[Entity]:
         raise DatabaseError("Failed to read entity")
 
 def update_entity(db: Session, entity_id: int, **kwargs) -> Optional[Entity]:
-    ALLOWED_FIELDS = {"title", "description", "start_time", "end_time"}
+    ALLOWED_FIELDS = {"title", "description", "start_time", "end_time", "images_json"}
     try:
         entity = db.query(Entity).filter(Entity.id == entity_id).first()
         if not entity:

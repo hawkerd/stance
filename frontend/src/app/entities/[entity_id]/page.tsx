@@ -22,6 +22,7 @@ export default function EntityPage({ params }: EntityPageProps) {
     const [error, setError] = useState<string | null>(null);
     const [userStance, setUserStance] = useState<Stance | null | undefined>(undefined);
     const [showStanceModal, setShowStanceModal] = useState(false);
+    const [currentImage, setCurrentImage] = useState(0);
     const API = useAuthApi();
     const { isAuthenticated } = useAuth();
 
@@ -155,10 +156,55 @@ export default function EntityPage({ params }: EntityPageProps) {
                     )}
                     {entity && (
                         <>
-                            {/* Picture Placeholder */}
-                            <div className="w-full aspect-[2/1] bg-gray-200 rounded-2xl mb-8 flex items-center justify-center border border-gray-300 shadow-inner">
-                                <span className="text-gray-400 text-2xl font-bold">2x1 Picture Placeholder</span>
-                            </div>
+                            {/* Image Carousel */}
+                            {(() => {
+                                let imageUrls: string[] = [];
+                                try {
+                                    imageUrls = entity.images_json ? JSON.parse(entity.images_json) : [];
+                                } catch {
+                                    imageUrls = [];
+                                }
+                                const hasImages = imageUrls.length > 0;
+                                const handlePrev = () => setCurrentImage(idx => Math.max(idx - 1, 0));
+                                const handleNext = () => setCurrentImage(idx => Math.min(idx + 1, imageUrls.length - 1));
+                                return (
+                                    <div className="w-full aspect-video bg-gray-200 rounded-2xl mb-8 flex items-center justify-center relative overflow-hidden border border-gray-300 shadow-inner">
+                                        {hasImages ? (
+                                            <>
+                                                {currentImage > 0 && (
+                                                    <button
+                                                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
+                                                        onClick={handlePrev}
+                                                        aria-label="Previous image"
+                                                    >
+                                                        &#8592;
+                                                    </button>
+                                                )}
+                                                <img
+                                                    src={imageUrls[currentImage]}
+                                                    alt={`Entity image ${currentImage + 1}`}
+                                                    className="object-contain rounded w-full h-full mx-auto"
+                                                    style={{ maxHeight: "100%", maxWidth: "100%" }}
+                                                />
+                                                {currentImage < imageUrls.length - 1 && (
+                                                    <button
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
+                                                        onClick={handleNext}
+                                                        aria-label="Next image"
+                                                    >
+                                                        &#8594;
+                                                    </button>
+                                                )}
+                                                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs bg-white bg-opacity-70 rounded px-2 py-1">
+                                                    {currentImage + 1} / {imageUrls.length}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <span className="text-gray-400 text-2xl font-bold">Image(s) coming soon</span>
+                                        )}
+                                    </div>
+                                );
+                            })()}
                             {/* Title */}
                             <h1 className="text-3xl text-purple-700 mb-6 drop-shadow-sm tracking-tight text-left">
                                 {entity.title}

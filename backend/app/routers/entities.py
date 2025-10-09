@@ -8,9 +8,12 @@ from app.routers.models.entities import (
 from app.database.stance import get_user_stance_by_entity
 from app.database.models.stance import Stance
 from app.routers.models.stances import StanceReadResponse
+from app.service.storage import upload_image_to_storage
 import logging
 from typing import Optional
 from datetime import datetime
+import json
+import base64
 
 router = APIRouter(tags=["entities"])
 
@@ -18,13 +21,24 @@ router = APIRouter(tags=["entities"])
 def create_entity_endpoint(request: EntityCreateRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)) -> EntityReadResponse:
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")
+    
+    # Upload images and get URLs
+    image_urls = []
+    if request.images:
+        for img in request.images:
+            img_bytes = base64.b64decode(img)
+            url = upload_image_to_storage(img_bytes, "image/jpeg")
+            image_urls.append(url)
+    images_json = json.dumps(image_urls)
+
     entity = create_entity(
         db,
         type=request.type,
         title=request.title,
         description=request.description,
         start_time=datetime.fromisoformat(request.start_time) if request.start_time else None,
-        end_time=datetime.fromisoformat(request.end_time) if request.end_time else None
+        end_time=datetime.fromisoformat(request.end_time) if request.end_time else None,
+        images_json=images_json
     )
     if not entity:
         raise HTTPException(status_code=400, detail="Failed to create entity")
@@ -34,7 +48,8 @@ def create_entity_endpoint(request: EntityCreateRequest, db: Session = Depends(g
         title=entity.title,
         description=entity.description,
         start_time=entity.start_time.isoformat() if entity.start_time else None,
-        end_time=entity.end_time.isoformat() if entity.end_time else None
+        end_time=entity.end_time.isoformat() if entity.end_time else None,
+        images_json=entity.images_json
     )
 
 @router.get("/entities/{entity_id}", response_model=EntityReadResponse)
@@ -48,14 +63,25 @@ def get_entity_endpoint(entity_id: int, db: Session = Depends(get_db)) -> Entity
         title=entity.title,
         description=entity.description,
         start_time=entity.start_time.isoformat() if entity.start_time else None,
-        end_time=entity.end_time.isoformat() if entity.end_time else None
+        end_time=entity.end_time.isoformat() if entity.end_time else None,
+        images_json=entity.images_json
     )
 
 @router.put("/entities/{entity_id}", response_model=EntityUpdateResponse)
 def update_entity_endpoint(entity_id: int, request: EntityUpdateRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)) -> EntityUpdateResponse:
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")
-    entity = update_entity(db, entity_id=entity_id, **request.model_dump(exclude_unset=True))
+    
+    # Upload images and get URLs
+    image_urls = []
+    if request.images:
+        for img in request.images:
+            img_bytes = base64.b64decode(img)
+            url = upload_image_to_storage(img_bytes, "image/jpeg")
+            image_urls.append(url)
+    images_json = json.dumps(image_urls)
+
+    entity = update_entity(db, entity_id=entity_id, images_json=images_json, description=request.description, start_time=datetime.fromisoformat(request.start_time) if request.start_time else None, end_time=datetime.fromisoformat(request.end_time) if request.end_time else None, title=request.title)
     if not entity:
         raise HTTPException(status_code=400, detail="Failed to update entity")
     return EntityUpdateResponse(
@@ -64,7 +90,8 @@ def update_entity_endpoint(entity_id: int, request: EntityUpdateRequest, db: Ses
         title=entity.title,
         description=entity.description,
         start_time=entity.start_time.isoformat() if entity.start_time else None,
-        end_time=entity.end_time.isoformat() if entity.end_time else None
+        end_time=entity.end_time.isoformat() if entity.end_time else None,
+        images_json=entity.images_json
     )
 
 @router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
@@ -86,6 +113,7 @@ def get_all_entities_endpoint(db: Session = Depends(get_db)):
                 type=entity.type,
                 title=entity.title,
                 description=entity.description,
+                images_json=entity.images_json,
                 start_time=entity.start_time.isoformat() if entity.start_time else None,
                 end_time=entity.end_time.isoformat() if entity.end_time else None
             ) for entity in entities

@@ -496,6 +496,8 @@ export interface components {
             type: number;
             /** Title */
             title: string;
+            /** Images */
+            images: string[];
             /** Description */
             description?: string | null;
             /** Start Time */
@@ -521,6 +523,8 @@ export interface components {
             type: number;
             /** Title */
             title: string;
+            /** Images Json */
+            images_json: string;
             /** Description */
             description?: string | null;
             /** Start Time */
@@ -532,6 +536,8 @@ export interface components {
         EntityUpdateRequest: {
             /** Title */
             title?: string | null;
+            /** Images */
+            images?: string[] | null;
             /** Description */
             description?: string | null;
             /** Start Time */
@@ -547,6 +553,8 @@ export interface components {
             type: number;
             /** Title */
             title: string;
+            /** Images Json */
+            images_json: string;
             /** Description */
             description?: string | null;
             /** Start Time */

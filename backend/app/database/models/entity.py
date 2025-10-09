@@ -19,6 +19,7 @@ class Entity(Base):
     description = Column(Text, nullable=True)
     start_time = Column(DateTime(timezone=True), nullable=True)  # event, legislation, quote
     end_time = Column(DateTime(timezone=True), nullable=True)    # event/legislation
+    images_json = Column(Text, nullable=True)  # JSON array of image URLs
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

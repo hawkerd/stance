@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Event } from "../models";
 import StanceCard from "./StanceCard";
 import { useRouter } from "next/navigation";
@@ -7,14 +8,60 @@ import { useRouter } from "next/navigation";
 export default function EventCard({ event }: { event: Event }) {
   const stances = event.stances || [];
   const router = useRouter();
+  let imageUrls: string[] = [];
+  try {
+    imageUrls = event.images_json ? JSON.parse(event.images_json) : [];
+  } catch {
+    imageUrls = [];
+  }
+  const [currentImage, setCurrentImage] = useState(0);
+  const hasImages = imageUrls.length > 0;
+
+  const handlePrev = () => {
+    setCurrentImage((idx) => Math.max(idx - 1, 0));
+  };
+  const handleNext = () => {
+    setCurrentImage((idx) => Math.min(idx + 1, imageUrls.length - 1));
+  };
 
   return (
     <>
-      {/* Placeholder for future image(s) */}
       <div className="w-[90%] flex flex-row mx-auto">
         <div className="w-1/2 min-w-0">
-          <div className="aspect-[2/1] bg-gray-200 rounded mb-2 flex items-center justify-center text-gray-400 text-sm select-none">
-            Image(s) coming soon
+          <div className="aspect-video bg-gray-200 rounded mb-2 flex items-center justify-center relative overflow-hidden">
+            {hasImages ? (
+              <>
+                {currentImage > 0 && (
+                  <button
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
+                    onClick={handlePrev}
+                    aria-label="Previous image"
+                  >
+                    &#8592;
+                  </button>
+                )}
+                <img
+                  src={imageUrls[currentImage]}
+                  alt={`Event image ${currentImage + 1}`}
+                  className="object-contain rounded w-full h-full mx-auto"
+                  style={{ maxHeight: "100%", maxWidth: "100%" }}
+                />
+                {currentImage < imageUrls.length - 1 && (
+                  <button
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
+                    onClick={handleNext}
+                    aria-label="Next image"
+                  >
+                    &#8594;
+                  </button>
+                )}
+                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs bg-white bg-opacity-70 rounded px-2 py-1">
+                  {currentImage + 1} / {imageUrls.length}
+                </span>
+              </>
+            ) : (
+              <span className="text-gray-400 text-sm select-none">Image(s) coming soon</span>
+            )}
           </div>
           <div>
             <div

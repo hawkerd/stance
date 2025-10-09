@@ -42,5 +42,6 @@ export interface Entity {
     description?: string | null;
     start_time?: string | null;
     end_time?: string | null;
+    images_json: string;
     stances: Stance[];
 }
