@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
 from app.database.image import create_image
-from app.routers.models.images import ImageCreateRequest, ImageCreateResponse
+from app.routers.models import ImageCreateRequest, ImageCreateResponse
 from app.service.storage import upload_image_to_storage
 import logging
 

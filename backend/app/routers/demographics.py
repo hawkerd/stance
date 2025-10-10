@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
 from app.database.demographic import create_demographic, read_demographic, update_demographic, get_demographic_by_user_id
-from app.routers.models.demographics import DemographicCreateRequest, DemographicReadResponse, DemographicUpdateRequest, DemographicUpdateResponse
+from app.routers.models import DemographicCreateRequest, DemographicReadResponse, DemographicUpdateRequest, DemographicUpdateResponse
 import logging
 
 router = APIRouter(tags=["users"])

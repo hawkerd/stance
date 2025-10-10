@@ -4,8 +4,7 @@ from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.database.image import create_image
 from app.database.comment import count_comment_nested_replies
 from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_comments_by_stance, get_all_stances, get_stances_by_entity
-from app.routers.models.stances import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse
-from app.routers.models.comments import CommentReadResponse, CommentListResponse
+from app.routers.models import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse, CommentReadResponse, CommentListResponse
 import logging
 from typing import Optional
 from app.service.stance import process_stance_content_json

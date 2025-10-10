@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models.refresh_token import RefreshToken
-from app.database.models.user import User
+from app.database.models import User, RefreshToken
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging

@@ -4,7 +4,7 @@ from app.dependencies import get_db, get_is_admin
 from app.service.auth import hash_password, verify_password, create_access_token, generate_refresh_token, refresh_token_expires_at, hash_refresh_token
 from app.database.user import get_user_by_username, create_user, get_user_by_email, is_user_admin
 from app.database.refresh_token import create_refresh_token, get_refresh_token_by_hash, update_refresh_token
-from app.routers.models.auth import (
+from app.routers.models import (
     SignupRequest, SignupResponse,
     LoginRequest, TokenResponse,
     RefreshRequest, RefreshResponse,

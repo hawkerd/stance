@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models.user import User
+from app.database.models import User
 from typing import Optional
 from app.errors import DatabaseError
 import logging

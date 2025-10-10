@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models.tag import Tag, TagType
+from app.database.models import Tag, TagType
 from app.database.connect import SessionLocal
 
 def create_tag(db: Session, name: str, tag_type: int) -> Tag:

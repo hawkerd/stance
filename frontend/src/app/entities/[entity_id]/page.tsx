@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { entitiesApi, stancesApi, commentsApi } from "@/api";
-import StanceCreateModal from "@/components/stance-create/StanceCreateModal";
+import StanceCreateModal from "@/components/modals/StanceCreateModal";
 
 interface EntityPageProps {
   params: Promise<{ entity_id: string }>;

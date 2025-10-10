@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models.profile import Profile
-from app.database.models.user import User
+from app.database.models import User, Profile
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging

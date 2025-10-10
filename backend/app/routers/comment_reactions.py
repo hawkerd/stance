@@ -8,8 +8,8 @@ from app.database.comment_reaction import (
     read_comment_reaction,
     read_comment_reaction_by_user_and_comment
 )
-from app.database.models.comment_reaction import CommentReaction
-from app.routers.models.comment_reactions import CommentReactionCreateRequest, CommentReactionReadResponse
+from app.database.models import CommentReaction
+from app.routers.models import CommentReactionCreateRequest, CommentReactionReadResponse
 from app.dependencies import get_current_user, get_db
 
 router = APIRouter(prefix="/comment-reactions", tags=["comment-reactions"])

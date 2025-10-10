@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models.entity_tag import EntityTag
+from app.database.models import Entity, Tag, EntityTag
 from app.errors import DatabaseError
 import logging
 from typing import Optional, List
@@ -62,19 +62,37 @@ def delete_entity_tag(db: Session, entity_tag_id: int) -> bool:
 def find_entity_tag(db: Session, entity_id: int, tag_id: int) -> Optional[EntityTag]:
     return db.query(EntityTag).filter(EntityTag.entity_id == entity_id, EntityTag.tag_id == tag_id).first()
 
-def get_tags_for_entity(db: Session, entity_id: int) -> List[EntityTag]:
+def get_entity_tags_for_entity(db: Session, entity_id: int) -> List[EntityTag]:
     try:
         return db.query(EntityTag).filter(EntityTag.entity_id == entity_id).all()
     except Exception as e:
         logging.error(f"Error getting tags for entity {entity_id}: {e}")
         raise DatabaseError("Failed to get tags for entity")
 
-def get_entities_for_tag(db: Session, tag_id: int) -> List[EntityTag]:
+def get_entity_tags_for_tag(db: Session, tag_id: int) -> List[EntityTag]:
     try:
         return db.query(EntityTag).filter(EntityTag.tag_id == tag_id).all()
     except Exception as e:
         logging.error(f"Error getting entities for tag {tag_id}: {e}")
         raise DatabaseError("Failed to get entities for tag")
+    
+def get_entities_for_tag(db: Session, tag_id: int) -> List[Entity]:
+    try:
+        entity_tags = db.query(EntityTag).filter(EntityTag.tag_id == tag_id).all()
+        entity_ids = [et.entity_id for et in entity_tags]
+        return db.query(Entity).filter(Entity.id.in_(entity_ids)).all()
+    except Exception as e:
+        logging.error(f"Error getting entities for tag {tag_id}: {e}")
+        raise DatabaseError("Failed to get entities for tag")
+    
+def get_tags_for_entity(db: Session, entity_id: int) -> List[Tag]:
+    try:
+        entity_tags = db.query(EntityTag).filter(EntityTag.entity_id == entity_id).all()
+        tag_ids = [et.tag_id for et in entity_tags]
+        return db.query(Tag).filter(Tag.id.in_(tag_ids)).all()
+    except Exception as e:
+        logging.error(f"Error getting tags for entity {entity_id}: {e}")
+        raise DatabaseError("Failed to get tags for entity")
 
 def delete_entity_tags_for_entity(db: Session, entity_id: int) -> None:
     db.query(EntityTag).filter(EntityTag.entity_id == entity_id).delete()

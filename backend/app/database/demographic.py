@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models.demographic import Demographic
-from app.database.models.user import User
+from app.database.models import User, Demographic
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging

@@ -2,22 +2,20 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_is_admin, get_current_user
 from app.database.entity import create_entity, read_entity, update_entity, delete_entity, get_all_entities
-from app.routers.models.entities import (
+from app.routers.models import (
     EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse
 )
 from app.database.stance import get_user_stance_by_entity
-from app.database.models.stance import Stance
-from app.routers.models.stances import StanceReadResponse
+from app.database.models import Stance
+from app.routers.models import StanceReadResponse
 from app.service.storage import upload_image_to_storage
 import logging
 from typing import Optional
 from datetime import datetime
 import json
 import base64
-from app.database.models.tag import Tag
-from app.database.models.entity_tag import EntityTag
 from app.database.tag import create_tag, find_tag, get_tag
-from app.database.entity_tag import create_entity_tag, find_entity_tag, get_tags_for_entity, delete_entity_tags_for_entity
+from app.database.entity_tag import create_entity_tag, find_entity_tag, get_entity_tags_for_entity, delete_entity_tags_for_entity
 
 router = APIRouter(tags=["entities"])
 
@@ -81,7 +79,7 @@ def get_entity_endpoint(entity_id: int, db: Session = Depends(get_db)) -> Entity
 
     # get tags
     tags_response = []
-    entity_tags = get_tags_for_entity(db, entity_id=entity_id)
+    entity_tags = get_entity_tags_for_entity(db, entity_id=entity_id)
     for et in entity_tags:
         tag = get_tag(db, tag_id=et.tag_id)
         if tag:
@@ -153,7 +151,7 @@ def get_all_entities_endpoint(db: Session = Depends(get_db)):
     entity_list = []
     for entity in entities:
         tags_response = []
-        entity_tags = get_tags_for_entity(db, entity_id=entity.id)
+        entity_tags = get_entity_tags_for_entity(db, entity_id=entity.id)
         for et in entity_tags:
             tag = get_tag(db, tag_id=et.tag_id)
             if tag:

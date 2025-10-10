@@ -1,8 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models.stance import Stance
-from app.database.models.user import User
-from app.database.models.entity import Entity
-from app.database.models.comment import Comment
+from app.database.models import Entity, Stance, User, Comment
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
@@ -84,6 +81,16 @@ def get_stances_by_entity(db: Session, entity_id: int) -> List[Stance]:
     except Exception as e:
         logging.error(f"Error getting stances for entity {entity_id}: {e}")
         raise DatabaseError("Failed to get stances by entity")
+    
+def get_n_stances_by_entity(db: Session, entity_id: int, n: int) -> List[Stance]:
+    try:
+        entity = db.query(Entity).filter(Entity.id == entity_id).first()
+        if not entity:
+            return []
+        return db.query(Stance).filter(Stance.entity_id == entity_id).limit(n).all()
+    except Exception as e:
+        logging.error(f"Error getting {n} stances for entity {entity_id}: {e}")
+        raise DatabaseError("Failed to get n stances by entity")
     
 def get_user_stance_by_entity(db: Session, entity_id: int, user_id: int) -> Optional[Stance]:
     try:

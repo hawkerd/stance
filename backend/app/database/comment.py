@@ -1,9 +1,7 @@
 from sqlalchemy import asc, func, case, select
 from sqlalchemy.orm import Session
-from app.database.models.comment import Comment
-from app.database.models.comment_reaction import CommentReaction
+from app.database.models import Comment
 from typing import Optional, List
-from app.database.models.stance import Stance
 from app.errors import DatabaseError
 import logging
 

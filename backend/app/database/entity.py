@@ -1,5 +1,6 @@
 from sqlalchemy.orm import Session
-from app.database.models.entity import Entity
+from sqlalchemy.sql import func
+from app.database.models import Entity
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
@@ -64,3 +65,12 @@ def get_all_entities(db: Session) -> List[Entity]:
     except Exception as e:
         logging.error(f"Error getting all entities: {e}")
         raise DatabaseError("Failed to get all entities")
+
+def get_random_entities(db: Session, n: int) -> List[Entity]:
+    """Fetch n random entities from the database."""
+    try:
+        entities = db.query(Entity).order_by(func.random()).limit(n).all()
+        return entities
+    except Exception as e:
+        logging.error(f"Error getting {n} random entities: {e}")
+        raise DatabaseError("Failed to get random entities")

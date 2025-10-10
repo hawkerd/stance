@@ -358,6 +358,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/home/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get Home Feed */
+        post: operations["get_home_feed_home_feed_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -572,6 +589,61 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** HomeFeedEntity */
+        HomeFeedEntity: {
+            /** Id */
+            id: number;
+            /** Type */
+            type: number;
+            /** Title */
+            title: string;
+            /** Images Json */
+            images_json: string;
+            /** Tags */
+            tags: components["schemas"]["HomeFeedTag"][];
+            /** Stances */
+            stances: components["schemas"]["HomeFeedStance"][];
+            /** Description */
+            description?: string | null;
+            /** Start Time */
+            start_time?: string | null;
+            /** End Time */
+            end_time?: string | null;
+        };
+        /** HomeFeedRequest */
+        HomeFeedRequest: {
+            /**
+             * Num Entities
+             * @default 10
+             */
+            num_entities: number;
+            /**
+             * Num Stances Per Entity
+             * @default 15
+             */
+            num_stances_per_entity: number;
+        };
+        /** HomeFeedResponse */
+        HomeFeedResponse: {
+            /** Entities */
+            entities: components["schemas"]["HomeFeedEntity"][];
+        };
+        /** HomeFeedStance */
+        HomeFeedStance: {
+            /** Id */
+            id: number;
+            /** Headline */
+            headline: string;
+        };
+        /** HomeFeedTag */
+        HomeFeedTag: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Tag Type */
+            tag_type: number;
         };
         /** ImageCreateRequest */
         ImageCreateRequest: {
@@ -1857,6 +1929,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImageCreateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_home_feed_home_feed_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HomeFeedRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HomeFeedResponse"];
                 };
             };
             /** @description Validation Error */

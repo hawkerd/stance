@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
 from app.database.profile import create_profile, get_profile_by_user_id, update_profile
-from app.routers.models.profiles import ProfileCreateRequest, ProfileReadResponse, ProfileUpdateRequest, ProfileUpdateResponse
+from app.routers.models import ProfileCreateRequest, ProfileReadResponse, ProfileUpdateRequest, ProfileUpdateResponse
 import logging
 
 router = APIRouter(tags=["users"])

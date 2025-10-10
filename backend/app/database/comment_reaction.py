@@ -1,7 +1,6 @@
 from sqlalchemy.orm import Session
-from app.database.models.comment_reaction import CommentReaction
-from app.database.models.user import User
-from typing import Optional, List
+from app.database.models import User, CommentReaction
+from typing import Optional
 from app.errors import DatabaseError
 import logging
 

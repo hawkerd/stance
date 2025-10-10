@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.database.models.image import Image
+from app.database.models import Image
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging

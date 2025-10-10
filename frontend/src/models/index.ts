@@ -1,3 +1,35 @@
+// Home feed models
+export interface HomeFeedStance {
+    id: number;
+    headline: string;
+}
+export interface HomeFeedTag {
+    id: number;
+    name: string;
+    tag_type: TagType;
+}
+export interface HomeFeedEntity {
+    id: number;
+    type: EntityType;
+    title: string;
+    images_json: string;
+    tags: HomeFeedTag[];
+    stances: HomeFeedStance[];
+    description?: string | null;
+    start_time?: string | null;
+    end_time?: string | null;
+}
+export interface HomeFeedIssue extends HomeFeedEntity {
+    type: EntityType.ISSUE;
+}
+export interface HomeFeedEvent extends HomeFeedEntity {
+    type: EntityType.EVENT;
+    start_time: string | null;
+    end_time: string | null;
+}
+
+
+
 export interface Event extends Entity {
     type: EntityType.EVENT;
     start_time: string | null;

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.database.comment import create_comment, read_comment, update_comment, delete_comment, get_all_comments, get_comment_replies, count_comment_nested_replies
-from app.routers.models.comments import CommentCreateRequest, CommentReadResponse, CommentUpdateRequest, CommentUpdateResponse, CommentDeleteResponse, CommentListResponse
+from app.routers.models import CommentCreateRequest, CommentReadResponse, CommentUpdateRequest, CommentUpdateResponse, CommentDeleteResponse, CommentListResponse
 import logging
 from typing import Optional
 
