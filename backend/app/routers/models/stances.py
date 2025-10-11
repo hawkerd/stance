@@ -19,6 +19,7 @@ class StanceReadResponse(BaseModel):
     entity_id: int
     headline: str
     content_json: str
+    average_rating: Optional[float]
 
 class StanceUpdateRequest(BaseModel):
     headline: Optional[str] = None
@@ -30,9 +31,23 @@ class StanceUpdateResponse(BaseModel):
     entity_id: int
     headline: str
     content_json: str
+    average_rating: Optional[float]
 
 class StanceDeleteResponse(BaseModel):
     success: bool
 
 class StanceListResponse(BaseModel):
     stances: list[StanceReadResponse]
+
+
+class ReadStanceRatingResponse(BaseModel):
+    rating: Optional[int] = None
+
+class StanceRateRequest(BaseModel):
+    rating: Optional[int] = None
+
+class StanceRateResponse(BaseModel):
+    success: bool
+
+class NumRatingsResponse(BaseModel):
+    num_ratings: int

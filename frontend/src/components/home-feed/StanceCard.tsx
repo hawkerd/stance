@@ -5,24 +5,21 @@ import { HomeFeedStance } from "../../models";
 
 export default function StanceHeadline({ stance }: { stance: HomeFeedStance }) {
   return (
-  <div className="flex items-center px-2 py-1 rounded border border-gray-100 mb-1 text-xs">
+    <div className="flex items-center px-2 py-1 rounded border border-gray-100 mb-1 text-xs">
       <span className="font-medium text-black flex-1 break-words">{stance.headline}</span>
-      <span className="ml-2 flex flex-col items-start gap-1 text-gray-400 min-w-[32px]">
-        {/* Upvote arrow */}
-        <div className="flex items-center">
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
-          </svg>
-          <span className="text-[10px] ml-1">0</span>
-        </div>
-        {/* Downvote arrow */}
-        <div className="flex items-center">
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-          </svg>
-          <span className="text-[10px] ml-1">0</span>
-        </div>
-      </span>
+      {stance.average_rating !== null ? (
+        <span className="ml-2 flex items-center text-gray-400 min-w-[32px]">
+          <div className="w-16 h-2 bg-gray-200 rounded">
+            <div
+              className="h-2 bg-yellow-400 rounded"
+              style={{ width: `${(stance.average_rating / 5) * 100}%` }}
+            />
+          </div>
+          <span className="text-[10px] ml-2">{stance.average_rating.toFixed(2)}/5</span>
+        </span>
+      ) : (
+        <span className="ml-2 text-gray-400 text-[10px]">No ratings yet</span>
+      )}
     </div>
   );
 }

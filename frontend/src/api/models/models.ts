@@ -107,6 +107,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stances/{stance_id}/my-rating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Stance Rating Endpoint */
+        get: operations["get_my_stance_rating_endpoint_stances__stance_id__my_rating_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/stances": {
         parameters: {
             query?: never;
@@ -170,6 +187,40 @@ export interface paths {
         };
         /** Get Comments By Stance Endpoint */
         get: operations["get_comments_by_stance_endpoint_stances__stance_id__comments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stances/{stance_id}/rate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rate Stance Endpoint */
+        post: operations["rate_stance_endpoint_stances__stance_id__rate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stances/{stance_id}/num-ratings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Num Ratings Endpoint */
+        get: operations["get_num_ratings_endpoint_stances__stance_id__num_ratings_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -635,6 +686,8 @@ export interface components {
             id: number;
             /** Headline */
             headline: string;
+            /** Average Rating */
+            average_rating: number | null;
         };
         /** HomeFeedTag */
         HomeFeedTag: {
@@ -681,6 +734,11 @@ export interface components {
             /** Success */
             success: boolean;
         };
+        /** NumRatingsResponse */
+        NumRatingsResponse: {
+            /** Num Ratings */
+            num_ratings: number;
+        };
         /** ProfileCreateRequest */
         ProfileCreateRequest: {
             /** Bio */
@@ -720,6 +778,11 @@ export interface components {
             avatar_url: string | null;
             /** Pinned Stance Id */
             pinned_stance_id: number | null;
+        };
+        /** ReadStanceRatingResponse */
+        ReadStanceRatingResponse: {
+            /** Rating */
+            rating?: number | null;
         };
         /** RefreshRequest */
         RefreshRequest: {
@@ -785,6 +848,16 @@ export interface components {
             /** Stances */
             stances: components["schemas"]["StanceReadResponse"][];
         };
+        /** StanceRateRequest */
+        StanceRateRequest: {
+            /** Rating */
+            rating?: number | null;
+        };
+        /** StanceRateResponse */
+        StanceRateResponse: {
+            /** Success */
+            success: boolean;
+        };
         /** StanceReadResponse */
         StanceReadResponse: {
             /** Id */
@@ -797,6 +870,8 @@ export interface components {
             headline: string;
             /** Content Json */
             content_json: string;
+            /** Average Rating */
+            average_rating: number | null;
         };
         /** StanceUpdateRequest */
         StanceUpdateRequest: {
@@ -817,6 +892,8 @@ export interface components {
             headline: string;
             /** Content Json */
             content_json: string;
+            /** Average Rating */
+            average_rating: number | null;
         };
         /** TagRequest */
         TagRequest: {
@@ -1089,6 +1166,37 @@ export interface operations {
             };
         };
     };
+    get_my_stance_rating_endpoint_stances__stance_id__my_rating_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadStanceRatingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_stances_endpoint_stances_get: {
         parameters: {
             query?: never;
@@ -1288,6 +1396,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CommentListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rate_stance_endpoint_stances__stance_id__rate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceRateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceRateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_num_ratings_endpoint_stances__stance_id__num_ratings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NumRatingsResponse"];
                 };
             };
             /** @description Validation Error */

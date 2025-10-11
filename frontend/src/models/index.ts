@@ -2,6 +2,7 @@
 export interface HomeFeedStance {
     id: number;
     headline: string;
+    average_rating: number | null;
 }
 export interface HomeFeedTag {
     id: number;
@@ -70,6 +71,8 @@ export interface Stance {
     headline: string;
     content_json: string;
     comments: Comment[];
+    average_rating: number | null;
+    num_ratings: number;
 }
 
 export interface Tag {

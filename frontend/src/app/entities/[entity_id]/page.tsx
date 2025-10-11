@@ -3,11 +3,14 @@
 import React, { useEffect, useState, use } from "react";
 import StancesSection from "@/components/StancesSection";
 import StanceComponent from "@/components/Stance";
-import { Stance, Entity, EntityType, Event, Issue, TagType, Tag } from "@/models";
+import { Stance, Entity, EntityType, Event, Issue, TagType, Tag, Comment } from "@/models";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { entitiesApi, stancesApi, commentsApi } from "@/api";
+import { EntityReadResponse } from "@/api/entities";
+import { StanceListResponse } from "@/api/stances";
+import { CommentListResponse, CommentReadResponse } from "@/api/comments";
 import StanceCreateModal from "@/components/modals/StanceCreateModal";
 
 interface EntityPageProps {
@@ -32,30 +35,43 @@ export default function EntityPage({ params }: EntityPageProps) {
             setLoading(true);
             setError(null);
             try {
-                const entityResponse = await entitiesApi.getEntity(API, parseInt(entity_id));
-                const stancesResponse = await stancesApi.getStancesByEntity(API, parseInt(entity_id));
-                const stances = await Promise.all(
-                    (stancesResponse.stances ?? []).map(async (s) => {
-                        const commentsResponse = await stancesApi.getCommentsByStance(API, s.id);
-                        return {
-                            ...s,
-                            comments: (commentsResponse.comments ?? []).map(c => ({
-                                ...c,
-                                parent_id: c.parent_id === null ? undefined : c.parent_id,
-                                user_reaction:
-                                    c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
-                                        ? (c.user_reaction as "like" | "dislike" | null)
-                                        : null,
-                                count_nested_replies: c.count_nested,
-                            })),
-                        };
-                    })
-                );
-                setEntity({ ...entityResponse, stances });
+            const entityResponse: EntityReadResponse = await entitiesApi.getEntity(API, parseInt(entity_id));
+            const stancesResponse: StanceListResponse = await stancesApi.getStancesByEntity(API, parseInt(entity_id));
+
+            const stances: Stance[] = await Promise.all(
+                (stancesResponse.stances ?? []).map(async (s) => {
+                const commentsResponse: CommentListResponse = await stancesApi.getCommentsByStance(API, s.id);
+                const numRatingsResponse = await stancesApi.getNumRatings(API, s.id);
+                const comments: Comment[] = (commentsResponse.comments ?? []).map((c) => ({
+                    id: c.id,
+                    user_id: c.user_id,
+                    parent_id: c.parent_id === null ? undefined : c.parent_id,
+                    content: c.content,
+                    likes: c.likes,
+                    dislikes: c.dislikes,
+                    user_reaction:
+                    c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
+                        ? (c.user_reaction as "like" | "dislike" | null)
+                        : null,
+                    count_nested_replies: c.count_nested,
+                }));
+                return {
+                    id: s.id,
+                    user_id: s.user_id,
+                    entity_id: s.entity_id,
+                    headline: s.headline,
+                    content_json: s.content_json,
+                    average_rating: s.average_rating ?? null,
+                    comments: comments,
+                    num_ratings: numRatingsResponse.num_ratings,
+                } as Stance;
+                })
+            );
+            setEntity({ ...entityResponse, stances });
             } catch (err: any) {
-                setError(err.message || "Unexpected error");
+            setError(err.message || "Unexpected error");
             } finally {
-                setLoading(false);
+            setLoading(false);
             }
         };
         fetchEntity();
@@ -74,17 +90,29 @@ export default function EntityPage({ params }: EntityPageProps) {
                     return;
                 }
                 const commentsResponse = await stancesApi.getCommentsByStance(API, stanceRes.id);
+                const numRatingsResponse = await stancesApi.getNumRatings(API, stanceRes.id);
+                const comments: Comment[] = (commentsResponse.comments ?? []).map((c) => ({
+                    id: c.id,
+                    user_id: c.user_id,
+                    parent_id: c.parent_id === null ? undefined : c.parent_id,
+                    content: c.content,
+                    likes: c.likes,
+                    dislikes: c.dislikes,
+                    user_reaction:
+                        c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
+                            ? (c.user_reaction as "like" | "dislike" | null)
+                            : null,
+                    count_nested_replies: c.count_nested,
+                }));
                 const stance: Stance = {
-                    ...stanceRes,
-                    comments: (commentsResponse.comments ?? []).map(c => ({
-                        ...c,
-                        parent_id: c.parent_id === null ? undefined : c.parent_id,
-                        user_reaction:
-                            c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
-                                ? (c.user_reaction as "like" | "dislike" | null)
-                                : null,
-                        count_nested_replies: c.count_nested,
-                    })),
+                    id: stanceRes.id,
+                    user_id: stanceRes.user_id,
+                    entity_id: stanceRes.entity_id,
+                    headline: stanceRes.headline,
+                    content_json: stanceRes.content_json,
+                    average_rating: stanceRes.average_rating ?? null,
+                    comments: comments,
+                    num_ratings: numRatingsResponse.num_ratings,
                 };
                 setUserStance(stance);
             } catch (err) {
@@ -96,31 +124,32 @@ export default function EntityPage({ params }: EntityPageProps) {
 
     const handleAddComment = async (stanceId: number, content: string, parentId?: number) => {
         try {
-            const newComment = await commentsApi.createComment(API, {
+            const newComment: CommentReadResponse = await commentsApi.createComment(API, {
                 stance_id: stanceId,
                 content,
                 parent_id: parentId,
             });
             setUserStance(prevStance => {
                 if (!prevStance) return prevStance;
+                const comment: Comment = {
+                    id: newComment.id,
+                    user_id: newComment.user_id,
+                    parent_id: newComment.parent_id === null ? undefined : newComment.parent_id,
+                    content: newComment.content,
+                    likes: newComment.likes,
+                    dislikes: newComment.dislikes,
+                    user_reaction:
+                        newComment.user_reaction === "like" || newComment.user_reaction === "dislike" || newComment.user_reaction === null
+                            ? (newComment.user_reaction as "like" | "dislike" | null)
+                            : null,
+                    count_nested_replies:
+                        typeof newComment.count_nested === "number" ? newComment.count_nested : 0,
+                };
                 return {
                     ...prevStance,
                     comments: [
                         ...(prevStance.comments || []),
-                        {
-                            ...newComment,
-                            parent_id: newComment.parent_id ?? undefined,
-                            user_reaction:
-                                newComment.user_reaction === "like" ||
-                                newComment.user_reaction === "dislike" ||
-                                newComment.user_reaction === null
-                                    ? newComment.user_reaction
-                                    : null,
-                            count_nested_replies:
-                                typeof newComment.count_nested === "number"
-                                    ? newComment.count_nested
-                                    : 0,
-                        },
+                        comment,
                     ],
                 };
             });

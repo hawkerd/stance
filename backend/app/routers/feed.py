@@ -6,6 +6,7 @@ from app.database.models import Entity, Stance, Tag
 from app.database.entity_tag import get_tags_for_entity
 from app.database.stance import get_n_stances_by_entity
 from app.routers.models import HomeFeedRequest, HomeFeedResponse, HomeFeedEntity, HomeFeedStance, HomeFeedTag
+from app.database.rating import get_average_rating_for_stance
 from typing import List, Optional
 import logging
 
@@ -34,7 +35,10 @@ def get_home_feed(
 
             # stances
             stances: List[Stance] = get_n_stances_by_entity(db, entity.id, request.num_stances_per_entity)
-            feed_stances: List[HomeFeedStance] = [HomeFeedStance(id=s.id, headline=s.headline) for s in stances]
+            feed_stances: List[HomeFeedStance] = []
+            for s in stances:
+                avg_rating = get_average_rating_for_stance(db, s.id)
+                feed_stances.append(HomeFeedStance(id=s.id, headline=s.headline, average_rating=avg_rating))
 
             feed_entity = HomeFeedEntity(
                 id=entity.id,

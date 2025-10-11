@@ -4,12 +4,28 @@ from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.database.image import create_image
 from app.database.comment import count_comment_nested_replies
 from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_comments_by_stance, get_all_stances, get_stances_by_entity
-from app.routers.models import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse, CommentReadResponse, CommentListResponse
-import logging
+from app.database.rating import get_average_rating_for_stance, rate_stance, read_rating_by_user_and_stance, get_num_ratings_for_stance
+from fastapi import Response
+from app.routers.models import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse, CommentReadResponse, CommentListResponse, StanceRateRequest, StanceRateResponse, ReadStanceRatingResponse, NumRatingsResponse
 from typing import Optional
+import logging
 from app.service.stance import process_stance_content_json
 
 router = APIRouter(tags=["stances"])
+
+@router.get("/stances/{stance_id}/my-rating", response_model=ReadStanceRatingResponse)
+def get_my_stance_rating_endpoint(
+    stance_id: int,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user)
+) -> ReadStanceRatingResponse:
+    try:
+        rating_obj = read_rating_by_user_and_stance(db, stance_id, user_id)
+        rating = rating_obj.rating if rating_obj else None
+        return ReadStanceRatingResponse(rating=rating)
+    except Exception as e:
+        logging.error(f"Error getting user rating for stance {stance_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.post("/stances", response_model=StanceCreateResponse)
 def create_stance_endpoint(
@@ -63,12 +79,14 @@ def get_stance_endpoint(
         stance = read_stance(db, stance_id)
         if not stance:
             raise HTTPException(status_code=404, detail="Stance not found or not authorized")
+        avg_rating = get_average_rating_for_stance(db, stance.id)
         return StanceReadResponse(
             id=stance.id,
             user_id=stance.user_id,
             entity_id=stance.entity_id,
             headline=stance.headline,
-            content_json=stance.content_json
+            content_json=stance.content_json,
+            average_rating=avg_rating
         )
     except Exception as e:
         logging.error(f"Error retrieving stance {stance_id}: {e}")
@@ -85,7 +103,8 @@ def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
                     user_id=stance.user_id,
                     entity_id=stance.entity_id,
                     headline=stance.headline,
-                    content_json=stance.content_json
+                    content_json=stance.content_json,
+                    average_rating=get_average_rating_for_stance(db, stance.id)
                 ) for stance in stances
             ]
         )
@@ -121,12 +140,14 @@ def update_stance_endpoint(
         for url in image_urls:
             create_image(db, stance_id=stance_obj.id, entity_id=None, public_url=url, file_size=0, file_type="image/png")
         
+        avg_rating = get_average_rating_for_stance(db, stance_obj.id)
         return StanceUpdateResponse(
             id=stance_obj.id,
             user_id=stance_obj.user_id,
             entity_id=stance_obj.entity_id,
             headline=stance_obj.headline,
-            content_json=stance_obj.content_json
+            content_json=stance_obj.content_json,
+            average_rating=avg_rating
         )
     except Exception as e:
         logging.error(f"Error updating stance {stance_id}: {e}")
@@ -168,7 +189,8 @@ def get_stances_by_entity_endpoint(
                     user_id=stance.user_id,
                     entity_id=stance.entity_id,
                     headline=stance.headline,
-                    content_json=stance.content_json
+                    content_json=stance.content_json,
+                    average_rating=get_average_rating_for_stance(db, stance.id)
                 ) for stance in stances
             ]
         )
@@ -220,4 +242,32 @@ def get_comments_by_stance_endpoint(
 
     except Exception as e:
         logging.error(f"Error getting comments for stance {stance_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.post("/stances/{stance_id}/rate", response_model=StanceRateResponse)
+def rate_stance_endpoint(
+    stance_id: int,
+    request: StanceRateRequest,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user)
+) -> StanceRateResponse:
+    try:
+        # rating can be None (to remove rating) or int
+        success = rate_stance(db, user_id=user_id, stance_id=stance_id, rating=request.rating)
+        return StanceRateResponse(success=success)
+    except Exception as e:
+        logging.error(f"Error rating stance {stance_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
+# Endpoint to get the number of ratings for a stance
+@router.get("/stances/{stance_id}/num-ratings", response_model=NumRatingsResponse)
+def get_num_ratings_endpoint(
+    stance_id: int,
+    db: Session = Depends(get_db)
+) -> NumRatingsResponse:
+    try:
+        num_ratings = get_num_ratings_for_stance(db, stance_id)
+        return NumRatingsResponse(num_ratings=num_ratings)
+    except Exception as e:
+        logging.error(f"Error getting num ratings for stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")

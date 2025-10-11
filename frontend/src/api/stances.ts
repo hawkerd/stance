@@ -10,6 +10,10 @@ export type StanceListResponse = components["schemas"]["StanceListResponse"];
 export type CommentListResponse = components["schemas"]["CommentListResponse"];
 export type StanceCreateRequest = components["schemas"]["StanceCreateRequest"];
 export type StanceUpdateRequest = components["schemas"]["StanceUpdateRequest"];
+export type StanceRateRequest = components["schemas"]["StanceRateRequest"];
+export type StanceRateResponse = components["schemas"]["StanceRateResponse"];
+export type ReadStanceRatingResponse = components["schemas"]["ReadStanceRatingResponse"];
+export type NumRatingsResponse = components["schemas"]["NumRatingsResponse"];
 
 /**
  * Create a new stance
@@ -83,5 +87,39 @@ export async function getCommentsByStance(
   stanceId: number
 ): Promise<CommentListResponse> {
   const res = await api.get<CommentListResponse>(`/stances/${stanceId}/comments`);
+  return res.data;
+}
+
+/**
+ * Rate a stance (or remove rating)
+ */
+export async function rateStance(
+  api: AxiosInstance,
+  stanceId: number,
+  data: StanceRateRequest
+): Promise<StanceRateResponse> {
+  const res = await api.post<StanceRateResponse>(`/stances/${stanceId}/rate`, data);
+  return res.data;
+}
+
+/**
+ * Get the current user's rating for a stance
+ */
+export async function getMyStanceRating(
+  api: AxiosInstance,
+  stanceId: number
+): Promise<ReadStanceRatingResponse> {
+  const res = await api.get<ReadStanceRatingResponse>(`/stances/${stanceId}/my-rating`);
+  return res.data;
+}
+
+/**
+ * Get the number of ratings for a stance
+ */
+export async function getNumRatings(
+  api: AxiosInstance,
+  stanceId: number
+): Promise<NumRatingsResponse> {
+  const res = await api.get<NumRatingsResponse>(`/stances/${stanceId}/num-ratings`);
   return res.data;
 }

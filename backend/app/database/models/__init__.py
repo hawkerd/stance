@@ -9,3 +9,4 @@ from .demographic import Demographic
 from .image import Image
 from .profile import Profile
 from .refresh_token import RefreshToken
+from .rating import Rating

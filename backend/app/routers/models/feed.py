@@ -4,6 +4,7 @@ from typing import List, Optional
 class HomeFeedStance(BaseModel):
     id: int
     headline: str
+    average_rating: Optional[float]
 class HomeFeedTag(BaseModel):
     id: int
     name: str

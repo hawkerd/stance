@@ -18,3 +18,4 @@ class Stance(Base):
     user = relationship("User", back_populates="stances")
     comments = relationship("Comment", back_populates="stance", cascade="all, delete-orphan")
     images = relationship("Image", back_populates="stance", cascade="all, delete-orphan")
+    ratings = relationship("Rating", back_populates="stance", cascade="all, delete-orphan")
