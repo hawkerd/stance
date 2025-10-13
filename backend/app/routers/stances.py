@@ -33,9 +33,9 @@ from app.routers.models import (
 from typing import Optional, List
 import logging
 
-router = APIRouter(tags=["stances"])
+router = APIRouter(tags=["stances"], prefix="/stances")
 
-@router.get("/stances/{stance_id}/my-rating", response_model=ReadStanceRatingResponse)
+@router.get("/{stance_id}/my-rating", response_model=ReadStanceRatingResponse)
 def get_my_stance_rating_endpoint(
     stance_id: int,
     db: Session = Depends(get_db),
@@ -49,7 +49,7 @@ def get_my_stance_rating_endpoint(
         logging.error(f"Error getting user rating for stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/stances", response_model=StanceCreateResponse)
+@router.post("/", response_model=StanceCreateResponse)
 def create_stance_endpoint(
     request: StanceCreateRequest,
     db: Session = Depends(get_db),
@@ -92,7 +92,7 @@ def create_stance_endpoint(
         logging.error(f"Error creating stance: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/stances/{stance_id}", response_model=StanceReadResponse)
+@router.get("/{stance_id}", response_model=StanceReadResponse)
 def get_stance_endpoint(
     stance_id: int,
     db: Session = Depends(get_db)
@@ -114,7 +114,7 @@ def get_stance_endpoint(
         logging.error(f"Error retrieving stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/stances", response_model=StanceListResponse)
+@router.get("/", response_model=StanceListResponse)
 def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
     try:
         stances = get_all_stances(db)
@@ -134,7 +134,7 @@ def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
         logging.error(f"Error retrieving all stances: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.put("/stances/{stance_id}", response_model=StanceUpdateResponse)
+@router.put("/{stance_id}", response_model=StanceUpdateResponse)
 def update_stance_endpoint(
     stance_id: int,
     request: StanceUpdateRequest,
@@ -175,7 +175,7 @@ def update_stance_endpoint(
         logging.error(f"Error updating stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.delete("/stances/{stance_id}", response_model=StanceDeleteResponse)
+@router.delete("/{stance_id}", response_model=StanceDeleteResponse)
 def delete_stance_endpoint(
     stance_id: int,
     db: Session = Depends(get_db),
@@ -197,7 +197,7 @@ def delete_stance_endpoint(
         logging.error(f"Error deleting stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/stances/entity/{entity_id}", response_model=StanceListResponse)
+@router.get("/entity/{entity_id}", response_model=StanceListResponse)
 def get_stances_by_entity_endpoint(
     entity_id: int,
     db: Session = Depends(get_db)
@@ -219,7 +219,7 @@ def get_stances_by_entity_endpoint(
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal server error")
     
-@router.get("/stances/{stance_id}/comments", response_model=CommentListResponse)
+@router.get("/{stance_id}/comments", response_model=CommentListResponse)
 def get_comments_by_stance_endpoint(
     stance_id: int,
     db: Session = Depends(get_db),
@@ -266,7 +266,7 @@ def get_comments_by_stance_endpoint(
         logging.error(f"Error getting comments for stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/stances/{stance_id}/rate", response_model=StanceRateResponse)
+@router.post("/{stance_id}/rate", response_model=StanceRateResponse)
 def rate_stance_endpoint(
     stance_id: int,
     request: StanceRateRequest,
@@ -282,7 +282,7 @@ def rate_stance_endpoint(
         raise HTTPException(status_code=500, detail="Internal server error")
     
 # Endpoint to get the number of ratings for a stance
-@router.get("/stances/{stance_id}/num-ratings", response_model=NumRatingsResponse)
+@router.get("/{stance_id}/num-ratings", response_model=NumRatingsResponse)
 def get_num_ratings_endpoint(
     stance_id: int,
     db: Session = Depends(get_db)
@@ -318,7 +318,7 @@ def get_stance_feed_endpoint(
                 username=user.username
             )
 
-            tags: List[Tag] = get_tags_for_entity(db, entity.id)
+            tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)
             stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
 
             entity: Optional[Entity] = read_entity(db, stance.entity_id)

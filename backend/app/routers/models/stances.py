@@ -85,3 +85,5 @@ class StanceFeedRequest(BaseModel):
     entities: Optional[List[int]]
 class StanceFeedResponse(BaseModel):
     stances: List[StanceFeedStance]
+class StanceFeedStanceResponse(BaseModel):
+    stance: StanceFeedStance

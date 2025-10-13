@@ -3,13 +3,14 @@ from typing import Optional
 
 class SignupRequest(BaseModel):
     username: str
-    full_name: Optional[str] = None
+    full_name: str
     email: str
     password: str
 
 class SignupResponse(BaseModel):
     id: int
     username: str
+    full_name: str
     email: str
 
 class LoginRequest(BaseModel):

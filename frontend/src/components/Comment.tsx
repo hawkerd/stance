@@ -4,9 +4,8 @@ import React, { useState } from "react";
 import { Comment } from "../models";
 import CommentReply from "./CommentReply";
 import { useAuthApi } from "../app/hooks/useAuthApi";
-import { reactToComment, removeCommentReaction } from "../api/comment_reactions";
-import { getCommentReplies } from "../api/comments";
 import { useAuth } from "../contexts/AuthContext";
+import { CommentService } from "../service/CommentService";
 
 interface CommentProps {
   comment: Comment;
@@ -24,6 +23,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
   const [replies, setReplies] = useState<Comment[]>([]);
   const [showReplies, setShowReplies] = useState(false);
   const [loadingReplies, setLoadingReplies] = useState(false);
+  const commentService = new CommentService();
 
   const handleReaction = async (isLike: boolean) => {
     if (loading) return;
@@ -31,13 +31,13 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
     try {
       if (userReaction === (isLike ? "like" : "dislike")) {
         // remove reaction
-        await removeCommentReaction(api, comment.id);
+        await commentService.removeCommentReaction(api, comment.id);
         setUserReaction(null);
         if (isLike) setLikes(likes - 1);
         else setDislikes(dislikes - 1);
       } else {
         // switch or add reaction
-        await reactToComment(api, comment.id, { is_like: isLike });
+        await commentService.reactToComment(api, comment.id, isLike);
         if (isLike) {
           setLikes(likes + 1);
           if (userReaction === "dislike") setDislikes(dislikes - 1);
@@ -58,13 +58,8 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
     if (!showReplies) {
       setLoadingReplies(true);
       try {
-        const fetchedReplies = await getCommentReplies(api, comment.id);
-        setReplies(
-          fetchedReplies.comments.map((reply: any) => ({
-            ...reply,
-            parent_id: reply.parent_id === null ? undefined : reply.parent_id,
-          }))
-        );
+        const fetchedReplies: Comment[] = await commentService.getCommentReplies(api, comment.id);
+        setReplies(fetchedReplies);
       } catch (e) {
         console.error("Failed to load replies", e);
       } finally {

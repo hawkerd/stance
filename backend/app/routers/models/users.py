@@ -7,7 +7,7 @@ from typing import Optional
 class UserReadResponse(BaseModel):
     id: int
     username: str
-    full_name: Optional[str] = None
+    full_name: str
     email: str
 
 class UserDeleteResponse(BaseModel):

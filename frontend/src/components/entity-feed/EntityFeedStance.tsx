@@ -15,7 +15,6 @@ export default function StanceHeadline({ stance }: { stance: EntityFeedStance })
               style={{ width: `${(stance.average_rating / 5) * 100}%` }}
             />
           </div>
-          <span className="text-[10px] ml-2">{stance.average_rating.toFixed(2)}/5</span>
         </span>
       ) : (
         <span className="ml-2 text-gray-400 text-[10px]">No ratings yet</span>

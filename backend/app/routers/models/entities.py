@@ -32,7 +32,7 @@ class EntityReadResponse(BaseModel):
 class EntityUpdateRequest(BaseModel):
     title: Optional[str] = None
     images: Optional[List[str]] = None
-    tags: List[TagRequest]
+    tags: Optional[List[TagRequest]] = None
     description: Optional[str] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None

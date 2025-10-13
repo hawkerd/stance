@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import Stance from "@/components/Stance";
 import { Stance as StanceType } from "../models";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { commentsApi } from "@/api";
+import { CommentService } from "@/service/CommentService";
+import { Comment } from "@/models";
 
 export interface StancesSectionProps {
   stances: StanceType[];
@@ -13,15 +14,11 @@ export interface StancesSectionProps {
 const StancesSection: React.FC<StancesSectionProps> = ({ stances: initialStances }) => {
   const API = useAuthApi();
   const [stances, setStances] = useState<StanceType[]>(initialStances);
+  const commentService = new CommentService();
 
   const handleAddComment = async (stanceId: number, content: string, parentId?: number) => {
     try {
-      // Use the API instance when calling the comment creation function
-      const newComment = await commentsApi.createComment(API, {
-        stance_id: stanceId,
-        content,
-        parent_id: parentId,
-      });
+      const newComment: Comment = await commentService.createComment(API, stanceId, content, parentId);
 
       setStances(prevStances =>
         prevStances.map(stance =>
@@ -33,16 +30,8 @@ const StancesSection: React.FC<StancesSectionProps> = ({ stances: initialStances
           {
             ...newComment,
             parent_id: newComment.parent_id ?? undefined,
-            user_reaction:
-              newComment.user_reaction === "like" ||
-              newComment.user_reaction === "dislike" ||
-              newComment.user_reaction === null
-            ? newComment.user_reaction
-            : null,
-            count_nested_replies:
-              typeof newComment.count_nested === "number"
-            ? newComment.count_nested
-            : 0,
+            user_reaction: newComment.user_reaction,
+            count_nested_replies: newComment.count_nested_replies,
           },
             ],
           }

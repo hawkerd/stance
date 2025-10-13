@@ -62,16 +62,6 @@ export interface StanceFeedStance {
     created_at?: string | null;
 }
 
-export interface StanceFeedRequest {
-    num_stances?: number;
-    entities?: number[];
-}
-
-export interface StanceFeedResponse {
-    stances: StanceFeedStance[];
-}
-
-
 export interface Event extends Entity {
     type: EntityType.EVENT;
     start_time: string | null;
@@ -130,6 +120,12 @@ export interface Entity {
     start_time?: string | null;
     end_time?: string | null;
     images_json: string;
-    stances: Stance[];
     tags: Tag[];
+}
+
+export interface User {
+    id: number;
+    username: string;
+    full_name: string;
+    email: string;
 }

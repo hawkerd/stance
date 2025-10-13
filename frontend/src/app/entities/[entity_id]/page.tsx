@@ -1,17 +1,15 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
-import StancesSection from "@/components/StancesSection";
-import StanceComponent from "@/components/Stance";
-import { Stance, Entity, EntityType, Event, Issue, TagType, Tag, Comment } from "@/models";
+import StanceFeedStanceComponent from "@/components/stance-feed/StanceFeedStance";
+import { StanceFeedStance, Entity, EntityType, TagType } from "@/models";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { entitiesApi, stancesApi, commentsApi } from "@/api";
-import { EntityReadResponse } from "@/api/entities";
-import { StanceListResponse } from "@/api/stances";
-import { CommentListResponse, CommentReadResponse } from "@/api/comments";
 import StanceCreateModal from "@/components/modals/StanceCreateModal";
+import { StanceService as StanceService } from "@/service/StanceService";
+import { EntityService } from "@/service/EntityService";
+import StanceFeed from "@/components/stance-feed/StanceFeed";
 
 interface EntityPageProps {
   params: Promise<{ entity_id: string }>;
@@ -23,36 +21,28 @@ export default function EntityPage({ params }: EntityPageProps) {
     const [entity, setEntity] = useState<Entity | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [userStance, setUserStance] = useState<Stance | null | undefined>(undefined);
+    const [userStance, setUserStance] = useState<StanceFeedStance | null | undefined>(undefined);
+    const [stances, setStances] = useState<StanceFeedStance[]>([]);
     const [showStanceModal, setShowStanceModal] = useState(false);
     const [currentImage, setCurrentImage] = useState(0);
     const [hovered, setHovered] = useState(false);
     const API = useAuthApi();
     const { isAuthenticated } = useAuth();
+    const stanceService = new StanceService();
+    const entityService = new EntityService();
 
     useEffect(() => {
         const fetchEntity = async () => {
             setLoading(true);
             setError(null);
             try {
-                const entityResponse: EntityReadResponse = await entitiesApi.getEntity(API, parseInt(entity_id));
-                // Use the new feed endpoint for stances
-                const feedResponse = await stancesApi.getFeed(API, {
-                    num_stances: 50,
-                    entities: [parseInt(entity_id)]
-                });
-                // Map feed stances to your Stance model
-                const stances: Stance[] = (feedResponse.stances ?? []).map(s => ({
-                    id: s.id,
-                    user_id: s.user.id,
-                    entity_id: s.entity.id,
-                    headline: s.headline,
-                    content_json: s.content_json,
-                    average_rating: s.average_rating ?? null,
-                    comments: [], // can be filled if include_comments is true
-                    num_ratings: s.num_ratings,
-                }));
-                setEntity({ ...entityResponse, stances });
+                // fetch the entity
+                const entityResponse: Entity = await entityService.getEntity(API, parseInt(entity_id));
+                setEntity(entityResponse);
+
+                // fetch stances for the entity
+                const stancesResponse: StanceFeedStance[] = await stanceService.fetchStanceFeed(API, 50, [parseInt(entity_id)]);
+                setStances(stancesResponse);
             } catch (err: any) {
                 setError(err.message || "Unexpected error");
             } finally {
@@ -69,79 +59,21 @@ export default function EntityPage({ params }: EntityPageProps) {
                 return;
             }
             try {
-                const stanceRes = await entitiesApi.getMyStanceForEntity(API, parseInt(entity_id));
-                if (!stanceRes) {
+                // fetch the users stance for this entity
+                const userStanceResponse: StanceFeedStance | null = await entityService.getMyStanceForEntity(API, parseInt(entity_id));
+                if (userStanceResponse === null) {
                     setUserStance(null);
                     return;
+                } else {
+                    setUserStance(userStanceResponse);
+                    return;
                 }
-                const commentsResponse = await stancesApi.getCommentsByStance(API, stanceRes.id);
-                const numRatingsResponse = await stancesApi.getNumRatings(API, stanceRes.id);
-                const comments: Comment[] = (commentsResponse.comments ?? []).map((c) => ({
-                    id: c.id,
-                    user_id: c.user_id,
-                    parent_id: c.parent_id === null ? undefined : c.parent_id,
-                    content: c.content,
-                    likes: c.likes,
-                    dislikes: c.dislikes,
-                    user_reaction:
-                        c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
-                            ? (c.user_reaction as "like" | "dislike" | null)
-                            : null,
-                    count_nested_replies: c.count_nested,
-                }));
-                const stance: Stance = {
-                    id: stanceRes.id,
-                    user_id: stanceRes.user_id,
-                    entity_id: stanceRes.entity_id,
-                    headline: stanceRes.headline,
-                    content_json: stanceRes.content_json,
-                    average_rating: stanceRes.average_rating ?? null,
-                    comments: comments,
-                    num_ratings: numRatingsResponse.num_ratings,
-                };
-                setUserStance(stance);
             } catch (err) {
                 setUserStance(null);
             }
         };
         fetchUserStance();
     }, [isAuthenticated, API, entity_id]);
-
-    const handleAddComment = async (stanceId: number, content: string, parentId?: number) => {
-        try {
-            const newComment: CommentReadResponse = await commentsApi.createComment(API, {
-                stance_id: stanceId,
-                content,
-                parent_id: parentId,
-            });
-            setUserStance(prevStance => {
-                if (!prevStance) return prevStance;
-                const comment: Comment = {
-                    id: newComment.id,
-                    user_id: newComment.user_id,
-                    parent_id: newComment.parent_id === null ? undefined : newComment.parent_id,
-                    content: newComment.content,
-                    likes: newComment.likes,
-                    dislikes: newComment.dislikes,
-                    user_reaction:
-                        newComment.user_reaction === "like" || newComment.user_reaction === "dislike" || newComment.user_reaction === null
-                            ? (newComment.user_reaction as "like" | "dislike" | null)
-                            : null,
-                    count_nested_replies:
-                        typeof newComment.count_nested === "number" ? newComment.count_nested : 0,
-                };
-                return {
-                    ...prevStance,
-                    comments: [
-                        ...(prevStance.comments || []),
-                        comment,
-                    ],
-                };
-            });
-        } catch (err: any) {
-            console.error("Failed to add comment:", err.message);
-        }
-    };
 
     return (
         <>
@@ -266,7 +198,7 @@ export default function EntityPage({ params }: EntityPageProps) {
                                 <div className="flex justify-center mb-8">
                                     {userStance ? (
                                         <div className="w-full max-w-2xl rounded-lg shadow-lg border-t-4 border-purple-600">
-                                            <StanceComponent stance={userStance} onAddComment={handleAddComment} />
+                                            <StanceFeedStanceComponent stance={userStance} />
                                         </div>
                                     ) : (
                                         <button
@@ -280,11 +212,7 @@ export default function EntityPage({ params }: EntityPageProps) {
                                 </div>
                             )}
                             {/* Stances (excluding user's own if present) */}
-                            <StancesSection
-                                stances={userStance
-                                    ? entity.stances.filter(s => s.id !== userStance.id)
-                                    : entity.stances}
-                            />
+                            <StanceFeed num_stances={10} entities={[parseInt(entity_id)]} />
                         </>
                     )}
                     </div>

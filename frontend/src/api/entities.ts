@@ -9,11 +9,12 @@ export type EntityUpdateResponse = components["schemas"]["EntityUpdateResponse"]
 export type EntityDeleteResponse = components["schemas"]["EntityDeleteResponse"];
 export type EntityListResponse = components["schemas"]["EntityListResponse"];
 export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
-export type HomeFeedRequest = components["schemas"]["HomeFeedRequest"];
-export type HomeFeedResponse = components["schemas"]["HomeFeedResponse"];
+export type EntityFeedRequest = components["schemas"]["EntityFeedRequest"];
+export type EntityFeedResponse = components["schemas"]["EntityFeedResponse"];
+export type StanceFeedStanceResponse = components["schemas"]["StanceFeedStanceResponse"];
 
 /**
- * Create a new entity (admin only)
+ * Create a new entity (admin only)-
  */
 export async function createEntity(
   api: AxiosInstance,
@@ -71,8 +72,8 @@ export async function listEntities(api: AxiosInstance): Promise<EntityListRespon
 export async function getMyStanceForEntity(
   api: AxiosInstance,
   entityId: number
-): Promise<StanceReadResponse | null> {
-  const res = await api.get<StanceReadResponse | null>(`/entities/${entityId}/stances/me`);
+): Promise<StanceFeedStanceResponse | null> {
+  const res = await api.get<StanceFeedStanceResponse | null>(`/entities/${entityId}/stances/me`);
   return res.data;
 }
 
@@ -81,8 +82,8 @@ export async function getMyStanceForEntity(
  */
 export async function getFeed(
   api: AxiosInstance,
-  params?: HomeFeedRequest
-): Promise<HomeFeedResponse> {
-  const res = await api.post<HomeFeedResponse>("/entities/feed", { params });
+  params: EntityFeedRequest
+): Promise<EntityFeedResponse> {
+  const res = await api.post<EntityFeedResponse>("/entities/feed", { params });
   return res.data;
 }

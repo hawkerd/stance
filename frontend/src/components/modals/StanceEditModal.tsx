@@ -5,13 +5,10 @@ import StarterKit from '@tiptap/starter-kit'
 import React, { useEffect, useState } from 'react'
 import FileHandler from '@tiptap/extension-file-handler'
 import Image from '@tiptap/extension-image'
-import ImageResize from 'tiptap-extension-resize-image';
 import Embed from '../tiptap/embed';
 
 import { useAuthApi } from '@/app/hooks/useAuthApi';
-import { imagesApi, stancesApi } from '@/api';
-import { StanceUpdateRequest } from '@/api/stances';
-import { useApi } from '@/app/hooks/useApi';
+import { StanceService } from '@/service/StanceService';
 
 function MenuBar({ editor }: { editor: Editor }) {
   // Read the current editor's state, and re-render the component when it changes
@@ -164,6 +161,7 @@ const StanceEditModal: React.FC<StanceEditModalProps> = ({ open, onClose, stance
   const [headline, setHeadline] = useState(original_headline || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const stanceService = new StanceService();
 
   const extensions = [
     StarterKit,
@@ -250,11 +248,7 @@ const StanceEditModal: React.FC<StanceEditModalProps> = ({ open, onClose, stance
     setError(null);
     try {
       const content_json = JSON.stringify(editor.getJSON());
-      const payload: StanceUpdateRequest = {
-        headline: headline.trim(),
-        content_json: content_json,
-      };
-      await stancesApi.updateStance(api, stance_id, payload);
+      await stanceService.updateStance(api, stance_id, headline.trim(), content_json);
       setLoading(false);
       onClose();
     } catch (e: any) {

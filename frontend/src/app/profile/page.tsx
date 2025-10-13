@@ -2,26 +2,25 @@
 
 import { useEffect, useState } from "react";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { components } from "@/api/models/models";
 import { useAuth } from "@/contexts/AuthContext";
-import { usersApi } from "@/api";
-
-type UserReadResponse = components["schemas"]["UserReadResponse"];
+import { UserService } from "@/service/UserService";
+import { User } from "@/models/index";
 
 export default function HomePage() {
   const api = useAuthApi();
   const { initialized } = useAuth();
-  const [userResponse, setUserResponse] = useState<UserReadResponse | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const userService = new UserService();
 
   useEffect(() => {
     if (!initialized) return;
 
     const fetchUser = async () => {
       try {
-        const userResponse = await usersApi.getCurrentUser(api);
-        setUserResponse(userResponse);
+        const userResponse: User = await userService.getCurrentUser(api);
+        setUser(userResponse);
       } catch (err: any) {
         setError(err.response?.data?.detail || "Failed to fetch user");
       } finally {
@@ -40,9 +39,9 @@ export default function HomePage() {
   }
   return (
     <div>
-      <h1>Welcome, {userResponse?.full_name || userResponse?.username}!</h1>
-      <p>Email: {userResponse?.email}</p>
-      <p>User ID: {userResponse?.id}</p>
+      <h1>Welcome, {user?.full_name || user?.username}!</h1>
+      <p>Email: {user?.email}</p>
+      <p>User ID: {user?.id}</p>
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { EntityFeedEvent, TagType, EntityFeedTag } from "../../models";
-import StanceHeadline from "./StanceCard";
+import StanceHeadline from "./EntityFeedStance";
 import { useRouter } from "next/navigation";
 
 export default function EventCard({ event }: { event: EntityFeedEvent }) {

@@ -3,12 +3,13 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_is_admin, get_current_user, get_current_user_optional
 from app.database.entity import create_entity, read_entity, update_entity, delete_entity, get_all_entities, get_random_entities
 from app.routers.models import (
-    EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse, EntityFeedRequest, EntityFeedResponse, EntityFeedEntity, EntityFeedStance, EntityFeedTag
+    EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse, EntityFeedRequest, EntityFeedResponse, EntityFeedEntity, EntityFeedStance, EntityFeedTag, StanceFeedStanceResponse
 )
-from app.database.rating import get_average_rating_for_stance
+from app.database.rating import get_average_rating_for_stance, get_num_ratings_for_stance, read_rating_by_user_and_stance
 from app.database.stance import get_user_stance_by_entity, get_n_stances_by_entity
-from app.database.models import Stance, Entity, Tag
-from app.routers.models import StanceReadResponse
+from app.database.models import Stance, Entity, Tag, User, Rating
+from app.database.user import read_user
+from app.routers.models import StanceFeedStance, StanceFeedUser, StanceFeedEntity, StanceFeedTag
 from app.service.storage import upload_image_to_storage
 import logging
 from typing import Optional, List
@@ -163,18 +164,59 @@ def get_all_entities_endpoint(db: Session = Depends(get_db)):
     return EntityListResponse(entities=entity_list)
 
 
-@router.get("/{entity_id}/stances/me", response_model=Optional[StanceReadResponse])
-def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> Optional[StanceReadResponse]:
+@router.get("/{entity_id}/stances/me", response_model=Optional[StanceFeedStanceResponse])
+def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> Optional[StanceFeedStanceResponse]:
     stance: Optional[Stance] = get_user_stance_by_entity(db, entity_id=entity_id, user_id=user_id)
     if not stance:
         return None
-    return StanceReadResponse(
-        id=stance.id,
-        user_id=stance.user_id,
-        entity_id=stance.entity_id,
-        headline=stance.headline,
-        content_json=stance.content_json
+    
+    # read user information
+    user: Optional[User] = read_user(db, stance.user_id)
+    if not user:
+        return None
+    stance_user: StanceFeedUser = StanceFeedUser(
+        id=user.id,
+        username=user.username
     )
+
+    tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)
+    stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+
+    entity: Optional[Entity] = read_entity(db, stance.entity_id)
+    if not entity:
+        return None
+    stance_entity: StanceFeedEntity = StanceFeedEntity(
+        id=entity.id,
+        type=entity.type,
+        title=entity.title,
+        images_json=entity.images_json,
+        tags=stance_tags,
+        description=entity.description,
+        start_time=str(entity.start_time) if entity.start_time else None,
+        end_time=str(entity.end_time) if entity.end_time else None
+    )
+
+    average_rating: Optional[float] = get_average_rating_for_stance(db, stance.id)
+    num_ratings: int = get_num_ratings_for_stance(db, stance.id)
+    my_rating: Optional[int] = None
+    rating: Rating = read_rating_by_user_and_stance(db, stance.id, user_id)
+    my_rating = rating.rating if rating else None
+    
+
+    stance_stance: StanceFeedStance = StanceFeedStance(
+        id=stance.id,
+        user=stance_user,
+        entity=stance_entity,
+        headline=stance.headline,
+        content_json=stance.content_json,
+        average_rating=average_rating,
+        num_ratings=num_ratings,
+        my_rating=my_rating,
+        tags=stance_tags,
+        created_at=str(stance.created_at) if stance.created_at else None
+    )
+
+    return StanceFeedStanceResponse(stance=stance_stance)
 
 @router.post("/feed", response_model=EntityFeedResponse)
 def get_home_feed(

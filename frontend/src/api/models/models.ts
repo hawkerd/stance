@@ -124,7 +124,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/stances": {
+    "/stances/": {
         parameters: {
             query?: never;
             header?: never;
@@ -132,10 +132,10 @@ export interface paths {
             cookie?: never;
         };
         /** Get Stances Endpoint */
-        get: operations["get_stances_endpoint_stances_get"];
+        get: operations["get_stances_endpoint_stances__get"];
         put?: never;
         /** Create Stance Endpoint */
-        post: operations["create_stance_endpoint_stances_post"];
+        post: operations["create_stance_endpoint_stances__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -229,7 +229,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/feed": {
+    "/stances/feed": {
         parameters: {
             query?: never;
             header?: never;
@@ -239,7 +239,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** Get Stance Feed Endpoint */
-        post: operations["get_stance_feed_endpoint_feed_post"];
+        post: operations["get_stance_feed_endpoint_stances_feed_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -685,7 +685,7 @@ export interface components {
             /** Images */
             images?: string[] | null;
             /** Tags */
-            tags: components["schemas"]["TagRequest"][];
+            tags?: components["schemas"]["TagRequest"][] | null;
             /** Description */
             description?: string | null;
             /** Start Time */
@@ -818,7 +818,7 @@ export interface components {
             /** Username */
             username: string;
             /** Full Name */
-            full_name?: string | null;
+            full_name: string;
             /** Email */
             email: string;
             /** Password */
@@ -830,6 +830,8 @@ export interface components {
             id: number;
             /** Username */
             username: string;
+            /** Full Name */
+            full_name: string;
             /** Email */
             email: string;
         };
@@ -914,6 +916,10 @@ export interface components {
             tags: components["schemas"]["StanceFeedTag"][];
             /** Created At */
             created_at?: string | null;
+        };
+        /** StanceFeedStanceResponse */
+        StanceFeedStanceResponse: {
+            stance: components["schemas"]["StanceFeedStance"];
         };
         /** StanceFeedTag */
         StanceFeedTag: {
@@ -1018,7 +1024,7 @@ export interface components {
             /** Username */
             username: string;
             /** Full Name */
-            full_name?: string | null;
+            full_name: string;
             /** Email */
             email: string;
         };
@@ -1285,7 +1291,7 @@ export interface operations {
             };
         };
     };
-    get_stances_endpoint_stances_get: {
+    get_stances_endpoint_stances__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1305,7 +1311,7 @@ export interface operations {
             };
         };
     };
-    create_stance_endpoint_stances_post: {
+    create_stance_endpoint_stances__post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1563,7 +1569,7 @@ export interface operations {
             };
         };
     };
-    get_stance_feed_endpoint_feed_post: {
+    get_stance_feed_endpoint_stances_feed_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -2126,7 +2132,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StanceReadResponse"] | null;
+                    "application/json": components["schemas"]["StanceFeedStanceResponse"] | null;
                 };
             };
             /** @description Validation Error */
