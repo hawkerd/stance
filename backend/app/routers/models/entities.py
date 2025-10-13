@@ -51,3 +51,27 @@ class EntityDeleteResponse(BaseModel):
 
 class EntityListResponse(BaseModel):
     entities: List[EntityReadResponse]
+
+class EntityFeedStance(BaseModel):
+    id: int
+    headline: str
+    average_rating: Optional[float]
+class EntityFeedTag(BaseModel):
+    id: int
+    name: str
+    tag_type: int
+class EntityFeedEntity(BaseModel):
+    id: int
+    type: int
+    title: str
+    images_json: str
+    tags: List[EntityFeedTag]
+    stances: List[EntityFeedStance]
+    description: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+class EntityFeedRequest(BaseModel):
+    num_entities: int = 10
+    num_stances_per_entity: int = 15
+class EntityFeedResponse(BaseModel):
+    entities: List[EntityFeedEntity]

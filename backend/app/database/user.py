@@ -21,7 +21,7 @@ def create_user(db: Session, username: str, full_name: Optional[str], email: str
         logging.error(f"Error creating user: {e}")
         raise DatabaseError("Failed to create user")
 
-def read_user(db: Session, user_id: int) -> User:
+def read_user(db: Session, user_id: int) -> Optional[User]:
     try:
         return db.query(User).filter(User.id == user_id).first()
     except Exception as e:

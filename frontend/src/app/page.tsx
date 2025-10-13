@@ -4,8 +4,8 @@ import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { useAuth } from "@/contexts/AuthContext";
 import IssueCard from "../components/home-feed/IssueCard";
 import EventCard from "../components/home-feed/EventCard";
-import { HomeFeedEntity, EntityType, HomeFeedEvent, HomeFeedIssue } from "../models";
-import { feedApi } from "@/api";
+import { EntityFeedEntity, EntityType, EntityFeedEvent, EntityFeedIssue } from "../models";
+import { entitiesApi } from "@/api";
 import { useApi } from "./hooks/useApi";
 
 export default function Home() {
@@ -13,7 +13,7 @@ export default function Home() {
   const api = useApi();
   const { initialized } = useAuth();
 
-  const [entities, setEntities] = useState<HomeFeedEntity[]>([]);
+  const [entities, setEntities] = useState<EntityFeedEntity[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export default function Home() {
     }
 
     try {
-      const entitiesResponse = await feedApi.getHomeFeed(api);
+      const entitiesResponse = await entitiesApi.getFeed(api);
       const newEntities = entitiesResponse.entities ?? [];
       
       if (append) {
@@ -96,9 +96,9 @@ export default function Home() {
         {entities.map((entity, idx) => (
           <div key={`entity-frag-${entity.id}-${Math.random()}`}>
             {entity.type === EntityType.EVENT ? (
-              <EventCard event={entity as HomeFeedEvent} />
+              <EventCard event={entity as EntityFeedEvent} />
             ) : entity.type === EntityType.ISSUE ? (
-              <IssueCard issue={entity as HomeFeedIssue} />
+              <IssueCard issue={entity as EntityFeedIssue} />
             ) : null}
             <div key={`entity-divider-${entity.id}`} className="border-t border-gray-200 w-[90%] mx-auto" />
           </div>

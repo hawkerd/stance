@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { HomeFeedStance } from "../../models";
+import { EntityFeedStance } from "../../models";
 
-export default function StanceHeadline({ stance }: { stance: HomeFeedStance }) {
+export default function StanceHeadline({ stance }: { stance: EntityFeedStance }) {
   return (
     <div className="flex items-center px-2 py-1 rounded border border-gray-100 mb-1 text-xs">
       <span className="font-medium text-black flex-1 break-words">{stance.headline}</span>

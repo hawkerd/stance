@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { HomeFeedEvent, TagType, HomeFeedTag } from "../../models";
+import { EntityFeedEvent, TagType, EntityFeedTag } from "../../models";
 import StanceHeadline from "./StanceCard";
 import { useRouter } from "next/navigation";
 
-export default function EventCard({ event }: { event: HomeFeedEvent }) {
+export default function EventCard({ event }: { event: EntityFeedEvent }) {
   const stances = event.stances || [];
   const router = useRouter();
   let imageUrls: string[] = [];

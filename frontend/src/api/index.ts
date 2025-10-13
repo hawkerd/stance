@@ -8,6 +8,5 @@ import * as usersApi from "./users";
 import * as authApi from "./auth";
 import * as commentsApi from "./comments";
 import * as imagesApi from "./images";
-import * as feedApi from "./feed";
 
-export { entitiesApi, profilesApi, demographicsApi, stancesApi, usersApi, authApi, commentsApi, imagesApi, feedApi };
+export { entitiesApi, profilesApi, demographicsApi, stancesApi, usersApi, authApi, commentsApi, imagesApi };

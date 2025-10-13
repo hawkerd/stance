@@ -35,43 +35,28 @@ export default function EntityPage({ params }: EntityPageProps) {
             setLoading(true);
             setError(null);
             try {
-            const entityResponse: EntityReadResponse = await entitiesApi.getEntity(API, parseInt(entity_id));
-            const stancesResponse: StanceListResponse = await stancesApi.getStancesByEntity(API, parseInt(entity_id));
-
-            const stances: Stance[] = await Promise.all(
-                (stancesResponse.stances ?? []).map(async (s) => {
-                const commentsResponse: CommentListResponse = await stancesApi.getCommentsByStance(API, s.id);
-                const numRatingsResponse = await stancesApi.getNumRatings(API, s.id);
-                const comments: Comment[] = (commentsResponse.comments ?? []).map((c) => ({
-                    id: c.id,
-                    user_id: c.user_id,
-                    parent_id: c.parent_id === null ? undefined : c.parent_id,
-                    content: c.content,
-                    likes: c.likes,
-                    dislikes: c.dislikes,
-                    user_reaction:
-                    c.user_reaction === "like" || c.user_reaction === "dislike" || c.user_reaction === null
-                        ? (c.user_reaction as "like" | "dislike" | null)
-                        : null,
-                    count_nested_replies: c.count_nested,
-                }));
-                return {
+                const entityResponse: EntityReadResponse = await entitiesApi.getEntity(API, parseInt(entity_id));
+                // Use the new feed endpoint for stances
+                const feedResponse = await stancesApi.getFeed(API, {
+                    num_stances: 50,
+                    entities: [parseInt(entity_id)]
+                });
+                // Map feed stances to your Stance model
+                const stances: Stance[] = (feedResponse.stances ?? []).map(s => ({
                     id: s.id,
-                    user_id: s.user_id,
-                    entity_id: s.entity_id,
+                    user_id: s.user.id,
+                    entity_id: s.entity.id,
                     headline: s.headline,
                     content_json: s.content_json,
                     average_rating: s.average_rating ?? null,
-                    comments: comments,
-                    num_ratings: numRatingsResponse.num_ratings,
-                } as Stance;
-                })
-            );
-            setEntity({ ...entityResponse, stances });
+                    comments: [], // can be filled if include_comments is true
+                    num_ratings: s.num_ratings,
+                }));
+                setEntity({ ...entityResponse, stances });
             } catch (err: any) {
-            setError(err.message || "Unexpected error");
+                setError(err.message || "Unexpected error");
             } finally {
-            setLoading(false);
+                setLoading(false);
             }
         };
         fetchEntity();

@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { HomeFeedIssue, TagType, HomeFeedTag } from "../../models";
+import { EntityFeedIssue, TagType, EntityFeedTag } from "../../models";
 import StanceHeadline from "./StanceCard";
 import { useRouter } from "next/navigation";
 
-export default function IssueCard({ issue }: { issue: HomeFeedIssue }) {
+export default function IssueCard({ issue }: { issue: EntityFeedIssue }) {
   const stances = issue.stances || [];
   const router = useRouter();
   let imageUrls: string[] = [];

@@ -14,6 +14,8 @@ export type StanceRateRequest = components["schemas"]["StanceRateRequest"];
 export type StanceRateResponse = components["schemas"]["StanceRateResponse"];
 export type ReadStanceRatingResponse = components["schemas"]["ReadStanceRatingResponse"];
 export type NumRatingsResponse = components["schemas"]["NumRatingsResponse"];
+export type StanceFeedRequest = components["schemas"]["StanceFeedRequest"];
+export type StanceFeedResponse = components["schemas"]["StanceFeedResponse"];
 
 /**
  * Create a new stance
@@ -121,5 +123,16 @@ export async function getNumRatings(
   stanceId: number
 ): Promise<NumRatingsResponse> {
   const res = await api.get<NumRatingsResponse>(`/stances/${stanceId}/num-ratings`);
+  return res.data;
+}
+
+/**
+ * Get the feed of stances based on filters
+ */
+export async function getFeed(
+  api: AxiosInstance,
+  data: StanceFeedRequest
+): Promise<StanceFeedResponse> {
+  const res = await api.post<StanceFeedResponse>(`/stances/feed`, data);
   return res.data;
 }

@@ -9,6 +9,8 @@ export type EntityUpdateResponse = components["schemas"]["EntityUpdateResponse"]
 export type EntityDeleteResponse = components["schemas"]["EntityDeleteResponse"];
 export type EntityListResponse = components["schemas"]["EntityListResponse"];
 export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
+export type HomeFeedRequest = components["schemas"]["HomeFeedRequest"];
+export type HomeFeedResponse = components["schemas"]["HomeFeedResponse"];
 
 /**
  * Create a new entity (admin only)
@@ -71,5 +73,16 @@ export async function getMyStanceForEntity(
   entityId: number
 ): Promise<StanceReadResponse | null> {
   const res = await api.get<StanceReadResponse | null>(`/entities/${entityId}/stances/me`);
+  return res.data;
+}
+
+/**
+ * Fetch the home feed data
+ */
+export async function getFeed(
+  api: AxiosInstance,
+  params?: HomeFeedRequest
+): Promise<HomeFeedResponse> {
+  const res = await api.post<HomeFeedResponse>("/entities/feed", { params });
   return res.data;
 }
