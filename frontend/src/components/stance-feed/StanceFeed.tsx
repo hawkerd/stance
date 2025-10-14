@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import StanceFeedStanceComponent from "./StanceFeedStance";
+import StanceFeedLoadingFiller from "./StanceFeedLoadingFiller";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { StanceFeedStance } from "@/models";
 import { StanceService } from "@/service/StanceService";
@@ -84,13 +85,25 @@ export default function StanceFeed({ num_stances, entities }: StanceFeedProps) {
                     className="h-screen w-full snap-start flex justify-center items-stretch"
                 >
                     <div
-                        className="max-w-4xl w-full px-4 py-6 overflow-y-auto scrollbar-hidden bg-gray-50 rounded-xl border border-gray-100 shadow-sm flex flex-col"
+                        className="max-w-4xl w-full px-4 py-6 overflow-y-auto scrollbar-hidden flex flex-col"
                         style={{ minHeight: '100vh', maxHeight: '100vh' }}
                     >
                         <StanceFeedStanceComponent stance={stance} />
                     </div>
                 </section>
             ))}
+
+            {/* Filler stance for loading, so we have something to snap to */}
+            {loadingMore && (
+                <section className="h-screen w-full snap-start flex justify-center items-stretch">
+                    <div
+                        className="max-w-4xl w-full px-4 py-6 overflow-y-auto scrollbar-hidden flex flex-col"
+                        style={{ minHeight: '100vh', maxHeight: '100vh' }}
+                    >
+                        <StanceFeedLoadingFiller />
+                    </div>
+                </section>
+            )}
 
             <div
                 ref={observerTarget}

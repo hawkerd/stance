@@ -75,6 +75,7 @@ class StanceFeedStance(BaseModel):
     entity: StanceFeedEntity
     headline: str
     content_json: str
+    num_comments: int
     average_rating: Optional[float]
     num_ratings: int
     my_rating: Optional[int]

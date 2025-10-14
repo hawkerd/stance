@@ -13,7 +13,8 @@ from app.database.stance import (
     read_stance, delete_stance,
     get_stances_by_user, get_comments_by_stance,
     get_all_stances, get_stances_by_entity, 
-    get_random_stances, get_random_stances_by_entities
+    get_random_stances, get_random_stances_by_entities,
+    get_comment_count_by_stance
 )
 from app.database.rating import (
     get_average_rating_for_stance, rate_stance, 
@@ -341,6 +342,8 @@ def get_stance_feed_endpoint(
             if current_user_id:
                 rating: Rating = read_rating_by_user_and_stance(db, stance.id, current_user_id)
                 my_rating = rating.rating if rating else None
+
+            comment_count: int = get_comment_count_by_stance(db, stance.id)
             
 
             stance_stance: StanceFeedStance = StanceFeedStance(
@@ -349,6 +352,7 @@ def get_stance_feed_endpoint(
                 entity=stance_entity,
                 headline=stance.headline,
                 content_json=stance.content_json,
+                num_comments=comment_count,
                 average_rating=average_rating,
                 num_ratings=num_ratings,
                 my_rating=my_rating,

@@ -15,6 +15,7 @@ interface EntityPageProps {
   params: Promise<{ entity_id: string }>;
 }
 
+
 export default function EntityPage({ params }: EntityPageProps) {
     const { entity_id } = use(params);
     const router = useRouter();
@@ -22,10 +23,10 @@ export default function EntityPage({ params }: EntityPageProps) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [userStance, setUserStance] = useState<StanceFeedStance | null | undefined>(undefined);
-    const [stances, setStances] = useState<StanceFeedStance[]>([]);
     const [showStanceModal, setShowStanceModal] = useState(false);
     const [currentImage, setCurrentImage] = useState(0);
     const [hovered, setHovered] = useState(false);
+    const [mode, setMode] = useState<'details' | 'feed'>('details');
     const API = useAuthApi();
     const { isAuthenticated } = useAuth();
     const stanceService = new StanceService();
@@ -39,10 +40,6 @@ export default function EntityPage({ params }: EntityPageProps) {
                 // fetch the entity
                 const entityResponse: Entity = await entityService.getEntity(API, parseInt(entity_id));
                 setEntity(entityResponse);
-
-                // fetch stances for the entity
-                const stancesResponse: StanceFeedStance[] = await stanceService.fetchStanceFeed(API, 50, [parseInt(entity_id)]);
-                setStances(stancesResponse);
             } catch (err: any) {
                 setError(err.message || "Unexpected error");
             } finally {
@@ -77,7 +74,9 @@ export default function EntityPage({ params }: EntityPageProps) {
 
     return (
         <>
-            <main className="min-h-screen flex flex-col items-center justify-start p-8 bg-gradient-to-br from-purple-50 via-white to-pink-50">
+            <main
+                className={`min-h-screen flex flex-col items-center justify-start${mode === 'feed' ? ' overflow-hidden p-0' : ' p-8'} bg-gradient-to-br from-purple-50 via-white to-pink-50`}
+            >
                 <div className="w-full flex flex-row">
                     {/* Left whitespace with back button */}
                     <div className="flex-1 flex justify-end pr-6">
@@ -91,6 +90,18 @@ export default function EntityPage({ params }: EntityPageProps) {
                                     <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
                                 </svg>
                             </button>
+                            {/* Back to details button, only in feed mode */}
+                            {mode === 'feed' && (
+                                <button
+                                    className="p-2 rounded-full text-purple-400 hover:text-purple-700 transition"
+                                    onClick={() => setMode('details')}
+                                    aria-label="Back to details"
+                                >
+                                    <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 15l7-7 7 7" />
+                                    </svg>
+                                </button>
+                            )}
                         </div>
                     </div>
                     {/* Main content centered */}
@@ -101,7 +112,7 @@ export default function EntityPage({ params }: EntityPageProps) {
                             {error}
                         </div>
                     )}
-                    {entity && (
+                    {entity && mode === 'details' && (
                         <>
                             {/* Image Carousel */}
                             {(() => {
@@ -211,9 +222,21 @@ export default function EntityPage({ params }: EntityPageProps) {
                                     )}
                                 </div>
                             )}
-                            {/* Stances (excluding user's own if present) */}
-                            <StanceFeed num_stances={10} entities={[parseInt(entity_id)]} />
+                            {/* Switch to stance feed mode button */}
+                            <div className="flex justify-center mb-8">
+                                <button
+                                    className="px-6 py-3 rounded-lg bg-pink-500 text-white font-semibold shadow hover:bg-pink-600 transition focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+                                    type="button"
+                                    onClick={() => setMode('feed')}
+                                >
+                                    View all stances
+                                </button>
+                            </div>
                         </>
+                    )}
+                    {/* Stance feed mode */}
+                    {entity && mode === 'feed' && (
+                        <StanceFeed num_stances={50} entities={[parseInt(entity_id)]} />
                     )}
                     </div>
                     {/* Right whitespace */}

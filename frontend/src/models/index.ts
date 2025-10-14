@@ -55,6 +55,7 @@ export interface StanceFeedStance {
     entity: StanceFeedEntity;
     headline: string;
     content_json: string;
+    num_comments: number;
     average_rating?: number | null;
     num_ratings: number;
     my_rating?: number | null;

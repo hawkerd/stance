@@ -906,6 +906,8 @@ export interface components {
             headline: string;
             /** Content Json */
             content_json: string;
+            /** Num Comments */
+            num_comments: number;
             /** Average Rating */
             average_rating: number | null;
             /** Num Ratings */

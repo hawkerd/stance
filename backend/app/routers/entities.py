@@ -6,7 +6,7 @@ from app.routers.models import (
     EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse, EntityFeedRequest, EntityFeedResponse, EntityFeedEntity, EntityFeedStance, EntityFeedTag, StanceFeedStanceResponse
 )
 from app.database.rating import get_average_rating_for_stance, get_num_ratings_for_stance, read_rating_by_user_and_stance
-from app.database.stance import get_user_stance_by_entity, get_n_stances_by_entity
+from app.database.stance import get_user_stance_by_entity, get_n_stances_by_entity, get_comment_count_by_stance
 from app.database.models import Stance, Entity, Tag, User, Rating
 from app.database.user import read_user
 from app.routers.models import StanceFeedStance, StanceFeedUser, StanceFeedEntity, StanceFeedTag
@@ -201,7 +201,8 @@ def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_
     my_rating: Optional[int] = None
     rating: Rating = read_rating_by_user_and_stance(db, stance.id, user_id)
     my_rating = rating.rating if rating else None
-    
+
+    comment_count: int = get_comment_count_by_stance(db, stance.id)
 
     stance_stance: StanceFeedStance = StanceFeedStance(
         id=stance.id,
@@ -212,6 +213,7 @@ def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_
         average_rating=average_rating,
         num_ratings=num_ratings,
         my_rating=my_rating,
+        num_comments=comment_count,
         tags=stance_tags,
         created_at=str(stance.created_at) if stance.created_at else None
     )
