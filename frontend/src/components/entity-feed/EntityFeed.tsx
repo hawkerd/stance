@@ -3,7 +3,12 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import IssueCard from "./EntityFeedIssue";
 import EventCard from "./EntityFeedEvent";
-import { EntityFeedEntity, EntityType, EntityFeedEvent, EntityFeedIssue } from "@/models";
+import {
+  EntityFeedEntity,
+  EntityType,
+  EntityFeedEvent,
+  EntityFeedIssue,
+} from "@/models";
 import { useApi } from "@/app/hooks/useApi";
 import { EntityService } from "@/service/EntityService";
 
@@ -13,68 +18,64 @@ export default function EntityFeed() {
   const { initialized } = useAuth();
 
   const [entities, setEntities] = useState<EntityFeedEntity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
-  const [cursor, setCursor] = useState<string | null | undefined>(undefined);
 
+  const cursorRef = useRef<string | null>(null);
   const observerTarget = useRef<HTMLDivElement>(null);
+  const fetchingRef = useRef(false); // Prevent duplicate fetches
 
-  const fetchEntities = useCallback(async (append = false) => {
-    if (!initialized) return;
-
-    if (append) {
-      setLoadingMore(true);
-    } else {
-      setLoading(true);
-      setHasMore(true);
-    }
+  const fetchEntities = useCallback(async () => {
+    if (!initialized || fetchingRef.current || !hasMore) return;
+    
+    fetchingRef.current = true;
+    setLoading(true);
 
     try {
-      const response = await entityFeedService.getFeed(api, 5, 3, cursor || undefined);
+      const response = await entityFeedService.getFeed(
+        api,
+        5,
+        3,
+        cursorRef.current || undefined
+      );
 
-      if (append) {
-        setEntities(prev => [...prev, ...response.entities]);
-      } else {
-        setEntities(response.entities);
-      }
-
+      setEntities(prev => [...prev, ...response.entities]);
       setHasMore(response.hasMore);
-      setCursor(response.nextCursor);
+      cursorRef.current = response.nextCursor ?? null;
     } catch (err: any) {
       setError(err.message || "Failed to fetch entities");
     } finally {
       setLoading(false);
-      setLoadingMore(false);
+      fetchingRef.current = false;
     }
-  }, [api, initialized, cursor]);
+  }, [api, initialized, hasMore, entityFeedService]);
 
+  // initial fetch
   useEffect(() => {
-    fetchEntities(false);
-  }, [fetchEntities]);
+    if (initialized && entities.length === 0) {
+      fetchEntities();
+    }
+  }, [initialized]);
 
+  // infinite scroll
   useEffect(() => {
     const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loadingMore && !loading) {
-          fetchEntities(true);
+      entries => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          fetchEntities();
         }
       },
       { threshold: 0.1 }
     );
 
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
+    const current = observerTarget.current;
+    if (current) observer.observe(current);
 
     return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
+      if (current) observer.unobserve(current);
     };
-  }, [hasMore, loadingMore, loading, fetchEntities]);
+  }, [hasMore, loading]);
 
   if (!initialized) {
     return <p>Initializing...</p>;
@@ -82,13 +83,10 @@ export default function EntityFeed() {
 
   return (
     <div className="w-full max-w-4xl space-y-8">
-      {loading && entities.length === 0 && (
-        <div className="text-purple-500 text-center">Loading events...</div>
-      )}
       {error && <div className="text-red-500 text-center font-medium">{error}</div>}
 
-      {entities.map((entity) => (
-        <div key={`entity-${entity.id}=${Math.random()}`} className="space-y-4">
+      {entities.map(entity => (
+        <div key={`entity-${entity.id}`} className="space-y-4">
           {entity.type === EntityType.EVENT ? (
             <EventCard event={entity as EntityFeedEvent} />
           ) : entity.type === EntityType.ISSUE ? (
@@ -103,10 +101,8 @@ export default function EntityFeed() {
         className="h-20 flex items-center justify-center"
         style={{ overflowAnchor: "none" }}
       >
-        {loadingMore && (
-          <div className="text-purple-500 text-center">Loading more...</div>
-        )}
-        {!hasMore && entities.length > 0 && (
+        {loading && <div className="text-purple-500 text-center">Loading...</div>}
+        {!hasMore && !loading && (
           <div className="text-gray-400 text-center">No more content</div>
         )}
       </div>
