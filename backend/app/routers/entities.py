@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_is_admin, get_current_user, get_current_user_optional
-from app.database.entity import create_entity, read_entity, update_entity, delete_entity, get_all_entities, get_random_entities
+from app.database.entity import create_entity, read_entity, update_entity, delete_entity, get_all_entities, get_entities_paginated
 from app.routers.models import (
-    EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse, EntityFeedRequest, EntityFeedResponse, EntityFeedEntity, EntityFeedStance, EntityFeedTag, StanceFeedStanceResponse
+    EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse, EntityFeedResponse, EntityFeedEntity, EntityFeedStance, EntityFeedTag, StanceFeedStanceResponse
 )
 from app.database.rating import get_average_rating_for_stance, get_num_ratings_for_stance, read_rating_by_user_and_stance
 from app.database.stance import get_user_stance_by_entity, get_n_stances_by_entity, get_comment_count_by_stance
@@ -18,6 +18,7 @@ import json
 import base64
 from app.database.tag import create_tag, find_tag
 from app.database.entity_tag import create_entity_tag, find_entity_tag, delete_entity_tags_for_entity, get_tags_for_entity
+import logging
 
 router = APIRouter(tags=["entities"], prefix="/entities")
 
@@ -71,6 +72,70 @@ def create_entity_endpoint(request: EntityCreateRequest, db: Session = Depends(g
         images_json=entity.images_json,
         tags=tags_response
     )
+
+@router.get("/feed", response_model=EntityFeedResponse)
+def get_home_feed(
+    num_entities: int = 10,
+    num_stances_per_entity: int = 15,
+    cursor: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user_id: Optional[int] = Depends(get_current_user_optional)
+) -> EntityFeedResponse:
+    try:
+        logging.info(f"Fetching home feed: num_entities={num_entities}, num_stances_per_entity={num_stances_per_entity}, cursor={cursor}, user_id={current_user_id}")
+        # if cursor is provided, parse it into datetime
+        cursor_datetime = None
+        if cursor:
+            try:
+                cursor_datetime = datetime.fromisoformat(cursor)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid cursor format")
+        
+        # fetch n+1 entities to check if there are more
+        entities: List[Entity] = get_entities_paginated(db, limit=num_entities + 1, cursor=cursor_datetime)
+        if not entities:
+            return EntityFeedResponse(entities=[], next_cursor=None, has_more=False)
+
+        has_more = len(entities) > num_entities
+        if has_more:
+            entities = entities[:num_entities]
+
+        feed_entities: List[EntityFeedEntity] = []
+        for entity in entities:
+            # fetch tags
+            tags: List[Tag] = get_tags_for_entity(db, entity.id)
+            feed_tags: List[EntityFeedTag] = [EntityFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+
+            # stances
+            stances: List[Stance] = get_n_stances_by_entity(db, entity.id, num_stances_per_entity)
+            feed_stances: List[EntityFeedStance] = []
+            for s in stances:
+                avg_rating = get_average_rating_for_stance(db, s.id)
+                feed_stances.append(EntityFeedStance(id=s.id, headline=s.headline, average_rating=avg_rating))
+
+            feed_entity = EntityFeedEntity(
+                id=entity.id,
+                type=entity.type,
+                title=entity.title,
+                images_json=entity.images_json,
+                tags=feed_tags,
+                stances=feed_stances,
+                description=entity.description,
+                start_time=entity.start_time.isoformat() if entity.start_time else None,
+                end_time=entity.end_time.isoformat() if entity.end_time else None
+            )
+            feed_entities.append(feed_entity)
+
+        # set next_cursor
+        next_cursor = None
+        if has_more and entities:
+            next_cursor = entities[-1].created_at.isoformat()
+
+        return EntityFeedResponse(entities=feed_entities, next_cursor=next_cursor, has_more=has_more)
+
+    except Exception as e:
+        logging.error(f"Error fetching home feed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch home feed")
 
 @router.get("/{entity_id}", response_model=EntityReadResponse)
 def get_entity_endpoint(entity_id: int, db: Session = Depends(get_db)) -> EntityReadResponse:
@@ -219,47 +284,3 @@ def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_
     )
 
     return StanceFeedStanceResponse(stance=stance_stance)
-
-@router.post("/feed", response_model=EntityFeedResponse)
-def get_home_feed(
-    request: EntityFeedRequest,
-    db: Session = Depends(get_db),
-    current_user_id: Optional[int] = Depends(get_current_user_optional)
-) -> EntityFeedResponse:
-    try:
-        # get <=n random entities
-        entities: List[Entity] = get_random_entities(db, n=request.num_entities)
-        if not entities:
-            return []
-
-        feed_entities: List[EntityFeedEntity] = []
-        for entity in entities:
-            # fetch tags
-            tags: List[Tag] = get_tags_for_entity(db, entity.id)
-            feed_tags: List[EntityFeedTag] = [EntityFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
-
-            # stances
-            stances: List[Stance] = get_n_stances_by_entity(db, entity.id, request.num_stances_per_entity)
-            feed_stances: List[EntityFeedStance] = []
-            for s in stances:
-                avg_rating = get_average_rating_for_stance(db, s.id)
-                feed_stances.append(EntityFeedStance(id=s.id, headline=s.headline, average_rating=avg_rating))
-
-            feed_entity = EntityFeedEntity(
-                id=entity.id,
-                type=entity.type,
-                title=entity.title,
-                images_json=entity.images_json,
-                tags=feed_tags,
-                stances=feed_stances,
-                description=entity.description,
-                start_time=entity.start_time.isoformat() if entity.start_time else None,
-                end_time=entity.end_time.isoformat() if entity.end_time else None
-            )
-            feed_entities.append(feed_entity)
-
-        return EntityFeedResponse(entities=feed_entities)
-
-    except Exception as e:
-        logging.error(f"Error fetching home feed: {e}")
-        raise HTTPException(status_code=500, detail="Failed to fetch home feed")

@@ -22,10 +22,12 @@ export class StanceService {
   async fetchStanceFeed(
     api: AxiosInstance,
     num_stances: number,
-    entities: number[]
+    entities: number[],
+    initial_stance_id?: number
   ): Promise<StanceFeedStance[]> {
     const request: StanceFeedRequest = {
       num_stances,
+      initial_stance_id: initial_stance_id ?? null,
       entities,
     };
     const response: StanceFeedResponse = await stancesApi.getFeed(api, request);

@@ -70,8 +70,7 @@ class EntityFeedEntity(BaseModel):
     description: Optional[str] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None
-class EntityFeedRequest(BaseModel):
-    num_entities: int = 10
-    num_stances_per_entity: int = 15
 class EntityFeedResponse(BaseModel):
     entities: List[EntityFeedEntity]
+    next_cursor: Optional[str]
+    has_more: bool

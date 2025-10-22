@@ -1,20 +1,12 @@
 import { AxiosInstance } from "axios";
 import { entitiesApi } from "@/api";
 import {
-  createEntity,
-  getEntity,
-  updateEntity,
-  deleteEntity,
-  listEntities,
-  getMyStanceForEntity,
-  getFeed,
   EntityCreateRequest,
   EntityReadResponse,
   EntityUpdateRequest,
   EntityUpdateResponse,
   EntityDeleteResponse,
   EntityListResponse,
-  EntityFeedRequest,
   EntityFeedResponse,
   StanceReadResponse,
   StanceFeedStanceResponse
@@ -138,15 +130,18 @@ export class EntityService {
         api: AxiosInstance,
         num_entities: number,
         num_stances_per_entity: number,
-    ): Promise<EntityFeedEntity[]> {
-        const request: EntityFeedRequest = {
+        cursor?: string
+    ): Promise<{ entities: EntityFeedEntity[]; nextCursor: string | null; hasMore: boolean }> {
+        const response: EntityFeedResponse = await entitiesApi.getFeed(
+            api,
             num_entities,
             num_stances_per_entity,
+            cursor
+        );
+        return {
+            entities: response.entities,
+            nextCursor: response.next_cursor,
+            hasMore: response.has_more
         };
-        const response: EntityFeedResponse = await entitiesApi.getFeed(api, request);
-        const entities: EntityFeedEntity[] = response.entities.map((e) => ({
-            ...e,
-        }));
-        return entities;
     }
 }

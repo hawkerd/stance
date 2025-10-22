@@ -308,6 +308,13 @@ def get_stance_feed_endpoint(
         else:
             stances = get_random_stances(db, request.num_stances)
 
+        # get the initial stance if provided
+        if request.initial_stance_id:
+            stances = [s for s in stances if str(s.id) != request.initial_stance_id]
+            initial_stance = read_stance(db, int(request.initial_stance_id))
+            if initial_stance:
+                stances.insert(0, initial_stance)
+
         feed_stances = []
         for stance in stances:
             # read user information

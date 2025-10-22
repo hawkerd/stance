@@ -74,3 +74,18 @@ def get_random_entities(db: Session, n: int) -> List[Entity]:
     except Exception as e:
         logging.error(f"Error getting {n} random entities: {e}")
         raise DatabaseError("Failed to get random entities")
+
+def get_entities_paginated(db: Session, limit: int, cursor: Optional[datetime] = None) -> List[Entity]:
+    """Fetch entities ordered by created_at (descending) with cursor-based pagination."""
+    try:
+        query = db.query(Entity)
+        if cursor:
+            query = query.filter(Entity.created_at < cursor)
+        
+        # Order by created_at descending (newest first), with id as tiebreaker
+        entities = query.order_by(Entity.created_at.desc(), Entity.id.desc()).limit(limit).all()
+        return entities
+    except Exception as e:
+        logging.error(f"Error getting paginated entities (cursor={cursor}, limit={limit}): {e}")
+        raise DatabaseError("Failed to get paginated entities")
+    

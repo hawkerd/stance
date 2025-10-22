@@ -17,6 +17,7 @@ export default function EntityFeed() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasMore, setHasMore] = useState(true);
+  const [cursor, setCursor] = useState<string | null | undefined>(undefined);
 
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -31,24 +32,23 @@ export default function EntityFeed() {
     }
 
     try {
-      const newEntities = await entityFeedService.getFeed(api, 5, 3);
+      const response = await entityFeedService.getFeed(api, 5, 3, cursor || undefined);
 
       if (append) {
-        setEntities(prev => [...prev, ...newEntities]);
+        setEntities(prev => [...prev, ...response.entities]);
       } else {
-        setEntities(newEntities);
+        setEntities(response.entities);
       }
 
-      if (newEntities.length === 0) {
-        setHasMore(false);
-      }
+      setHasMore(response.hasMore);
+      setCursor(response.nextCursor);
     } catch (err: any) {
       setError(err.message || "Failed to fetch entities");
     } finally {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [api, initialized]);
+  }, [api, initialized, cursor]);
 
   useEffect(() => {
     fetchEntities(false);

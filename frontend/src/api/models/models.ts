@@ -355,6 +355,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Home Feed */
+        get: operations["get_home_feed_entities_feed_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/entities/{entity_id}": {
         parameters: {
             query?: never;
@@ -385,23 +402,6 @@ export interface paths {
         get: operations["get_my_stance_for_event_entities__entity_id__stances_me_get"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/feed": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get Home Feed */
-        post: operations["get_home_feed_entities_feed_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -618,23 +618,14 @@ export interface components {
             /** End Time */
             end_time?: string | null;
         };
-        /** EntityFeedRequest */
-        EntityFeedRequest: {
-            /**
-             * Num Entities
-             * @default 10
-             */
-            num_entities: number;
-            /**
-             * Num Stances Per Entity
-             * @default 15
-             */
-            num_stances_per_entity: number;
-        };
         /** EntityFeedResponse */
         EntityFeedResponse: {
             /** Entities */
             entities: components["schemas"]["EntityFeedEntity"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Has More */
+            has_more: boolean;
         };
         /** EntityFeedStance */
         EntityFeedStance: {
@@ -888,6 +879,8 @@ export interface components {
              * @default 20
              */
             num_stances: number;
+            /** Initial Stance Id */
+            initial_stance_id: number | null;
             /** Entities */
             entities: number[] | null;
         };
@@ -2020,6 +2013,39 @@ export interface operations {
             };
         };
     };
+    get_home_feed_entities_feed_get: {
+        parameters: {
+            query?: {
+                num_entities?: number;
+                num_stances_per_entity?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntityFeedResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_entity_endpoint_entities__entity_id__get: {
         parameters: {
             query?: never;
@@ -2135,39 +2161,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StanceFeedStanceResponse"] | null;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_home_feed_entities_feed_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EntityFeedRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntityFeedResponse"];
                 };
             };
             /** @description Validation Error */

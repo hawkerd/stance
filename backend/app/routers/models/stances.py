@@ -83,6 +83,7 @@ class StanceFeedStance(BaseModel):
     created_at: Optional[str] = None
 class StanceFeedRequest(BaseModel):
     num_stances: int = 20
+    initial_stance_id: Optional[int]
     entities: Optional[List[int]]
 class StanceFeedResponse(BaseModel):
     stances: List[StanceFeedStance]

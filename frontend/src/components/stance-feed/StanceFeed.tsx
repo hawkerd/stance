@@ -12,9 +12,10 @@ import { useInfiniteScroll } from "@/app/hooks/useInfiniteScroll";
 interface StanceFeedProps {
     num_stances: number;
     entities: number[];
+    initialStanceId?: number;
 }
 
-export default function StanceFeed({ num_stances, entities }: StanceFeedProps) {
+export default function StanceFeed({ num_stances, entities, initialStanceId }: StanceFeedProps) {
     const [stances, setStances] = useState<StanceFeedStance[]>([]);
     const [hasMore, setHasMore] = useState(true);
     const [page, setPage] = useState(0);
@@ -25,9 +26,32 @@ export default function StanceFeed({ num_stances, entities }: StanceFeedProps) {
     const router = useRouter();
     const stanceRefs = useRef<(HTMLElement | null)[]>([]);
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
+    const isEntityFeed = entities.length === 1;
 
     const API = useAuthApi();
     const stanceFeedService = new StanceService();
+
+    // initial fetch
+    useEffect(() => {
+        async function initialFetch() {
+            try {
+                setLoading(true);
+                const initialStances = await stanceFeedService.fetchStanceFeed(API, num_stances, entities, initialStanceId);
+                setStances(initialStances);
+                if (initialStances.length === 0) {
+                    setHasMore(false);
+                } else {
+                    setPage(1);
+                }
+            } catch (err: any) {
+                setError(err.message || "Failed to fetch stances");
+            } finally {
+                setLoading(false);
+            }
+        }
+        initialFetch();
+    }, []);
+
     // Intersection Observer to track which stance is in view
     useEffect(() => {
         if (stances.length === 0) return;
@@ -38,7 +62,11 @@ export default function StanceFeed({ num_stances, entities }: StanceFeedProps) {
                         const idx = stanceRefs.current.findIndex(ref => ref === entry.target);
                         if (idx !== -1 && idx !== currentIndex) {
                             setCurrentIndex(idx);
-                            window.history.replaceState(null, "", `/feed/${stances[idx].id}`);
+                            if (isEntityFeed) {
+                                window.history.replaceState(null, "", `/entities/${entities[0]}/feed/${stances[idx].id}`);
+                            } else {
+                                window.history.replaceState(null, "", `/feed/${stances[idx].id}`);
+                            }
                         }
                     }
                 });

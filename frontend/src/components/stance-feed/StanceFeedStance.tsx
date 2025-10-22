@@ -6,6 +6,7 @@ import StanceContentRenderer from "@/components/StanceContentRenderer";
 import { StanceFeedStance } from "@/models";
 import { StanceService } from "@/service/StanceService";
 import VerticalRating from "@/components/VerticalRating";
+import CommentsModal from "@/components/modals/CommentsModal";
 
 interface StanceProps {
   stance: StanceFeedStance;
@@ -17,6 +18,7 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
   const [selectedRating, setSelectedRating] = useState<number | null>(stance.my_rating ?? null);
   const [localNumRatings, setLocalNumRatings] = useState<number>(stance.num_ratings ?? 0);
   const [localAverageRating, setLocalAverageRating] = useState<number | null>(stance.average_rating ?? null);
+  const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const stanceService = new StanceService();
   const API = useAuthApi();
 
@@ -128,7 +130,11 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
         </div>
 
         {/* Comments Button */}
-        <button className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-purple-600 transition-colors mt-2">
+        <button 
+          className="flex flex-col items-center gap-0.5 text-gray-600 hover:text-purple-600 transition-colors mt-2"
+          onClick={() => setIsCommentsModalOpen(true)}
+          aria-label="View comments"
+        >
           <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
           </svg>
@@ -136,6 +142,13 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
         </button>
       </div>
 
+      {/* Comments Modal */}
+      <CommentsModal
+        stanceId={stance.id}
+        isOpen={isCommentsModalOpen}
+        onClose={() => setIsCommentsModalOpen(false)}
+        initialCommentCount={stance.num_comments}
+      />
     </div>
 
 

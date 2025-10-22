@@ -9,7 +9,6 @@ export type EntityUpdateResponse = components["schemas"]["EntityUpdateResponse"]
 export type EntityDeleteResponse = components["schemas"]["EntityDeleteResponse"];
 export type EntityListResponse = components["schemas"]["EntityListResponse"];
 export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
-export type EntityFeedRequest = components["schemas"]["EntityFeedRequest"];
 export type EntityFeedResponse = components["schemas"]["EntityFeedResponse"];
 export type StanceFeedStanceResponse = components["schemas"]["StanceFeedStanceResponse"];
 
@@ -78,12 +77,16 @@ export async function getMyStanceForEntity(
 }
 
 /**
- * Fetch the home feed data
+ * Fetch the home feed data with cursor-based pagination
  */
 export async function getFeed(
   api: AxiosInstance,
-  params: EntityFeedRequest
+  num_entities: number,
+  num_stances_per_entity: number,
+  cursor?: string
 ): Promise<EntityFeedResponse> {
-  const res = await api.post<EntityFeedResponse>("/entities/feed", { params });
+  const res = await api.get<EntityFeedResponse>("/entities/feed", {
+    params: { num_entities, num_stances_per_entity, cursor }
+  });
   return res.data;
 }

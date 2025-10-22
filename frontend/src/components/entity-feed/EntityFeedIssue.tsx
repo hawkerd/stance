@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { EntityFeedIssue, TagType, EntityFeedTag } from "../../models";
 import StanceHeadline from "./EntityFeedStance";
+import EntityFeedTagComponent from "./EntityFeedTag";
 import { useRouter } from "next/navigation";
 
 export default function IssueCard({ issue }: { issue: EntityFeedIssue }) {
@@ -73,18 +74,7 @@ export default function IssueCard({ issue }: { issue: EntityFeedIssue }) {
       {issue.tags && issue.tags.length > 0 && (
         <div className="mb-2 flex flex-wrap gap-2">
           {issue.tags.map((tag, idx) => (
-            <span
-              key={idx}
-              className={`px-3 py-1 rounded-full text-xs font-semibold shadow border ${
-                tag.tag_type === TagType.LOCATION
-                  ? "bg-blue-100 text-blue-700 border-blue-300"
-                  : "bg-green-100 text-green-700 border-green-300"
-              }`}
-              title={tag.tag_type === TagType.LOCATION ? "Location" : "Topic"}
-            >
-              {tag.name}
-              <span className="ml-2 text-gray-400">{tag.tag_type === TagType.LOCATION ? "📍" : "🏷️"}</span>
-            </span>
+            <EntityFeedTagComponent key={idx} tag={tag} />
           ))}
         </div>
       )}
