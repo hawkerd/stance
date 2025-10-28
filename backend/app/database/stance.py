@@ -1,8 +1,10 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.database.models import Entity, Stance, User, Comment
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
+import random
 
 def create_stance(db: Session, user_id: int, entity_id: int, headline: str, content_json: str) -> Stance:
     try:
@@ -115,3 +117,43 @@ def get_comments_by_stance(db: Session, stance_id: int, nested: bool) -> List[Co
     except Exception as e:
         logging.error(f"Error getting comments for stance {stance_id}: {e}")
         raise DatabaseError("Failed to get comments by stance")
+
+def get_comment_count_by_stance(db: Session, stance_id: int) -> int:
+    try:
+        return db.query(Comment).filter(Comment.stance_id == stance_id).count()
+    except Exception as e:
+        logging.error(f"Error getting comment count for stance {stance_id}: {e}")
+        raise DatabaseError("Failed to get comment count by stance")
+
+def get_random_stances(db: Session, n: int) -> List[Stance]:
+    try:
+        return db.query(Stance).order_by(func.random()).limit(n).all()
+    except Exception as e:
+        logging.error(f"Error getting {n} random stances: {e}")
+        raise DatabaseError("Failed to get n random stances")
+
+def get_random_stances_by_entities(db: Session, entity_ids: List[int], n: int) -> List[Stance]:
+    try:
+        return (
+            db.query(Stance)
+            .filter(Stance.entity_id.in_(entity_ids))
+            .order_by(func.random())
+            .limit(n)
+            .all()
+        )
+    except Exception as e:
+        logging.error(f"Error getting {n} random stances for entities {entity_ids}: {e}")
+        raise DatabaseError("Failed to get n random stances by entities")
+
+def get_stances_by_entity_paginated(db: Session, entity_ids: List[int], limit: int, cursor_score: Optional[float], cursor_id: Optional[int]) -> List[Stance]:
+    try:
+        query = db.query(Stance).filter(Stance.entity_id.in_(entity_ids))
+        if cursor_score is not None:
+            query = query.filter(
+                (Stance.engagement_score < cursor_score) |
+                ((Stance.engagement_score == cursor_score) & (Stance.id < cursor_id))
+            )
+        return query.order_by(Stance.engagement_score.desc(), Stance.id.desc()).limit(limit).all()
+    except Exception as e:
+        logging.error(f"Error getting paginated stances: {e}")
+        raise DatabaseError("Failed to get paginated stances")

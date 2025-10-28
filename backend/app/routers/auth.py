@@ -10,6 +10,7 @@ from app.routers.models import (
     RefreshRequest, RefreshResponse,
     LogoutRequest, LogoutResponse
 )
+from app.database.models import User
 import logging
 
 router = APIRouter(tags=["auth"])
@@ -25,13 +26,13 @@ def signup(data: SignupRequest, db: Session = Depends(get_db)):
 
     password_hash = hash_password(data.password)
     user = create_user(db, data.username, data.full_name, data.email, password_hash, False)
-    return SignupResponse(id=user.id, username=user.username, email=user.email)
+    return SignupResponse(id=user.id, username=user.username, full_name=user.full_name, email=user.email)
 
 
 @router.post("/auth/login", response_model=TokenResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     # get the user and verify the password
-    user = get_user_by_username(db, data.username)
+    user: User = get_user_by_username(db, data.username)
     if not user or not verify_password(data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Invalid credentials")
     

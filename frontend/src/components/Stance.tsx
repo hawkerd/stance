@@ -5,7 +5,7 @@ import { useAuthApi } from "@/app/hooks/useAuthApi";
 import StanceContentRenderer from "./StanceContentRenderer";
 import { Stance as StanceType, Comment as CommentType } from "../models";
 import CommentComponent from "./Comment";
-import { stancesApi } from "@/api";
+import { StanceService } from "@/service/StanceService";
 
 interface StanceProps {
   stance: StanceType;
@@ -23,14 +23,15 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
   const [localNumRatings, setLocalNumRatings] = useState<number>(stance.num_ratings ?? 0);
   const [localAverageRating, setLocalAverageRating] = useState<number | null>(stance.average_rating ?? null);
+  const stanceService = new StanceService();
 
   const API = useAuthApi();
 
   useEffect(() => {
     async function fetchUserRating() {
       try {
-        const res = await stancesApi.getMyStanceRating(API, stance.id);
-        setSelectedRating(res.rating ?? null);
+        const rating = await stanceService.getMyStanceRating(API, stance.id);
+        setSelectedRating(rating ?? null);
       } catch {
         // ignore
       }
@@ -60,7 +61,7 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
     try {
       let isUnrate = selectedRating === rating;
       if (isUnrate) {
-        await stancesApi.rateStance(API, stance.id, { rating: null });
+        await stanceService.rateStance(API, stance.id, null);
         // Update local state: remove rating
         if (localNumRatings > 1 && localAverageRating !== null && selectedRating !== null) {
           let newNumRatings = localNumRatings - 1;
@@ -73,7 +74,7 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
         }
         setSelectedRating(null);
       } else {
-        await stancesApi.rateStance(API, stance.id, { rating });
+        await stanceService.rateStance(API, stance.id, rating);
         // If user hasn't rated before, update num_ratings and average_rating locally
         if (selectedRating === null) {
           let newNumRatings = localNumRatings + 1;

@@ -124,7 +124,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/stances": {
+    "/stances/": {
         parameters: {
             query?: never;
             header?: never;
@@ -132,10 +132,10 @@ export interface paths {
             cookie?: never;
         };
         /** Get Stances Endpoint */
-        get: operations["get_stances_endpoint_stances_get"];
+        get: operations["get_stances_endpoint_stances__get"];
         put?: never;
         /** Create Stance Endpoint */
-        post: operations["create_stance_endpoint_stances_post"];
+        post: operations["create_stance_endpoint_stances__post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -156,23 +156,6 @@ export interface paths {
         post?: never;
         /** Delete Stance Endpoint */
         delete: operations["delete_stance_endpoint_stances__stance_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/entity/{entity_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Stances By Entity Endpoint */
-        get: operations["get_stances_by_entity_endpoint_stances_entity__entity_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -223,6 +206,23 @@ export interface paths {
         get: operations["get_num_ratings_endpoint_stances__stance_id__num_ratings_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stances/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get Stance Feed Endpoint */
+        post: operations["get_stance_feed_endpoint_stances_feed_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -320,7 +320,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/entities": {
+    "/entities/": {
         parameters: {
             query?: never;
             header?: never;
@@ -328,10 +328,27 @@ export interface paths {
             cookie?: never;
         };
         /** Get All Entities Endpoint */
-        get: operations["get_all_entities_endpoint_entities_get"];
+        get: operations["get_all_entities_endpoint_entities__get"];
         put?: never;
         /** Create Entity Endpoint */
-        post: operations["create_entity_endpoint_entities_post"];
+        post: operations["create_entity_endpoint_entities__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Home Feed */
+        get: operations["get_home_feed_entities_feed_get"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -352,6 +369,23 @@ export interface paths {
         post?: never;
         /** Delete Entity Endpoint */
         delete: operations["delete_entity_endpoint_entities__entity_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stances By Entity Paginated Endpoint */
+        get: operations["get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -403,23 +437,6 @@ export interface paths {
         put?: never;
         /** Create Image Endpoint */
         post: operations["create_image_endpoint_images_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/home/feed": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get Home Feed */
-        post: operations["get_home_feed_home_feed_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -580,6 +597,54 @@ export interface components {
             /** Success */
             success: boolean;
         };
+        /** EntityFeedEntity */
+        EntityFeedEntity: {
+            /** Id */
+            id: number;
+            /** Type */
+            type: number;
+            /** Title */
+            title: string;
+            /** Images Json */
+            images_json: string;
+            /** Tags */
+            tags: components["schemas"]["EntityFeedTag"][];
+            /** Stances */
+            stances: components["schemas"]["EntityFeedStance"][];
+            /** Description */
+            description?: string | null;
+            /** Start Time */
+            start_time?: string | null;
+            /** End Time */
+            end_time?: string | null;
+        };
+        /** EntityFeedResponse */
+        EntityFeedResponse: {
+            /** Entities */
+            entities: components["schemas"]["EntityFeedEntity"][];
+            /** Next Cursor */
+            next_cursor: string | null;
+            /** Has More */
+            has_more: boolean;
+        };
+        /** EntityFeedStance */
+        EntityFeedStance: {
+            /** Id */
+            id: number;
+            /** Headline */
+            headline: string;
+            /** Average Rating */
+            average_rating: number | null;
+        };
+        /** EntityFeedTag */
+        EntityFeedTag: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Tag Type */
+            tag_type: number;
+        };
         /** EntityListResponse */
         EntityListResponse: {
             /** Entities */
@@ -611,7 +676,7 @@ export interface components {
             /** Images */
             images?: string[] | null;
             /** Tags */
-            tags: components["schemas"]["TagRequest"][];
+            tags?: components["schemas"]["TagRequest"][] | null;
             /** Description */
             description?: string | null;
             /** Start Time */
@@ -640,63 +705,6 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
-        };
-        /** HomeFeedEntity */
-        HomeFeedEntity: {
-            /** Id */
-            id: number;
-            /** Type */
-            type: number;
-            /** Title */
-            title: string;
-            /** Images Json */
-            images_json: string;
-            /** Tags */
-            tags: components["schemas"]["HomeFeedTag"][];
-            /** Stances */
-            stances: components["schemas"]["HomeFeedStance"][];
-            /** Description */
-            description?: string | null;
-            /** Start Time */
-            start_time?: string | null;
-            /** End Time */
-            end_time?: string | null;
-        };
-        /** HomeFeedRequest */
-        HomeFeedRequest: {
-            /**
-             * Num Entities
-             * @default 10
-             */
-            num_entities: number;
-            /**
-             * Num Stances Per Entity
-             * @default 15
-             */
-            num_stances_per_entity: number;
-        };
-        /** HomeFeedResponse */
-        HomeFeedResponse: {
-            /** Entities */
-            entities: components["schemas"]["HomeFeedEntity"][];
-        };
-        /** HomeFeedStance */
-        HomeFeedStance: {
-            /** Id */
-            id: number;
-            /** Headline */
-            headline: string;
-            /** Average Rating */
-            average_rating: number | null;
-        };
-        /** HomeFeedTag */
-        HomeFeedTag: {
-            /** Id */
-            id: number;
-            /** Name */
-            name: string;
-            /** Tag Type */
-            tag_type: number;
         };
         /** ImageCreateRequest */
         ImageCreateRequest: {
@@ -801,7 +809,7 @@ export interface components {
             /** Username */
             username: string;
             /** Full Name */
-            full_name?: string | null;
+            full_name: string;
             /** Email */
             email: string;
             /** Password */
@@ -813,6 +821,8 @@ export interface components {
             id: number;
             /** Username */
             username: string;
+            /** Full Name */
+            full_name: string;
             /** Email */
             email: string;
         };
@@ -842,6 +852,94 @@ export interface components {
         StanceDeleteResponse: {
             /** Success */
             success: boolean;
+        };
+        /** StanceFeedCursor */
+        StanceFeedCursor: {
+            /** Score */
+            score: number | null;
+            /** Id */
+            id: number | null;
+        };
+        /** StanceFeedEntity */
+        StanceFeedEntity: {
+            /** Id */
+            id: number;
+            /** Type */
+            type: number;
+            /** Title */
+            title: string;
+            /** Images Json */
+            images_json: string;
+            /** Tags */
+            tags: components["schemas"]["StanceFeedTag"][];
+            /** Description */
+            description?: string | null;
+            /** Start Time */
+            start_time?: string | null;
+            /** End Time */
+            end_time?: string | null;
+        };
+        /** StanceFeedRequest */
+        StanceFeedRequest: {
+            /**
+             * Num Stances
+             * @default 20
+             */
+            num_stances: number;
+            /** Initial Stance Id */
+            initial_stance_id: number | null;
+            /** Entities */
+            entities: number[] | null;
+            cursor?: components["schemas"]["StanceFeedCursor"] | null;
+        };
+        /** StanceFeedResponse */
+        StanceFeedResponse: {
+            /** Stances */
+            stances: components["schemas"]["StanceFeedStance"][];
+            next_cursor?: components["schemas"]["StanceFeedCursor"] | null;
+        };
+        /** StanceFeedStance */
+        StanceFeedStance: {
+            /** Id */
+            id: number;
+            user: components["schemas"]["StanceFeedUser"];
+            /** Headline */
+            headline: string;
+            /** Content Json */
+            content_json: string;
+            /** Num Comments */
+            num_comments: number;
+            /** Average Rating */
+            average_rating: number | null;
+            /** Num Ratings */
+            num_ratings: number;
+            /** My Rating */
+            my_rating: number | null;
+            /** Tags */
+            tags: components["schemas"]["StanceFeedTag"][];
+            entity?: components["schemas"]["StanceFeedEntity"] | null;
+            /** Created At */
+            created_at?: string | null;
+        };
+        /** StanceFeedStanceResponse */
+        StanceFeedStanceResponse: {
+            stance: components["schemas"]["StanceFeedStance"];
+        };
+        /** StanceFeedTag */
+        StanceFeedTag: {
+            /** Id */
+            id: number;
+            /** Name */
+            name: string;
+            /** Tag Type */
+            tag_type: number;
+        };
+        /** StanceFeedUser */
+        StanceFeedUser: {
+            /** Id */
+            id: number;
+            /** Username */
+            username: string;
         };
         /** StanceListResponse */
         StanceListResponse: {
@@ -930,7 +1028,7 @@ export interface components {
             /** Username */
             username: string;
             /** Full Name */
-            full_name?: string | null;
+            full_name: string;
             /** Email */
             email: string;
         };
@@ -1197,7 +1295,7 @@ export interface operations {
             };
         };
     };
-    get_stances_endpoint_stances_get: {
+    get_stances_endpoint_stances__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1217,7 +1315,7 @@ export interface operations {
             };
         };
     };
-    create_stance_endpoint_stances_post: {
+    create_stance_endpoint_stances__post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1347,37 +1445,6 @@ export interface operations {
             };
         };
     };
-    get_stances_by_entity_endpoint_stances_entity__entity_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
     get_comments_by_stance_endpoint_stances__stance_id__comments_get: {
         parameters: {
             query?: never;
@@ -1462,6 +1529,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NumRatingsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stance_feed_endpoint_stances_feed_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceFeedRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceFeedResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1838,7 +1938,7 @@ export interface operations {
             };
         };
     };
-    get_all_entities_endpoint_entities_get: {
+    get_all_entities_endpoint_entities__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1858,7 +1958,7 @@ export interface operations {
             };
         };
     };
-    create_entity_endpoint_entities_post: {
+    create_entity_endpoint_entities__post: {
         parameters: {
             query?: never;
             header?: never;
@@ -1878,6 +1978,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EntityReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_home_feed_entities_feed_get: {
+        parameters: {
+            query?: {
+                num_entities?: number;
+                num_stances_per_entity?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntityFeedResponse"];
                 };
             };
             /** @description Validation Error */
@@ -1988,6 +2121,41 @@ export interface operations {
             };
         };
     };
+    get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_get: {
+        parameters: {
+            query?: {
+                num_stances?: number;
+                cursor_engagement_score?: number | null;
+                cursor_id?: number | null;
+            };
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceFeedResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_my_stance_for_event_entities__entity_id__stances_me_get: {
         parameters: {
             query?: never;
@@ -2005,7 +2173,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["StanceReadResponse"] | null;
+                    "application/json": components["schemas"]["StanceFeedStanceResponse"] | null;
                 };
             };
             /** @description Validation Error */
@@ -2103,39 +2271,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ImageCreateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_home_feed_home_feed_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["HomeFeedRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HomeFeedResponse"];
                 };
             };
             /** @description Validation Error */

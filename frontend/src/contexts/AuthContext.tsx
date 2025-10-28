@@ -1,22 +1,15 @@
 "use client";
 
-import { createContext, useState, useEffect, ReactNode, useContext, use } from "react";
-import { components } from "@/api/models/models";
+import { createContext, useState, useEffect, ReactNode, useContext } from "react";
 import { useApi } from "@/app/hooks/useApi";
-import { authApi } from "@/api";
-
-type TokenResponse = components["schemas"]["TokenResponse"];
-type SignupResponse = components["schemas"]["SignupResponse"];
-type LoginRequest = components["schemas"]["LoginRequest"];
-type SignupRequest = components["schemas"]["SignupRequest"];
-type RefreshRequest = components["schemas"]["RefreshRequest"];
-type RefreshResponse = components["schemas"]["RefreshResponse"];
+import { AuthService } from "@/service/AuthService";
+import { User } from "@/models/index";
 
 interface AuthContextType {
   accessToken: string | null;
   refreshToken: string | null;
   login: (username: string, password: string) => Promise<void>;
-  signup: (username: string, email: string, password: string, fullName?: string) => Promise<void>;
+  signup: (username: string, email: string, password: string, fullName: string) => Promise<void>;
   logout: () => void;
   refreshAccessToken: () => Promise<string | null>;
   isAuthenticated: boolean;
@@ -30,6 +23,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const API = useApi();
+  const authService = new AuthService();
 
   const setTokens = (access: string | null, refresh: string | null) => {
     setAccessToken(access);
@@ -48,20 +42,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (username: string, password: string) => {
-    const payload: LoginRequest = { username, password };
-    const res = await authApi.login(API, payload);
+    const res = await authService.login(API, username, password);
 
-    setTokens(res.access_token, res.refresh_token);
+    setTokens(res.accessToken, res.refreshToken);
   };
 
   const signup = async (
     username: string,
     email: string,
     password: string,
-    fullName?: string
+    fullName: string
   ) => {
-    const payload: SignupRequest = { username, email, password, full_name: fullName };
-    const res = await authApi.signup(API, payload);
+    const res: User = await authService.signup(API, username, password, email, fullName);
 
     // Auto-login after signup
     await login(username, password);
@@ -75,11 +67,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!refreshToken) return null;
 
     try {
-      const payload: RefreshRequest = { refresh_token: refreshToken };
-      const res = await authApi.refreshToken(API, payload);
+      const res = await authService.refreshToken(API, refreshToken);
 
-      setTokens(res.access_token, res.refresh_token);
-      return res.access_token;
+      setTokens(res.accessToken, res.refreshToken);
+      return res.accessToken;
     } catch {
       logout();
       return null;

@@ -32,7 +32,7 @@ class EntityReadResponse(BaseModel):
 class EntityUpdateRequest(BaseModel):
     title: Optional[str] = None
     images: Optional[List[str]] = None
-    tags: List[TagRequest]
+    tags: Optional[List[TagRequest]] = None
     description: Optional[str] = None
     start_time: Optional[str] = None
     end_time: Optional[str] = None
@@ -51,3 +51,26 @@ class EntityDeleteResponse(BaseModel):
 
 class EntityListResponse(BaseModel):
     entities: List[EntityReadResponse]
+
+class EntityFeedStance(BaseModel):
+    id: int
+    headline: str
+    average_rating: Optional[float]
+class EntityFeedTag(BaseModel):
+    id: int
+    name: str
+    tag_type: int
+class EntityFeedEntity(BaseModel):
+    id: int
+    type: int
+    title: str
+    images_json: str
+    tags: List[EntityFeedTag]
+    stances: List[EntityFeedStance]
+    description: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+class EntityFeedResponse(BaseModel):
+    entities: List[EntityFeedEntity]
+    next_cursor: Optional[str]
+    has_more: bool

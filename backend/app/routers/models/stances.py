@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class StanceCreateRequest(BaseModel):
     entity_id: int
@@ -51,3 +51,46 @@ class StanceRateResponse(BaseModel):
 
 class NumRatingsResponse(BaseModel):
     num_ratings: int
+
+
+class StanceFeedCursor(BaseModel):
+    score: Optional[float]
+    id: Optional[int]
+class StanceFeedTag(BaseModel):
+    id: int
+    name: str
+    tag_type: int
+class StanceFeedUser(BaseModel):
+    id: int
+    username: str
+class StanceFeedEntity(BaseModel):
+    id: int
+    type: int
+    title: str
+    images_json: str
+    tags: List[StanceFeedTag]
+    description: Optional[str] = None
+    start_time: Optional[str] = None
+    end_time: Optional[str] = None
+class StanceFeedStance(BaseModel):
+    id: int
+    user: StanceFeedUser
+    headline: str
+    content_json: str
+    num_comments: int
+    average_rating: Optional[float]
+    num_ratings: int
+    my_rating: Optional[int]
+    tags: List[StanceFeedTag]
+    entity: Optional[StanceFeedEntity] = None
+    created_at: Optional[str] = None
+class StanceFeedRequest(BaseModel):
+    num_stances: int = 20
+    initial_stance_id: Optional[int]
+    entities: Optional[List[int]]
+    cursor: Optional[StanceFeedCursor] = None
+class StanceFeedResponse(BaseModel):
+    stances: List[StanceFeedStance]
+    next_cursor: Optional[StanceFeedCursor] = None
+class StanceFeedStanceResponse(BaseModel):
+    stance: StanceFeedStance

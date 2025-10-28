@@ -1,25 +1,28 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.dependencies import get_db, get_is_admin, get_current_user
-from app.database.entity import create_entity, read_entity, update_entity, delete_entity, get_all_entities
+from app.dependencies import get_db, get_is_admin, get_current_user, get_current_user_optional
+from app.database.entity import create_entity, read_entity, update_entity, delete_entity, get_all_entities, get_entities_paginated
 from app.routers.models import (
-    EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse
+    EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse, EntityFeedResponse, EntityFeedEntity, EntityFeedStance, EntityFeedTag, StanceFeedStanceResponse
 )
-from app.database.stance import get_user_stance_by_entity
-from app.database.models import Stance
-from app.routers.models import StanceReadResponse
+from app.database.rating import get_average_rating_for_stance, get_num_ratings_for_stance, read_rating_by_user_and_stance
+from app.database.stance import get_user_stance_by_entity, get_n_stances_by_entity, get_comment_count_by_stance, get_stances_by_entity_paginated
+from app.database.models import Stance, Entity, Tag, User, Rating
+from app.database.user import read_user
+from app.routers.models import StanceFeedStance, StanceFeedUser, StanceFeedEntity, StanceFeedTag, StanceFeedResponse, StanceFeedCursor
 from app.service.storage import upload_image_to_storage
 import logging
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 import json
 import base64
-from app.database.tag import create_tag, find_tag, get_tag
-from app.database.entity_tag import create_entity_tag, find_entity_tag, get_entity_tags_for_entity, delete_entity_tags_for_entity
+from app.database.tag import create_tag, find_tag
+from app.database.entity_tag import create_entity_tag, find_entity_tag, delete_entity_tags_for_entity, get_tags_for_entity
+import logging
 
-router = APIRouter(tags=["entities"])
+router = APIRouter(tags=["entities"], prefix="/entities")
 
-@router.post("/entities", response_model=EntityReadResponse)
+@router.post("/", response_model=EntityReadResponse)
 def create_entity_endpoint(request: EntityCreateRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)) -> EntityReadResponse:
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")
@@ -70,7 +73,71 @@ def create_entity_endpoint(request: EntityCreateRequest, db: Session = Depends(g
         tags=tags_response
     )
 
-@router.get("/entities/{entity_id}", response_model=EntityReadResponse)
+@router.get("/feed", response_model=EntityFeedResponse)
+def get_home_feed(
+    num_entities: int = 10,
+    num_stances_per_entity: int = 15,
+    cursor: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user_id: Optional[int] = Depends(get_current_user_optional)
+) -> EntityFeedResponse:
+    try:
+        logging.info(f"Fetching home feed: num_entities={num_entities}, num_stances_per_entity={num_stances_per_entity}, cursor={cursor}, user_id={current_user_id}")
+        # if cursor is provided, parse it into datetime
+        cursor_datetime = None
+        if cursor:
+            try:
+                cursor_datetime = datetime.fromisoformat(cursor)
+            except ValueError:
+                raise HTTPException(status_code=400, detail="Invalid cursor format")
+        
+        # fetch n+1 entities to check if there are more
+        entities: List[Entity] = get_entities_paginated(db, limit=num_entities + 1, cursor=cursor_datetime)
+        if not entities:
+            return EntityFeedResponse(entities=[], next_cursor=None, has_more=False)
+
+        has_more = len(entities) > num_entities
+        if has_more:
+            entities = entities[:num_entities]
+
+        feed_entities: List[EntityFeedEntity] = []
+        for entity in entities:
+            # fetch tags
+            tags: List[Tag] = get_tags_for_entity(db, entity.id)
+            feed_tags: List[EntityFeedTag] = [EntityFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+
+            # stances
+            stances: List[Stance] = get_n_stances_by_entity(db, entity.id, num_stances_per_entity)
+            feed_stances: List[EntityFeedStance] = []
+            for s in stances:
+                avg_rating = get_average_rating_for_stance(db, s.id)
+                feed_stances.append(EntityFeedStance(id=s.id, headline=s.headline, average_rating=avg_rating))
+
+            feed_entity = EntityFeedEntity(
+                id=entity.id,
+                type=entity.type,
+                title=entity.title,
+                images_json=entity.images_json,
+                tags=feed_tags,
+                stances=feed_stances,
+                description=entity.description,
+                start_time=entity.start_time.isoformat() if entity.start_time else None,
+                end_time=entity.end_time.isoformat() if entity.end_time else None
+            )
+            feed_entities.append(feed_entity)
+
+        # set next_cursor
+        next_cursor = None
+        if has_more and entities:
+            next_cursor = entities[-1].created_at.isoformat()
+
+        return EntityFeedResponse(entities=feed_entities, next_cursor=next_cursor, has_more=has_more)
+
+    except Exception as e:
+        logging.error(f"Error fetching home feed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch home feed")
+
+@router.get("/{entity_id}", response_model=EntityReadResponse)
 def get_entity_endpoint(entity_id: int, db: Session = Depends(get_db)) -> EntityReadResponse:
     # find the entity
     entity = read_entity(db, entity_id=entity_id)
@@ -78,25 +145,20 @@ def get_entity_endpoint(entity_id: int, db: Session = Depends(get_db)) -> Entity
         raise HTTPException(status_code=404, detail="Entity not found")
 
     # get tags
-    tags_response = []
-    entity_tags = get_entity_tags_for_entity(db, entity_id=entity_id)
-    for et in entity_tags:
-        tag = get_tag(db, tag_id=et.tag_id)
-        if tag:
-            tags_response.append(TagResponse(id=tag.id, name=tag.name, tag_type=tag.tag_type))
+    tags: List[Tag] = get_tags_for_entity(db, entity.id)
 
     return EntityReadResponse(
         id=entity.id,
         type=entity.type,
         title=entity.title,
         images_json=entity.images_json,
-        tags=tags_response,
+        tags=[TagResponse(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags],
         description=entity.description,
         start_time=entity.start_time.isoformat() if entity.start_time else None,
         end_time=entity.end_time.isoformat() if entity.end_time else None,
     )
 
-@router.put("/entities/{entity_id}", response_model=EntityUpdateResponse)
+@router.put("/{entity_id}", response_model=EntityUpdateResponse)
 def update_entity_endpoint(entity_id: int, request: EntityUpdateRequest, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)) -> EntityUpdateResponse:
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")
@@ -136,7 +198,7 @@ def update_entity_endpoint(entity_id: int, request: EntityUpdateRequest, db: Ses
         tags=tags_response
     )
 
-@router.delete("/entities/{entity_id}", response_model=EntityDeleteResponse)
+@router.delete("/{entity_id}", response_model=EntityDeleteResponse)
 def delete_entity_endpoint(entity_id: int, db: Session = Depends(get_db), is_admin: bool = Depends(get_is_admin)) -> EntityDeleteResponse:
     if not is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")
@@ -145,17 +207,13 @@ def delete_entity_endpoint(entity_id: int, db: Session = Depends(get_db), is_adm
         raise HTTPException(status_code=400, detail="Failed to delete entity")
     return EntityDeleteResponse(success=True)
 
-@router.get("/entities", response_model=EntityListResponse)
+@router.get("/", response_model=EntityListResponse)
 def get_all_entities_endpoint(db: Session = Depends(get_db)):
     entities = get_all_entities(db)
     entity_list = []
     for entity in entities:
-        tags_response = []
-        entity_tags = get_entity_tags_for_entity(db, entity_id=entity.id)
-        for et in entity_tags:
-            tag = get_tag(db, tag_id=et.tag_id)
-            if tag:
-                tags_response.append(TagResponse(id=tag.id, name=tag.name, tag_type=tag.tag_type))
+        # get tags
+        tags: List[Tag] = get_tags_for_entity(db, entity.id)
         entity_list.append(
             EntityReadResponse(
                 id=entity.id,
@@ -165,21 +223,153 @@ def get_all_entities_endpoint(db: Session = Depends(get_db)):
                 images_json=entity.images_json,
                 start_time=entity.start_time.isoformat() if entity.start_time else None,
                 end_time=entity.end_time.isoformat() if entity.end_time else None,
-                tags=tags_response
+                tags=[TagResponse(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
             )
         )
     return EntityListResponse(entities=entity_list)
 
+# @router.get("/{entity_id}/stances", response_model=StanceListResponse)
+# def get_stances_by_entity_endpoint(
+#     entity_id: int,
+#     db: Session = Depends(get_db)
+# ) -> StanceListResponse:
+#     try:
+#         stances = get_stances_by_entity(db, entity_id)
+#         return StanceListResponse(
+#             stances=[
+#                 StanceReadResponse(
+#                     id=stance.id,
+#                     user_id=stance.user_id,
+#                     entity_id=stance.entity_id,
+#                     headline=stance.headline,
+#                     content_json=stance.content_json,
+#                     average_rating=get_average_rating_for_stance(db, stance.id)
+#                 ) for stance in stances
+#             ]
+#         )
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/entities/{entity_id}/stances/me", response_model=Optional[StanceReadResponse])
-def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> Optional[StanceReadResponse]:
+@router.get("/{entity_id}/stances", response_model=StanceFeedResponse)
+def get_stances_by_entity_paginated_endpoint(
+    entity_id: int,
+    num_stances: int = 20,
+    cursor_engagement_score: Optional[float] = None,
+    cursor_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_user_id: Optional[int] = Depends(get_current_user_optional)
+) -> StanceFeedResponse:
+    try:
+        # get random stances
+        stances: List[Stance] = get_stances_by_entity_paginated(
+            db,
+            entity_ids=[entity_id],
+            limit=num_stances,
+            cursor_score=cursor_engagement_score,
+            cursor_id=cursor_id
+        )
+
+        feed_stances = []
+        for stance in stances:
+            # read user information
+            user: Optional[User] = read_user(db, stance.user_id)
+            if not user:
+                continue
+            stance_user: StanceFeedUser = StanceFeedUser(
+                id=user.id,
+                username=user.username
+            )
+
+            tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)
+            stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+
+            average_rating: Optional[float] = get_average_rating_for_stance(db, stance.id)
+            num_ratings: int = get_num_ratings_for_stance(db, stance.id)
+            my_rating: Optional[int] = None
+            if current_user_id:
+                rating: Rating = read_rating_by_user_and_stance(db, stance.id, current_user_id)
+                my_rating = rating.rating if rating else None
+
+            comment_count: int = get_comment_count_by_stance(db, stance.id)
+            
+
+            stance_stance: StanceFeedStance = StanceFeedStance(
+                id=stance.id,
+                user=stance_user,
+                headline=stance.headline,
+                content_json=stance.content_json,
+                num_comments=comment_count,
+                average_rating=average_rating,
+                num_ratings=num_ratings,
+                my_rating=my_rating,
+                tags=stance_tags,
+                created_at=str(stance.created_at) if stance.created_at else None
+            )
+            feed_stances.append(stance_stance)
+
+        next_cursor: Optional[StanceFeedCursor] = None
+        if stances and len(stances) == num_stances:
+            last_stance = stances[-1]
+            next_cursor = StanceFeedCursor(score=last_stance.engagement_score, id=last_stance.id)
+
+        return StanceFeedResponse(stances=feed_stances, next_cursor=next_cursor)
+    except Exception as e:
+        logging.error(f"Error fetching stance feed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch stance feed")
+    
+
+@router.get("/{entity_id}/stances/me", response_model=Optional[StanceFeedStanceResponse])
+def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> Optional[StanceFeedStanceResponse]:
     stance: Optional[Stance] = get_user_stance_by_entity(db, entity_id=entity_id, user_id=user_id)
     if not stance:
         return None
-    return StanceReadResponse(
-        id=stance.id,
-        user_id=stance.user_id,
-        entity_id=stance.entity_id,
-        headline=stance.headline,
-        content_json=stance.content_json
+    
+    # read user information
+    user: Optional[User] = read_user(db, stance.user_id)
+    if not user:
+        return None
+    stance_user: StanceFeedUser = StanceFeedUser(
+        id=user.id,
+        username=user.username
     )
+
+    tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)
+    stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+
+    entity: Optional[Entity] = read_entity(db, stance.entity_id)
+    if not entity:
+        return None
+    stance_entity: StanceFeedEntity = StanceFeedEntity(
+        id=entity.id,
+        type=entity.type,
+        title=entity.title,
+        images_json=entity.images_json,
+        tags=stance_tags,
+        description=entity.description,
+        start_time=str(entity.start_time) if entity.start_time else None,
+        end_time=str(entity.end_time) if entity.end_time else None
+    )
+
+    average_rating: Optional[float] = get_average_rating_for_stance(db, stance.id)
+    num_ratings: int = get_num_ratings_for_stance(db, stance.id)
+    my_rating: Optional[int] = None
+    rating: Rating = read_rating_by_user_and_stance(db, stance.id, user_id)
+    my_rating = rating.rating if rating else None
+
+    comment_count: int = get_comment_count_by_stance(db, stance.id)
+
+    stance_stance: StanceFeedStance = StanceFeedStance(
+        id=stance.id,
+        user=stance_user,
+        entity=stance_entity,
+        headline=stance.headline,
+        content_json=stance.content_json,
+        average_rating=average_rating,
+        num_ratings=num_ratings,
+        my_rating=my_rating,
+        num_comments=comment_count,
+        tags=stance_tags,
+        created_at=str(stance.created_at) if stance.created_at else None
+    )
+
+    return StanceFeedStanceResponse(stance=stance_stance)

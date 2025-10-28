@@ -1,19 +1,41 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
+from app.service.stance import process_stance_content_json
+from app.database.models import User, Entity, Stance, Tag, Rating
 from app.database.image import create_image
 from app.database.comment import count_comment_nested_replies
-from app.database.stance import create_stance, update_stance, read_stance, delete_stance, get_stances_by_user, get_comments_by_stance, get_all_stances, get_stances_by_entity
-from app.database.rating import get_average_rating_for_stance, rate_stance, read_rating_by_user_and_stance, get_num_ratings_for_stance
-from fastapi import Response
-from app.routers.models import StanceCreateRequest, StanceCreateResponse, StanceUpdateRequest, StanceUpdateResponse, StanceReadResponse, StanceDeleteResponse, StanceListResponse, CommentReadResponse, CommentListResponse, StanceRateRequest, StanceRateResponse, ReadStanceRatingResponse, NumRatingsResponse
-from typing import Optional
+from app.database.user import read_user
+from app.database.entity import read_entity
+from app.database.entity_tag import get_tags_for_entity
+from app.database.stance import (
+    create_stance, update_stance,
+    read_stance, delete_stance,
+    get_stances_by_user, get_comments_by_stance,
+    get_all_stances, get_comment_count_by_stance
+)
+from app.database.rating import (
+    get_average_rating_for_stance, rate_stance, 
+    read_rating_by_user_and_stance, get_num_ratings_for_stance
+)
+from app.routers.models import (
+    StanceCreateRequest, StanceCreateResponse,
+    StanceUpdateRequest, StanceUpdateResponse,
+    StanceReadResponse, StanceDeleteResponse,
+    StanceListResponse, CommentReadResponse,
+    CommentListResponse, StanceRateRequest,
+    StanceRateResponse, ReadStanceRatingResponse,
+    NumRatingsResponse, StanceFeedRequest,
+    StanceFeedResponse, StanceFeedStance,
+    StanceFeedTag, StanceFeedUser, StanceFeedEntity,
+    StanceFeedCursor
+)
+from typing import Optional, List
 import logging
-from app.service.stance import process_stance_content_json
 
-router = APIRouter(tags=["stances"])
+router = APIRouter(tags=["stances"], prefix="/stances")
 
-@router.get("/stances/{stance_id}/my-rating", response_model=ReadStanceRatingResponse)
+@router.get("/{stance_id}/my-rating", response_model=ReadStanceRatingResponse)
 def get_my_stance_rating_endpoint(
     stance_id: int,
     db: Session = Depends(get_db),
@@ -27,7 +49,7 @@ def get_my_stance_rating_endpoint(
         logging.error(f"Error getting user rating for stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/stances", response_model=StanceCreateResponse)
+@router.post("/", response_model=StanceCreateResponse)
 def create_stance_endpoint(
     request: StanceCreateRequest,
     db: Session = Depends(get_db),
@@ -70,7 +92,7 @@ def create_stance_endpoint(
         logging.error(f"Error creating stance: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/stances/{stance_id}", response_model=StanceReadResponse)
+@router.get("/{stance_id}", response_model=StanceReadResponse)
 def get_stance_endpoint(
     stance_id: int,
     db: Session = Depends(get_db)
@@ -92,7 +114,7 @@ def get_stance_endpoint(
         logging.error(f"Error retrieving stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.get("/stances", response_model=StanceListResponse)
+@router.get("/", response_model=StanceListResponse)
 def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
     try:
         stances = get_all_stances(db)
@@ -112,7 +134,7 @@ def get_stances_endpoint(db: Session = Depends(get_db)) -> StanceListResponse:
         logging.error(f"Error retrieving all stances: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.put("/stances/{stance_id}", response_model=StanceUpdateResponse)
+@router.put("/{stance_id}", response_model=StanceUpdateResponse)
 def update_stance_endpoint(
     stance_id: int,
     request: StanceUpdateRequest,
@@ -153,7 +175,7 @@ def update_stance_endpoint(
         logging.error(f"Error updating stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.delete("/stances/{stance_id}", response_model=StanceDeleteResponse)
+@router.delete("/{stance_id}", response_model=StanceDeleteResponse)
 def delete_stance_endpoint(
     stance_id: int,
     db: Session = Depends(get_db),
@@ -174,30 +196,8 @@ def delete_stance_endpoint(
     except Exception as e:
         logging.error(f"Error deleting stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
-
-@router.get("/stances/entity/{entity_id}", response_model=StanceListResponse)
-def get_stances_by_entity_endpoint(
-    entity_id: int,
-    db: Session = Depends(get_db)
-) -> StanceListResponse:
-    try:
-        stances = get_stances_by_entity(db, entity_id)
-        return StanceListResponse(
-            stances=[
-                StanceReadResponse(
-                    id=stance.id,
-                    user_id=stance.user_id,
-                    entity_id=stance.entity_id,
-                    headline=stance.headline,
-                    content_json=stance.content_json,
-                    average_rating=get_average_rating_for_stance(db, stance.id)
-                ) for stance in stances
-            ]
-        )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Internal server error")
     
-@router.get("/stances/{stance_id}/comments", response_model=CommentListResponse)
+@router.get("/{stance_id}/comments", response_model=CommentListResponse)
 def get_comments_by_stance_endpoint(
     stance_id: int,
     db: Session = Depends(get_db),
@@ -244,7 +244,7 @@ def get_comments_by_stance_endpoint(
         logging.error(f"Error getting comments for stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-@router.post("/stances/{stance_id}/rate", response_model=StanceRateResponse)
+@router.post("/{stance_id}/rate", response_model=StanceRateResponse)
 def rate_stance_endpoint(
     stance_id: int,
     request: StanceRateRequest,
@@ -260,7 +260,7 @@ def rate_stance_endpoint(
         raise HTTPException(status_code=500, detail="Internal server error")
     
 # Endpoint to get the number of ratings for a stance
-@router.get("/stances/{stance_id}/num-ratings", response_model=NumRatingsResponse)
+@router.get("/{stance_id}/num-ratings", response_model=NumRatingsResponse)
 def get_num_ratings_endpoint(
     stance_id: int,
     db: Session = Depends(get_db)
@@ -271,3 +271,90 @@ def get_num_ratings_endpoint(
     except Exception as e:
         logging.error(f"Error getting num ratings for stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.post("/feed", response_model=StanceFeedResponse)
+def get_stance_feed_endpoint(
+    request: StanceFeedRequest,
+    db: Session = Depends(get_db),
+    current_user_id: Optional[int] = Depends(get_current_user_optional)
+) -> StanceFeedResponse:
+    try:
+        # get random stances
+        stances: List[Stance] = get_stances_paginated(
+            db,
+            entity_ids=request.entities if request.entities else [],
+            limit=request.num_stances,
+            cursor_score=request.cursor.score if request.cursor else None,
+            cursor_id=request.cursor.id if request.cursor else None
+        )
+
+        # get the initial stance if provided
+        if request.initial_stance_id:
+            stances = [s for s in stances if str(s.id) != request.initial_stance_id]
+            initial_stance = read_stance(db, int(request.initial_stance_id))
+            if initial_stance:
+                stances.insert(0, initial_stance)
+
+        feed_stances = []
+        for stance in stances:
+            # read user information
+            user: Optional[User] = read_user(db, stance.user_id)
+            if not user:
+                continue
+            stance_user: StanceFeedUser = StanceFeedUser(
+                id=user.id,
+                username=user.username
+            )
+
+            tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)
+            stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+
+            entity: Optional[Entity] = read_entity(db, stance.entity_id)
+            if not entity:
+                continue
+            stance_entity: StanceFeedEntity = StanceFeedEntity(
+                id=entity.id,
+                type=entity.type,
+                title=entity.title,
+                images_json=entity.images_json,
+                tags=stance_tags,
+                description=entity.description,
+                start_time=str(entity.start_time) if entity.start_time else None,
+                end_time=str(entity.end_time) if entity.end_time else None
+            )
+
+            average_rating: Optional[float] = get_average_rating_for_stance(db, stance.id)
+            num_ratings: int = get_num_ratings_for_stance(db, stance.id)
+            my_rating: Optional[int] = None
+            if current_user_id:
+                rating: Rating = read_rating_by_user_and_stance(db, stance.id, current_user_id)
+                my_rating = rating.rating if rating else None
+
+            comment_count: int = get_comment_count_by_stance(db, stance.id)
+            
+
+            stance_stance: StanceFeedStance = StanceFeedStance(
+                id=stance.id,
+                user=stance_user,
+                entity=stance_entity,
+                headline=stance.headline,
+                content_json=stance.content_json,
+                num_comments=comment_count,
+                average_rating=average_rating,
+                num_ratings=num_ratings,
+                my_rating=my_rating,
+                tags=stance_tags,
+                created_at=str(stance.created_at) if stance.created_at else None
+            )
+            feed_stances.append(stance_stance)
+
+        next_cursor: Optional[StanceFeedCursor] = None
+        if stances and len(stances) == request.num_stances:
+            last_stance = stances[-1]
+            next_cursor = StanceFeedCursor(score=last_stance.engagement_score, id=last_stance.id)
+
+        return StanceFeedResponse(stances=feed_stances, next_cursor=next_cursor)
+    except Exception as e:
+        logging.error(f"Error fetching stance feed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to fetch stance feed")
+    

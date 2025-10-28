@@ -1,35 +1,67 @@
-// Home feed models
-export interface HomeFeedStance {
+// entity feed models
+export interface EntityFeedStance {
     id: number;
     headline: string;
     average_rating: number | null;
 }
-export interface HomeFeedTag {
+export interface EntityFeedTag {
     id: number;
     name: string;
     tag_type: TagType;
 }
-export interface HomeFeedEntity {
+export interface EntityFeedEntity {
     id: number;
     type: EntityType;
     title: string;
     images_json: string;
-    tags: HomeFeedTag[];
-    stances: HomeFeedStance[];
+    tags: EntityFeedTag[];
+    stances: EntityFeedStance[];
     description?: string | null;
     start_time?: string | null;
     end_time?: string | null;
 }
-export interface HomeFeedIssue extends HomeFeedEntity {
+export interface EntityFeedIssue extends EntityFeedEntity {
     type: EntityType.ISSUE;
 }
-export interface HomeFeedEvent extends HomeFeedEntity {
+export interface EntityFeedEvent extends EntityFeedEntity {
     type: EntityType.EVENT;
     start_time: string | null;
     end_time: string | null;
 }
 
-
+// stance feed models
+export interface StanceFeedTag {
+    id: number;
+    name: string;
+    tag_type: TagType;
+}
+export interface StanceFeedUser {
+    id: number;
+    username: string;
+}
+export interface StanceFeedEntity {
+    id: number;
+    type: number;
+    title: string;
+    images_json: string;
+    tags: StanceFeedTag[];
+    description?: string | null;
+    start_time?: string | null;
+    end_time?: string | null;
+}
+export interface StanceFeedStance {
+    id: number;
+    user: StanceFeedUser;
+    entity?: StanceFeedEntity;
+    headline: string;
+    content_json: string;
+    num_comments: number;
+    average_rating?: number | null;
+    num_ratings: number;
+    my_rating?: number | null;
+    tags: StanceFeedTag[];
+    created_at?: string | null;
+}
 
 export interface Event extends Entity {
     type: EntityType.EVENT;
@@ -89,6 +121,12 @@ export interface Entity {
     start_time?: string | null;
     end_time?: string | null;
     images_json: string;
-    stances: Stance[];
     tags: Tag[];
+}
+
+export interface User {
+    id: number;
+    username: string;
+    full_name: string;
+    email: string;
 }

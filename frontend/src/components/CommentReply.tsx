@@ -4,8 +4,8 @@
 import React, { useState } from "react";
 import { Comment } from "../models";
 import { useAuthApi } from "../app/hooks/useAuthApi";
-import { reactToComment, removeCommentReaction } from "../api/comment_reactions";
 import { useAuth } from "../contexts/AuthContext";
+import { CommentService } from "@/service/CommentService";
 
 interface CommentReplyProps {
     isDirectChild: boolean;
@@ -20,6 +20,7 @@ const CommentReply: React.FC<CommentReplyProps> = ({ reply, isDirectChild, setSe
   const [dislikes, setDislikes] = useState(reply.dislikes);
   const [userReaction, setUserReaction] = useState<Comment["user_reaction"]>(reply.user_reaction);
   const [loading, setLoading] = useState(false);
+  const commentService = new CommentService();
 
   const handleReaction = async (isLike: boolean) => {
     if (loading) return;
@@ -27,11 +28,11 @@ const CommentReply: React.FC<CommentReplyProps> = ({ reply, isDirectChild, setSe
     try {
       if (userReaction === (isLike ? "like" : "dislike")) {
         setUserReaction(null);
-        await removeCommentReaction(api, reply.id);
+        await commentService.removeCommentReaction(api, reply.id);
         if (isLike) setLikes(likes - 1);
         else setDislikes(dislikes - 1);
       } else {
-        await reactToComment(api, reply.id, { is_like: isLike });
+        await commentService.reactToComment(api, reply.id, isLike);
         if (isLike) {
           setUserReaction("like");
           setLikes(likes + 1);
