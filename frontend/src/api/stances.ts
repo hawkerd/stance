@@ -71,17 +71,6 @@ export async function deleteStance(
 }
 
 /**
- * Get all stances for a specific entity
- */
-export async function getStancesByEntity(
-  api: AxiosInstance,
-  entityId: number
-): Promise<StanceListResponse> {
-  const res = await api.get<StanceListResponse>(`/stances/entity/${entityId}`);
-  return res.data;
-}
-
-/**
  * Fetch comments by stance ID
  */
 export async function getCommentsByStance(

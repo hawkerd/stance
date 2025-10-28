@@ -53,6 +53,9 @@ class NumRatingsResponse(BaseModel):
     num_ratings: int
 
 
+class StanceFeedCursor(BaseModel):
+    score: Optional[float]
+    id: Optional[int]
 class StanceFeedTag(BaseModel):
     id: int
     name: str
@@ -72,7 +75,6 @@ class StanceFeedEntity(BaseModel):
 class StanceFeedStance(BaseModel):
     id: int
     user: StanceFeedUser
-    entity: StanceFeedEntity
     headline: str
     content_json: str
     num_comments: int
@@ -80,12 +82,15 @@ class StanceFeedStance(BaseModel):
     num_ratings: int
     my_rating: Optional[int]
     tags: List[StanceFeedTag]
+    entity: Optional[StanceFeedEntity] = None
     created_at: Optional[str] = None
 class StanceFeedRequest(BaseModel):
     num_stances: int = 20
     initial_stance_id: Optional[int]
     entities: Optional[List[int]]
+    cursor: Optional[StanceFeedCursor] = None
 class StanceFeedResponse(BaseModel):
     stances: List[StanceFeedStance]
+    next_cursor: Optional[StanceFeedCursor] = None
 class StanceFeedStanceResponse(BaseModel):
     stance: StanceFeedStance

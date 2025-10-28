@@ -82,7 +82,6 @@ def get_entities_paginated(db: Session, limit: int, cursor: Optional[datetime] =
         if cursor:
             query = query.filter(Entity.created_at < cursor)
         
-        # Order by created_at descending (newest first), with id as tiebreaker
         entities = query.order_by(Entity.created_at.desc(), Entity.id.desc()).limit(limit).all()
         return entities
     except Exception as e:

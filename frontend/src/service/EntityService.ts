@@ -1,15 +1,16 @@
 import { AxiosInstance } from "axios";
 import { entitiesApi } from "@/api";
 import {
-  EntityCreateRequest,
-  EntityReadResponse,
-  EntityUpdateRequest,
-  EntityUpdateResponse,
-  EntityDeleteResponse,
-  EntityListResponse,
-  EntityFeedResponse,
-  StanceReadResponse,
-  StanceFeedStanceResponse
+    EntityCreateRequest,
+    EntityReadResponse,
+    EntityUpdateRequest,
+    EntityUpdateResponse,
+    EntityDeleteResponse,
+    EntityListResponse,
+    EntityFeedResponse,
+    StanceReadResponse,
+    StanceFeedStanceResponse,
+    StanceFeedResponse,
 } from "@/api/entities";
 import { Entity, Stance, EntityType, EntityFeedEntity, StanceFeedStance } from "@/models";
 
@@ -120,7 +121,8 @@ export class EntityService {
             return null;
         }
         const stance: StanceFeedStance = {
-            ...response.stance
+            ...response.stance,
+            entity: response.stance.entity ? response.stance.entity : undefined
         };
         return stance;
     }
@@ -142,6 +144,34 @@ export class EntityService {
             entities: response.entities,
             nextCursor: response.next_cursor,
             hasMore: response.has_more
+        };
+    }
+
+    // get stances by entity with pagination
+    async getStancesByEntity(api: AxiosInstance, entityId: number, cursor_engagement_score?: number, cursor_id?: number): Promise<{ stances: StanceFeedStance[]; nextCursorScore: number | null; nextCursorId: number | null }> {
+        const response: StanceFeedResponse = await entitiesApi.getStancesByEntity(
+        api,
+        entityId,
+        20,
+        cursor_engagement_score,
+        cursor_id
+        );
+        return {
+            stances: response.stances.map((s) => ({
+                id: s.id,
+                user: s.user,
+                entity: s.entity ? s.entity : undefined,
+                headline: s.headline,
+                content_json: s.content_json,
+                num_comments: s.num_comments,
+                average_rating: s.average_rating,
+                num_ratings: s.num_ratings,
+                my_rating: s.my_rating,
+                tags: s.tags,
+                created_at: s.created_at,
+            })),
+            nextCursorScore: response.next_cursor?.score ?? null,
+            nextCursorId: response.next_cursor?.id ?? null,
         };
     }
 }

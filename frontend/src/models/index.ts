@@ -52,7 +52,7 @@ export interface StanceFeedEntity {
 export interface StanceFeedStance {
     id: number;
     user: StanceFeedUser;
-    entity: StanceFeedEntity;
+    entity?: StanceFeedEntity;
     headline: string;
     content_json: string;
     num_comments: number;

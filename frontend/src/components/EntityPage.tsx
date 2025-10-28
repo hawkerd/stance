@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import StanceCreateModal from "@/components/modals/StanceCreateModal";
 import { EntityService } from "@/service/EntityService";
-import StanceFeed from "@/components/stance-feed/StanceFeed";
+import EntityStancesFeed from "@/components/stance-feed/EntityStancesFeed";
 import EntityFeedTagComponent from "@/components/entity-feed/EntityFeedTag";
 
 interface EntityPageProps {
@@ -241,9 +241,9 @@ export default function EntityPage({ params, feedMode = false, initialStanceId }
                     )}
                     {/* Stance feed mode */}
                     {entity && mode === 'feed' && (
-                        <StanceFeed 
+                        <EntityStancesFeed 
                             num_stances={50} 
-                            entities={[parseInt(entity_id)]} 
+                            entity={parseInt(entity_id)}
                             initialStanceId={initialStanceId ? parseInt(initialStanceId) : undefined} 
                         />
                     )}

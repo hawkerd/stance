@@ -32,7 +32,11 @@ export class StanceService {
     };
     const response: StanceFeedResponse = await stancesApi.getFeed(api, request);
     console.log("Fetched stances:", response.stances);
-    return response.stances;
+    const stances = response.stances.map((s) => ({
+      ...s,
+      entity: s.entity ? s.entity : undefined,
+    }));
+    return stances;
   }
 
   async createStance(
@@ -116,20 +120,6 @@ export class StanceService {
   async deleteStance(api: AxiosInstance, stanceId: number): Promise<boolean> {
     const response: StanceDeleteResponse = await stancesApi.deleteStance(api, stanceId);
     return response.success ?? true;
-  }
-
-  async getStancesByEntity(api: AxiosInstance, entityId: number): Promise<Stance[]> {
-    const response: StanceListResponse = await stancesApi.getStancesByEntity(api, entityId);
-    return response.stances.map((s) => ({
-      id: s.id,
-      user_id: s.user_id,
-      entity_id: s.entity_id,
-      headline: s.headline,
-      content_json: s.content_json,
-      comments: [],
-      average_rating: s.average_rating,
-      num_ratings: 0,
-    }));
   }
 
   async getCommentsByStance(api: AxiosInstance, stanceId: number): Promise<Comment[]> {

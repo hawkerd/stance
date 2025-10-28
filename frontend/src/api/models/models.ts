@@ -161,23 +161,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/stances/entity/{entity_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Stances By Entity Endpoint */
-        get: operations["get_stances_by_entity_endpoint_stances_entity__entity_id__get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/stances/{stance_id}/comments": {
         parameters: {
             query?: never;
@@ -386,6 +369,23 @@ export interface paths {
         post?: never;
         /** Delete Entity Endpoint */
         delete: operations["delete_entity_endpoint_entities__entity_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stances By Entity Paginated Endpoint */
+        get: operations["get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -853,6 +853,13 @@ export interface components {
             /** Success */
             success: boolean;
         };
+        /** StanceFeedCursor */
+        StanceFeedCursor: {
+            /** Score */
+            score: number | null;
+            /** Id */
+            id: number | null;
+        };
         /** StanceFeedEntity */
         StanceFeedEntity: {
             /** Id */
@@ -883,18 +890,19 @@ export interface components {
             initial_stance_id: number | null;
             /** Entities */
             entities: number[] | null;
+            cursor?: components["schemas"]["StanceFeedCursor"] | null;
         };
         /** StanceFeedResponse */
         StanceFeedResponse: {
             /** Stances */
             stances: components["schemas"]["StanceFeedStance"][];
+            next_cursor?: components["schemas"]["StanceFeedCursor"] | null;
         };
         /** StanceFeedStance */
         StanceFeedStance: {
             /** Id */
             id: number;
             user: components["schemas"]["StanceFeedUser"];
-            entity: components["schemas"]["StanceFeedEntity"];
             /** Headline */
             headline: string;
             /** Content Json */
@@ -909,6 +917,7 @@ export interface components {
             my_rating: number | null;
             /** Tags */
             tags: components["schemas"]["StanceFeedTag"][];
+            entity?: components["schemas"]["StanceFeedEntity"] | null;
             /** Created At */
             created_at?: string | null;
         };
@@ -1423,37 +1432,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StanceDeleteResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_stances_by_entity_endpoint_stances_entity__entity_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceListResponse"];
                 };
             };
             /** @description Validation Error */
@@ -2130,6 +2108,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EntityDeleteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_get: {
+        parameters: {
+            query?: {
+                num_stances?: number;
+                cursor_engagement_score?: number | null;
+                cursor_id?: number | null;
+            };
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceFeedResponse"];
                 };
             };
             /** @description Validation Error */

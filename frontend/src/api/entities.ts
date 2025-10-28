@@ -11,6 +11,7 @@ export type EntityListResponse = components["schemas"]["EntityListResponse"];
 export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
 export type EntityFeedResponse = components["schemas"]["EntityFeedResponse"];
 export type StanceFeedStanceResponse = components["schemas"]["StanceFeedStanceResponse"];
+export type StanceFeedResponse = components["schemas"]["StanceFeedResponse"];
 
 /**
  * Create a new entity (admin only)-
@@ -88,5 +89,23 @@ export async function getFeed(
   const res = await api.get<EntityFeedResponse>("/entities/feed", {
     params: { num_entities, num_stances_per_entity, cursor }
   });
+  return res.data;
+}
+
+/**
+ * Get all stances for a specific entity, paginated
+ */
+export async function getStancesByEntity(
+  api: AxiosInstance,
+  entityId: number,
+  numStances: number = 20,
+  cursorEngagementScore?: number,
+  cursorId?: number
+): Promise<StanceFeedResponse> {
+  const params: Record<string, any> = { num_stances: numStances };
+  if (cursorEngagementScore !== undefined) params.cursor_engagement_score = cursorEngagementScore;
+  if (cursorId !== undefined) params.cursor_id = cursorId;
+
+  const res = await api.get<StanceFeedResponse>(`/entities/${entityId}/stances`, { params });
   return res.data;
 }
