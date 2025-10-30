@@ -94,3 +94,28 @@ class StanceFeedResponse(BaseModel):
     next_cursor: Optional[StanceFeedCursor] = None
 class StanceFeedStanceResponse(BaseModel):
     stance: StanceFeedStance
+
+
+# paginated stances by entity do not include entity info
+class PaginatedStancesByEntityStance(BaseModel):
+    id: int
+    user: StanceFeedUser
+    headline: str
+    content_json: str
+    num_comments: int
+    average_rating: Optional[float]
+    num_ratings: int
+    my_rating: Optional[int]
+    tags: List[StanceFeedTag]
+    created_at: Optional[str] = None
+class PaginatedStancesByEntityCursor(BaseModel):
+    score: float
+    id: int
+class PaginatedStanceByEntityRequest(BaseModel):
+    num_stances: int = 20
+    cursor: Optional[PaginatedStancesByEntityCursor]
+class PaginatedStancesByEntityResponse(BaseModel):
+    stances: List[PaginatedStancesByEntityStance]
+    next_cursor: Optional[PaginatedStancesByEntityCursor] = None
+class PaginatedStancesByEntityStanceResponse(BaseModel):
+    stance: PaginatedStancesByEntityStance

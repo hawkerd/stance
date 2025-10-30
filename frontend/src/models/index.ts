@@ -63,6 +63,34 @@ export interface StanceFeedStance {
     created_at?: string | null;
 }
 
+
+// paginated stances by entity
+export interface PaginatedStanceByEntityCursor {
+    score: number;
+    id: number;
+}
+export interface PaginatedStanceByEntityRequest {
+    num_stances: number;
+    cursor?: PaginatedStanceByEntityCursor | null;
+}
+export interface PaginatedStancesByEntityResponse {
+    stances: StanceFeedStance[];
+    next_cursor?: PaginatedStanceByEntityCursor | null;
+}
+export interface PaginatedStancesByEntityStance {
+    id: number;
+    user: StanceFeedUser;
+    headline: string;
+    content_json: string;
+    num_comments: number;
+    average_rating?: number | null;
+    num_ratings: number;
+    my_rating?: number | null;
+    tags: StanceFeedTag[];
+    created_at?: string | null;
+}
+
+
 export interface Event extends Entity {
     type: EntityType.EVENT;
     start_time: string | null;

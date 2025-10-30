@@ -12,7 +12,8 @@ from app.database.stance import (
     create_stance, update_stance,
     read_stance, delete_stance,
     get_stances_by_user, get_comments_by_stance,
-    get_all_stances, get_comment_count_by_stance
+    get_all_stances, get_comment_count_by_stance,
+    get_random_stances
 )
 from app.database.rating import (
     get_average_rating_for_stance, rate_stance, 
@@ -280,13 +281,7 @@ def get_stance_feed_endpoint(
 ) -> StanceFeedResponse:
     try:
         # get random stances
-        stances: List[Stance] = get_stances_paginated(
-            db,
-            entity_ids=request.entities if request.entities else [],
-            limit=request.num_stances,
-            cursor_score=request.cursor.score if request.cursor else None,
-            cursor_id=request.cursor.id if request.cursor else None
-        )
+        stances: List[Stance] = get_random_stances(db, request.num_stances)
 
         # get the initial stance if provided
         if request.initial_stance_id:

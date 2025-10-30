@@ -9,7 +9,7 @@ from app.database.rating import get_average_rating_for_stance, get_num_ratings_f
 from app.database.stance import get_user_stance_by_entity, get_n_stances_by_entity, get_comment_count_by_stance, get_stances_by_entity_paginated
 from app.database.models import Stance, Entity, Tag, User, Rating
 from app.database.user import read_user
-from app.routers.models import StanceFeedStance, StanceFeedUser, StanceFeedEntity, StanceFeedTag, StanceFeedResponse, StanceFeedCursor
+from app.routers.models import PaginatedStancesByEntityResponse, StanceFeedUser, PaginatedStancesByEntityStance, StanceFeedTag, PaginatedStancesByEntityStanceResponse, PaginatedStancesByEntityCursor, PaginatedStanceByEntityRequest
 from app.service.storage import upload_image_to_storage
 import logging
 from typing import Optional, List
@@ -228,45 +228,21 @@ def get_all_entities_endpoint(db: Session = Depends(get_db)):
         )
     return EntityListResponse(entities=entity_list)
 
-# @router.get("/{entity_id}/stances", response_model=StanceListResponse)
-# def get_stances_by_entity_endpoint(
-#     entity_id: int,
-#     db: Session = Depends(get_db)
-# ) -> StanceListResponse:
-#     try:
-#         stances = get_stances_by_entity(db, entity_id)
-#         return StanceListResponse(
-#             stances=[
-#                 StanceReadResponse(
-#                     id=stance.id,
-#                     user_id=stance.user_id,
-#                     entity_id=stance.entity_id,
-#                     headline=stance.headline,
-#                     content_json=stance.content_json,
-#                     average_rating=get_average_rating_for_stance(db, stance.id)
-#                 ) for stance in stances
-#             ]
-#         )
-#     except Exception as e:
-#         raise HTTPException(status_code=500, detail="Internal server error")
-
-@router.get("/{entity_id}/stances", response_model=StanceFeedResponse)
+@router.post("/{entity_id}/stances", response_model=PaginatedStancesByEntityResponse)
 def get_stances_by_entity_paginated_endpoint(
     entity_id: int,
-    num_stances: int = 20,
-    cursor_engagement_score: Optional[float] = None,
-    cursor_id: Optional[int] = None,
+    request: PaginatedStanceByEntityRequest,
     db: Session = Depends(get_db),
     current_user_id: Optional[int] = Depends(get_current_user_optional)
-) -> StanceFeedResponse:
+) -> PaginatedStancesByEntityResponse:
     try:
         # get random stances
         stances: List[Stance] = get_stances_by_entity_paginated(
             db,
             entity_ids=[entity_id],
-            limit=num_stances,
-            cursor_score=cursor_engagement_score,
-            cursor_id=cursor_id
+            limit=request.num_stances,
+            cursor_score=request.cursor.score if request.cursor else None,
+            cursor_id=request.cursor.id if request.cursor else None
         )
 
         feed_stances = []
@@ -293,7 +269,7 @@ def get_stances_by_entity_paginated_endpoint(
             comment_count: int = get_comment_count_by_stance(db, stance.id)
             
 
-            stance_stance: StanceFeedStance = StanceFeedStance(
+            stance_stance: PaginatedStancesByEntityStance = PaginatedStancesByEntityStance(
                 id=stance.id,
                 user=stance_user,
                 headline=stance.headline,
@@ -307,19 +283,19 @@ def get_stances_by_entity_paginated_endpoint(
             )
             feed_stances.append(stance_stance)
 
-        next_cursor: Optional[StanceFeedCursor] = None
-        if stances and len(stances) == num_stances:
+        next_cursor: Optional[PaginatedStancesByEntityCursor] = None
+        if stances and len(stances) == request.num_stances:
             last_stance = stances[-1]
-            next_cursor = StanceFeedCursor(score=last_stance.engagement_score, id=last_stance.id)
+            next_cursor = PaginatedStancesByEntityCursor(score=last_stance.engagement_score, id=last_stance.id)
 
-        return StanceFeedResponse(stances=feed_stances, next_cursor=next_cursor)
+        return PaginatedStancesByEntityResponse(stances=feed_stances, next_cursor=next_cursor)
     except Exception as e:
         logging.error(f"Error fetching stance feed: {e}")
         raise HTTPException(status_code=500, detail="Failed to fetch stance feed")
     
 
-@router.get("/{entity_id}/stances/me", response_model=Optional[StanceFeedStanceResponse])
-def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> Optional[StanceFeedStanceResponse]:
+@router.get("/{entity_id}/stances/me", response_model=Optional[PaginatedStancesByEntityStanceResponse])
+def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_id: int = Depends(get_current_user)) -> Optional[PaginatedStancesByEntityStanceResponse]:
     stance: Optional[Stance] = get_user_stance_by_entity(db, entity_id=entity_id, user_id=user_id)
     if not stance:
         return None
@@ -339,16 +315,6 @@ def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_
     entity: Optional[Entity] = read_entity(db, stance.entity_id)
     if not entity:
         return None
-    stance_entity: StanceFeedEntity = StanceFeedEntity(
-        id=entity.id,
-        type=entity.type,
-        title=entity.title,
-        images_json=entity.images_json,
-        tags=stance_tags,
-        description=entity.description,
-        start_time=str(entity.start_time) if entity.start_time else None,
-        end_time=str(entity.end_time) if entity.end_time else None
-    )
 
     average_rating: Optional[float] = get_average_rating_for_stance(db, stance.id)
     num_ratings: int = get_num_ratings_for_stance(db, stance.id)
@@ -358,10 +324,9 @@ def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_
 
     comment_count: int = get_comment_count_by_stance(db, stance.id)
 
-    stance_stance: StanceFeedStance = StanceFeedStance(
+    stance_stance: PaginatedStancesByEntityStance = PaginatedStancesByEntityStance(
         id=stance.id,
         user=stance_user,
-        entity=stance_entity,
         headline=stance.headline,
         content_json=stance.content_json,
         average_rating=average_rating,
@@ -372,4 +337,4 @@ def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_
         created_at=str(stance.created_at) if stance.created_at else None
     )
 
-    return StanceFeedStanceResponse(stance=stance_stance)
+    return PaginatedStancesByEntityStanceResponse(stance=stance_stance)

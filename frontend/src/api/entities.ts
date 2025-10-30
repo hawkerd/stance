@@ -10,9 +10,10 @@ export type EntityDeleteResponse = components["schemas"]["EntityDeleteResponse"]
 export type EntityListResponse = components["schemas"]["EntityListResponse"];
 export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
 export type EntityFeedResponse = components["schemas"]["EntityFeedResponse"];
-export type StanceFeedStanceResponse = components["schemas"]["StanceFeedStanceResponse"];
+export type PaginatedStancesByEntityStanceResponse = components["schemas"]["PaginatedStancesByEntityStanceResponse"];
 export type StanceFeedResponse = components["schemas"]["StanceFeedResponse"];
-
+export type PaginatedStanceByEntityRequest = components["schemas"]["PaginatedStanceByEntityRequest"];
+export type PaginatedStancesByEntityResponse = components["schemas"]["PaginatedStancesByEntityResponse"];
 /**
  * Create a new entity (admin only)-
  */
@@ -72,8 +73,8 @@ export async function listEntities(api: AxiosInstance): Promise<EntityListRespon
 export async function getMyStanceForEntity(
   api: AxiosInstance,
   entityId: number
-): Promise<StanceFeedStanceResponse | null> {
-  const res = await api.get<StanceFeedStanceResponse | null>(`/entities/${entityId}/stances/me`);
+): Promise<PaginatedStancesByEntityStanceResponse | null> {
+  const res = await api.get<PaginatedStancesByEntityStanceResponse | null>(`/entities/${entityId}/stances/me`);
   return res.data;
 }
 
@@ -98,14 +99,8 @@ export async function getFeed(
 export async function getStancesByEntity(
   api: AxiosInstance,
   entityId: number,
-  numStances: number = 20,
-  cursorEngagementScore?: number,
-  cursorId?: number
-): Promise<StanceFeedResponse> {
-  const params: Record<string, any> = { num_stances: numStances };
-  if (cursorEngagementScore !== undefined) params.cursor_engagement_score = cursorEngagementScore;
-  if (cursorId !== undefined) params.cursor_id = cursorId;
-
-  const res = await api.get<StanceFeedResponse>(`/entities/${entityId}/stances`, { params });
+  payload: PaginatedStanceByEntityRequest
+): Promise<PaginatedStancesByEntityResponse> {
+  const res = await api.post<PaginatedStancesByEntityResponse>(`/entities/${entityId}/stances`, payload);
   return res.data;
 }

@@ -22,3 +22,9 @@ class ProfileUpdateResponse(BaseModel):
     bio: Optional[str]
     avatar_url: Optional[str]
     pinned_stance_id: Optional[int]
+
+class ProfilePageResponse(BaseModel):
+    username: str
+    bio: Optional[str]
+    avatar_url: Optional[str]
+    pinned_stance_id: Optional[int]

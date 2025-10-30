@@ -9,10 +9,12 @@ import {
     EntityListResponse,
     EntityFeedResponse,
     StanceReadResponse,
-    StanceFeedStanceResponse,
+    PaginatedStancesByEntityStanceResponse,
     StanceFeedResponse,
+    PaginatedStanceByEntityRequest,
+    PaginatedStancesByEntityResponse
 } from "@/api/entities";
-import { Entity, Stance, EntityType, EntityFeedEntity, StanceFeedStance } from "@/models";
+import { Entity, Stance, EntityType, EntityFeedEntity, PaginatedStancesByEntityStance } from "@/models";
 
 
 export class EntityService {
@@ -115,16 +117,12 @@ export class EntityService {
     async getMyStanceForEntity(
         api: AxiosInstance,
         entityId: number
-    ): Promise<StanceFeedStance | null> {
-        const response: StanceFeedStanceResponse | null = await entitiesApi.getMyStanceForEntity(api, entityId);
+    ): Promise<PaginatedStancesByEntityStance | null> {
+        const response: PaginatedStancesByEntityStanceResponse | null = await entitiesApi.getMyStanceForEntity(api, entityId);
         if (response === null) {
             return null;
         }
-        const stance: StanceFeedStance = {
-            ...response.stance,
-            entity: response.stance.entity ? response.stance.entity : undefined
-        };
-        return stance;
+        return response.stance;
     }
 
     // get feed
@@ -148,19 +146,21 @@ export class EntityService {
     }
 
     // get stances by entity with pagination
-    async getStancesByEntity(api: AxiosInstance, entityId: number, cursor_engagement_score?: number, cursor_id?: number): Promise<{ stances: StanceFeedStance[]; nextCursorScore: number | null; nextCursorId: number | null }> {
+    async getStancesByEntity(api: AxiosInstance, entityId: number, cursor?: { score: number; id: number }): Promise<{ stances: PaginatedStancesByEntityStance[]; nextCursorScore: number | null; nextCursorId: number | null }> {
+        const request: PaginatedStanceByEntityRequest = {
+            num_stances: 20,
+            cursor: cursor ? { score: cursor.score, id: cursor.id } : null
+        }
+        
         const response: StanceFeedResponse = await entitiesApi.getStancesByEntity(
-        api,
-        entityId,
-        20,
-        cursor_engagement_score,
-        cursor_id
+            api,
+            entityId,
+            request
         );
         return {
             stances: response.stances.map((s) => ({
                 id: s.id,
                 user: s.user,
-                entity: s.entity ? s.entity : undefined,
                 headline: s.headline,
                 content_json: s.content_json,
                 num_comments: s.num_comments,

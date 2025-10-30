@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef, useCallback } from "react";
 import StanceFeedStanceComponent from "./StanceFeedStance";
 import StanceFeedLoadingFiller from "./StanceFeedLoadingFiller";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
-import { StanceFeedStance } from "@/models";
+import { PaginatedStancesByEntityStance } from "@/models";
 import { EntityService } from "@/service/EntityService";
 import { useRouter } from "next/navigation";
 import { useInfiniteScroll } from "@/app/hooks/useInfiniteScroll";
@@ -16,7 +16,7 @@ interface StanceFeedProps {
 }
 
 export default function StanceFeed({ num_stances, entity, initialStanceId }: StanceFeedProps) {
-    const [stances, setStances] = useState<StanceFeedStance[]>([]);
+    const [stances, setStances] = useState<PaginatedStancesByEntityStance[]>([]);
     const [hasMore, setHasMore] = useState(true);
     const [page, setPage] = useState(0);
 
@@ -102,8 +102,10 @@ export default function StanceFeed({ num_stances, entity, initialStanceId }: Sta
             const newStances = await entityService.getStancesByEntity(
                 API,
                 entity,
-                nextCursorScore ?? undefined,
-                nextCursorId ?? undefined
+                {
+                    score: nextCursorScore!,
+                    id: nextCursorId!
+                }
             );
             setNextCursorScore(newStances.nextCursorScore);
             setNextCursorId(newStances.nextCursorId);

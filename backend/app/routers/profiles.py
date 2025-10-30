@@ -2,8 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
 from app.database.profile import create_profile, get_profile_by_user_id, update_profile
-from app.routers.models import ProfileCreateRequest, ProfileReadResponse, ProfileUpdateRequest, ProfileUpdateResponse
+from app.database.user import read_user
+from app.database.models import User, Profile
+from app.routers.models import ProfileCreateRequest, ProfileReadResponse, ProfileUpdateRequest, ProfileUpdateResponse, ProfilePageResponse
 import logging
+from typing import Optional
 
 router = APIRouter(tags=["users"])
 
@@ -54,4 +57,21 @@ def update_profile_endpoint(request: ProfileUpdateRequest, user_id: int, db: Ses
         return ProfileUpdateResponse(user_id=profile.user_id, bio=profile.bio, avatar_url=profile.avatar_url, pinned_stance_id=profile.pinned_stance_id)
     except Exception as e:
         logging.error(f"Error updating profile for user {user_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
+@router.get("/users/{user_id}/profile_page", response_model=ProfilePageResponse)
+def get_profile_page_endpoint(user_id: int, db: Session = Depends(get_db)) -> ProfilePageResponse:
+    try:
+        logging.info(f"Fetching profile page for user {user_id}")
+        user: Optional[User] = read_user(db, user_id=user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        profile: Optional[Profile] = get_profile_by_user_id(db, user_id=user_id)
+        if not profile:
+            raise HTTPException(status_code=404, detail="Profile not found")
+
+        return ProfilePageResponse(username=user.username, bio=profile.bio, avatar_url=profile.avatar_url, pinned_stance_id=profile.pinned_stance_id)
+    except Exception as e:
+        logging.error(f"Error fetching profile page for user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
