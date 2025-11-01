@@ -339,7 +339,7 @@ def get_stance_feed_endpoint(
                 num_ratings=num_ratings,
                 my_rating=my_rating,
                 tags=stance_tags,
-                created_at=str(stance.created_at) if stance.created_at else None
+                created_at=str(stance.created_at)
             )
             feed_stances.append(stance_stance)
 

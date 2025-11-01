@@ -83,7 +83,7 @@ class StanceFeedStance(BaseModel):
     my_rating: Optional[int]
     tags: List[StanceFeedTag]
     entity: Optional[StanceFeedEntity] = None
-    created_at: Optional[str] = None
+    created_at: str
 class StanceFeedRequest(BaseModel):
     num_stances: int = 20
     initial_stance_id: Optional[int]
@@ -96,7 +96,7 @@ class StanceFeedStanceResponse(BaseModel):
     stance: StanceFeedStance
 
 
-# paginated stances by entity do not include entity info
+# paginated stances by entity do not include entity info, and use a str for cursor
 class PaginatedStancesByEntityStance(BaseModel):
     id: int
     user: StanceFeedUser
@@ -119,3 +119,22 @@ class PaginatedStancesByEntityResponse(BaseModel):
     next_cursor: Optional[PaginatedStancesByEntityCursor] = None
 class PaginatedStancesByEntityStanceResponse(BaseModel):
     stance: PaginatedStancesByEntityStance
+
+# paginated stances by user do not include user info, and use 
+class PaginatedStancesByUserStance(BaseModel):
+    id: int
+    entity: StanceFeedEntity
+    headline: str
+    content_json: str
+    num_comments: int
+    average_rating: Optional[float]
+    num_ratings: int
+    my_rating: Optional[int]
+    tags: List[StanceFeedTag]
+    created_at: str
+class PaginatedStancesByUserRequest(BaseModel):
+    num_stances: int = 20
+    cursor: Optional[str]
+class PaginatedStancesByUserResponse(BaseModel):
+    stances: List[PaginatedStancesByUserStance]
+    next_cursor: Optional[str] = None
