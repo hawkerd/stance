@@ -1,35 +1,53 @@
+"use client";
+
 import React from "react";
 import { PaginatedStancesByEntityStance } from "@/models";
+import { useRouter } from "next/navigation";
 
 interface StanceCardProps {
   stance: PaginatedStancesByEntityStance;
-  onClick?: () => void;
   isUserStance?: boolean;
 }
 
-export default function StanceCard({ stance, onClick, isUserStance = false }: StanceCardProps) {
+export default function StanceCard({ stance, isUserStance = false }: StanceCardProps) {
+  const router = useRouter();
+
+  // navigate to stance page
+  const handleCardClick = (e: React.MouseEvent) => {
+    router.push(`/stances/${stance.id}`);
+  };
+
+  // navigate to user page
+  const handleUserClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    router.push(`/users/${stance.user.id}`);
+  };
+
   return (
     <div
-      onClick={onClick}
-      className={`aspect-square bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow cursor-pointer overflow-hidden group ${
-        isUserStance ? 'border-2 border-purple-500' : 'border border-gray-200'
+      onClick={handleCardClick}
+      className={`aspect-square bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer overflow-hidden group ${
+        isUserStance ? 'ring-2 ring-purple-400' : ''
       }`}
     >
       <div className="h-full p-4 flex flex-col">
         {/* User info */}
-        <div className="flex items-center gap-2 mb-3">
+        <div
+          className="flex items-center gap-2 mb-3 cursor-pointer transition-colors rounded hover:bg-purple-50/80 hover:text-purple-700 group/user px-1 -mx-1"
+          onClick={handleUserClick}
+        >
           {stance.user.avatar_url ? (
             <img
               src={stance.user.avatar_url}
               alt={`${stance.user.username}'s avatar`}
-              className="w-8 h-8 rounded-full object-cover border border-gray-200 flex-shrink-0"
+              className="w-8 h-8 rounded-full object-cover border border-gray-200 flex-shrink-0 group-hover/user:ring-2 group-hover/user:ring-purple-300 transition"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 group-hover/user:ring-2 group-hover/user:ring-purple-300 transition">
               {stance.user.username.charAt(0).toUpperCase()}
             </div>
           )}
-          <span className="text-sm font-medium text-gray-700 truncate">
+          <span className="text-sm font-medium text-gray-700 truncate group-hover/user:text-purple-700 transition-colors">
             {stance.user.username}
           </span>
         </div>

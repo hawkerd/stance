@@ -99,11 +99,6 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
 
   const { loadMoreRef } = useInfiniteScroll(fetchMoreStances, hasMore);
 
-  const handleStanceClick = (stanceId: number) => {
-    // Navigate to the stance page
-    router.push(`/stances/${stanceId}`);
-  };
-
   if (loading && stances.length === 0) {
     return (
       <div className="text-purple-500 text-center py-8">
@@ -133,11 +128,9 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
           <StanceCard
             key={userStance.id}
             stance={userStance}
-            onClick={() => handleStanceClick(userStance.id)}
             isUserStance={true}
           />
         )}
-        
         {/* Rest of the stances, filtering out the user's stance if it's already shown */}
         {stances
           .filter((stance) => !userStance || stance.id !== userStance.id)
@@ -145,7 +138,6 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
             <StanceCard
               key={stance.id}
               stance={stance}
-              onClick={() => handleStanceClick(stance.id)}
             />
           ))}
       </div>
@@ -162,11 +154,7 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
         ref={loadMoreRef}
         className="h-20 flex items-center justify-center"
         style={{ overflowAnchor: "none" }}
-      >
-        {!hasMore && stances.length > 0 && (
-          <div className="text-gray-400 text-center">You've reached the end...</div>
-        )}
-      </div>
+      ></div>
 
       {/* Error during pagination */}
       {error && stances.length > 0 && (

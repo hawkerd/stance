@@ -76,6 +76,7 @@ class StanceFeedEntity(BaseModel):
 class StanceFeedStance(BaseModel):
     id: int
     user: StanceFeedUser
+    entity: StanceFeedEntity
     headline: str
     content_json: str
     num_comments: int
@@ -83,7 +84,6 @@ class StanceFeedStance(BaseModel):
     num_ratings: int
     my_rating: Optional[int]
     tags: List[StanceFeedTag]
-    entity: Optional[StanceFeedEntity] = None
     created_at: str
 class StanceFeedRequest(BaseModel):
     num_stances: int = 20

@@ -19,18 +19,27 @@ export default function EventCard({ event }: { event: EntityFeedEvent }) {
   const [hovered, setHovered] = useState(false);
   const hasImages = imageUrls.length > 0;
 
-  const handlePrev = () => {
+  const handlePrev = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setCurrentImage((idx) => Math.max(idx - 1, 0));
   };
-  const handleNext = () => {
+  const handleNext = (e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
     setCurrentImage((idx) => Math.min(idx + 1, imageUrls.length - 1));
   };
 
   return (
-    <div className="w-[90%] mx-auto bg-white rounded-lg shadow p-4 mb-6">
+    <div
+      className="w-full mx-auto bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all p-6 mb-8 cursor-pointer"
+      onClick={() => router.push(`/entities/${event.id}`)}
+      title="View details"
+      tabIndex={0}
+      role="button"
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') router.push(`/entities/${event.id}`); }}
+    >
       {/* Image Carousel */}
       <div
-        className="aspect-video bg-gray-100 rounded mb-2 flex items-center justify-center relative overflow-hidden border-2 border-gray-200"
+        className="aspect-video mb-3 flex items-center justify-center relative overflow-hidden"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
       >
@@ -41,6 +50,7 @@ export default function EventCard({ event }: { event: EntityFeedEvent }) {
                 className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
                 onClick={handlePrev}
                 aria-label="Previous image"
+                tabIndex={-1}
               >
                 &#8592;
               </button>
@@ -56,6 +66,7 @@ export default function EventCard({ event }: { event: EntityFeedEvent }) {
                 className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
                 onClick={handleNext}
                 aria-label="Next image"
+                tabIndex={-1}
               >
                 &#8594;
               </button>
@@ -72,19 +83,15 @@ export default function EventCard({ event }: { event: EntityFeedEvent }) {
       </div>
       {/* Tags */}
       {event.tags && event.tags.length > 0 && (
-        <div className="mb-2 flex flex-wrap gap-2">
+        <div className="mb-3 flex flex-wrap gap-2">
           {event.tags.map((tag, idx) => (
             <EntityFeedTagComponent key={idx} tag={tag} />
           ))}
         </div>
       )}
       {/* Title */}
-      <div
-        className="flex items-center mb-2 cursor-pointer hover:bg-gray-100 rounded transition"
-        onClick={() => router.push(`/entities/${event.id}`)}
-        title="View details"
-      >
-        <h2 className="text-xl font-semibold text-black flex-1">{event.title}</h2>
+      <div className="flex items-center mb-2">
+        <h2 className="text-2xl font-bold text-gray-900 flex-1 tracking-tight">{event.title}</h2>
       </div>
       {/* Calendar and date/range under the title */}
       <div className="flex items-center mb-2 ml-1">
@@ -103,7 +110,7 @@ export default function EventCard({ event }: { event: EntityFeedEvent }) {
         </span>
       </div>
       {/* Description */}
-      <p className="mb-3 text-gray-700 leading-relaxed">{event.description}</p>
+      <p className="mb-3 text-gray-700 leading-relaxed text-base">{event.description}</p>
       {/* Stances */}
       {stances.length > 0 && (
         <div className="mt-4">

@@ -119,7 +119,7 @@ export default function EntityPage({ params }: EntityPageProps) {
                             const handleNext = () => setCurrentImage(idx => Math.min(idx + 1, imageUrls.length - 1));
                             return (
                                 <div
-                                    className="w-full aspect-video bg-gray-200 rounded-2xl mb-8 flex items-center justify-center relative overflow-hidden border border-gray-300 shadow-inner"
+                                    className="w-full aspect-video mb-8 flex items-center justify-center relative overflow-hidden"
                                     onMouseEnter={() => setHovered(true)}
                                     onMouseLeave={() => setHovered(false)}
                                 >
@@ -162,7 +162,7 @@ export default function EntityPage({ params }: EntityPageProps) {
                             );
                         })()}
                         {/* Title */}
-                        <h1 className="text-xl font-semibold text-black mb-6 drop-shadow-sm tracking-tight text-left">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-6 tracking-tight text-left">
                             {entity.title}
                         </h1>
                         {/* Tags */}
@@ -174,7 +174,7 @@ export default function EntityPage({ params }: EntityPageProps) {
                             </div>
                         )}
                         {/* Description */}
-                        <p className="text-gray-700 leading-relaxed mb-10">
+                        <p className="text-gray-700 leading-relaxed text-base mb-10">
                             {entity.description || "No description provided."}
                         </p>
                         {/* Type-specific fields */}

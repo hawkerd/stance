@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_is_admin, get_current_user, get_current_user_optional
 from app.database.entity import create_entity, read_entity, update_entity, delete_entity, get_all_entities, get_entities_paginated
 from app.routers.models import (
-    EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse, EntityFeedResponse, EntityFeedEntity, EntityFeedStance, EntityFeedTag, StanceFeedStanceResponse
+    EntityCreateRequest, EntityReadResponse, EntityUpdateRequest, EntityUpdateResponse, EntityDeleteResponse, EntityListResponse, TagResponse, EntityFeedResponse, EntityFeedEntity, EntityFeedStance, EntityFeedTag
 )
 from app.database.rating import get_average_rating_for_stance, get_num_ratings_for_stance, read_rating_by_user_and_stance
 from app.database.stance import get_user_stance_by_entity, get_n_stances_by_entity, get_comment_count_by_stance, get_stances_by_entity_paginated

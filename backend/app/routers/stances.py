@@ -30,7 +30,7 @@ from app.routers.models import (
     NumRatingsResponse, StanceFeedRequest,
     StanceFeedResponse, StanceFeedStance,
     StanceFeedTag, StanceFeedUser, StanceFeedEntity,
-    StanceFeedCursor
+    StanceFeedCursor, StanceFeedStanceResponse
 )
 from typing import Optional, List
 import logging
@@ -95,7 +95,7 @@ def create_stance_endpoint(
         raise HTTPException(status_code=500, detail="Internal server error")
 
 @router.get("/{stance_id}", response_model=StanceReadResponse)
-def get_stance_endpoint(
+def get_stance_basic_endpoint(
     stance_id: int,
     db: Session = Depends(get_db)
 ) -> StanceReadResponse:
@@ -112,6 +112,75 @@ def get_stance_endpoint(
             content_json=stance.content_json,
             average_rating=avg_rating
         )
+    except Exception as e:
+        logging.error(f"Error retrieving stance {stance_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+@router.get("/{stance_id}/page", response_model=StanceFeedStanceResponse)
+def get_stance_endpoint(
+    stance_id: int,
+    db: Session = Depends(get_db),
+    current_user_id: Optional[int] = Depends(get_current_user_optional)
+) -> StanceFeedStanceResponse:
+    try:
+        stance: Stance = read_stance(db, stance_id)
+        if not stance:
+            raise HTTPException(status_code=404, detail="Stance not found or not authorized")
+
+        # read user information
+        user: Optional[User] = read_user(db, stance.user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        profile: Optional[Profile] = get_profile_by_user_id(db, user.id)
+        stance_user: StanceFeedUser = StanceFeedUser(
+            id=user.id,
+            username=user.username,
+            avatar_url=profile.avatar_url if profile else None
+        )
+
+        tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)
+        stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+
+        entity: Optional[Entity] = read_entity(db, stance.entity_id)
+        if not entity:
+            raise HTTPException(status_code=404, detail="Entity not found")
+
+        stance_entity: StanceFeedEntity = StanceFeedEntity(
+            id=entity.id,
+            type=entity.type,
+            title=entity.title,
+            images_json=entity.images_json,
+            tags=stance_tags,
+            description=entity.description,
+            start_time=str(entity.start_time) if entity.start_time else None,
+            end_time=str(entity.end_time) if entity.end_time else None
+        )
+
+        average_rating: Optional[float] = get_average_rating_for_stance(db, stance.id)
+        num_ratings: int = get_num_ratings_for_stance(db, stance.id)
+        my_rating: Optional[int] = None
+        if current_user_id:
+            rating: Rating = read_rating_by_user_and_stance(db, stance.id, current_user_id)
+            my_rating = rating.rating if rating else None
+
+        comment_count: int = get_comment_count_by_stance(db, stance.id)
+
+        stance_stance: StanceFeedStance = StanceFeedStance(
+            id=stance.id,
+            user=stance_user,
+            entity=stance_entity,
+            headline=stance.headline,
+            content_json=stance.content_json,
+            num_comments=comment_count,
+            average_rating=average_rating,
+            num_ratings=num_ratings,
+            my_rating=my_rating,
+            tags=stance_tags,
+            created_at=str(stance.created_at)
+        )
+        return StanceFeedStanceResponse(stance=stance_stance)
+
     except Exception as e:
         logging.error(f"Error retrieving stance {stance_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
@@ -303,7 +372,7 @@ def get_stance_feed_endpoint(
             stance_user: StanceFeedUser = StanceFeedUser(
                 id=user.id,
                 username=user.username,
-                avatar_url=profile.avatar_url if profile else None
+                avatar_url=profile.avatar_url if profile else None #nere
             )
 
             tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)

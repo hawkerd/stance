@@ -41,8 +41,8 @@ export class UserService {
 		return profilePage;
 	}
 
-	async getStancesByUser(api: AxiosInstance, userId: number, cursor?: string): Promise<PaginatedStancesByUserStance[]> {
+	async getStancesByUser(api: AxiosInstance, userId: number, cursor?: string): Promise<{stances: PaginatedStancesByUserStance[], next_cursor?: string}> {
 		const response = await usersApi.getStancesByUser(api, userId, 10, cursor);
-		return response.stances;
+		return {stances: response.stances, next_cursor: response.next_cursor || undefined};
 	}
 }

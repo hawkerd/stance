@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserService } from "@/service/UserService";
-import ProfilePage from "@/components/ProfilePage";
+import ProfilePage from "@/components/user-page/ProfilePage";
 
 export default function ProfileRoute() {
   const api = useAuthApi();

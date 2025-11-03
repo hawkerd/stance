@@ -1,4 +1,4 @@
-import EntityPage from "@/components/EntityPage";
+import EntityPage from "@/components/entity-page/EntityPage";
 
 interface PageProps {
   params: Promise<{ entity_id: string }>;

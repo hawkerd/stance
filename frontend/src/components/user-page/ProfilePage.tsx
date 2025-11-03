@@ -60,20 +60,21 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <main className="min-h-screen flex flex-col items-center justify-start overflow-hidden p-0 bg-gradient-to-br from-purple-50 via-white to-pink-50">
+      <div className="w-full max-w-4xl mx-auto px-4 py-10">
       {/* Profile Header */}
-      <div className="bg-white rounded-lg shadow-md p-8 mb-6">
-        <div className="flex items-center gap-6">
+      <div className="bg-white rounded-2xl shadow-lg border border-purple-100 p-10 mb-10">
+        <div className="flex items-center gap-8">
           {/* Avatar */}
           <div className="flex-shrink-0">
             {profilePage.avatar_url ? (
               <img
                 src={profilePage.avatar_url}
                 alt={`${profilePage.username}'s avatar`}
-                className="w-24 h-24 rounded-full object-cover border-2 border-gray-200"
+                className="w-28 h-28 rounded-full object-cover border-4 border-purple-100 shadow"
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">
+              <div className="w-28 h-28 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-4xl font-bold shadow border-4 border-purple-100">
                 {profilePage.username.charAt(0).toUpperCase()}
               </div>
             )}
@@ -81,43 +82,21 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
 
           {/* Profile Info */}
           <div className="flex-1">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
               {profilePage.username}
             </h1>
             {profilePage.bio && (
-              <p className="text-gray-600 leading-relaxed">{profilePage.bio}</p>
+              <p className="text-gray-600 leading-relaxed text-base">{profilePage.bio}</p>
             )}
           </div>
         </div>
-
-        {/* Pinned Stance */}
-        {profilePage.pinned_stance_id && (
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                />
-              </svg>
-              <span>Pinned Stance</span>
-            </div>
-            <p className="text-gray-700">Stance ID: {profilePage.pinned_stance_id}</p>
-          </div>
-        )}
       </div>
 
       {/* Stances Grid */}
       <div className="mb-8">
-        <UserStancesGrid userId={userId} />
+        <UserStancesGrid userId={userId} pinnedStanceId={profilePage.pinned_stance_id} />
       </div>
     </div>
+  </main>
   );
 }

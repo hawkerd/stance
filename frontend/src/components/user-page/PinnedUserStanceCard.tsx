@@ -1,58 +1,46 @@
 "use client";
 
 import React from "react";
-import { PaginatedStancesByUserStance } from "@/models";
+import { StanceFeedStance } from "@/models";
 import { useRouter } from "next/navigation";
 
-interface UserStanceCardProps {
-  stance: PaginatedStancesByUserStance;
+interface PinnedUserStanceCardProps {
+  stance: StanceFeedStance;
 }
 
-export default function UserStanceCard({ stance }: UserStanceCardProps) {
+export default function PinnedUserStanceCard({ stance }: PinnedUserStanceCardProps) {
   const router = useRouter();
-
-  // Navigate to stance page
-  const handleCardClick = (e: React.MouseEvent) => {
-    router.push(`/stances/${stance.id}`);
-  };
-
-  // Navigate to entity page
-  const handleEntityClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    router.push(`/entities/${stance.entity.id}`);
-  };
 
   return (
     <div
-      onClick={handleCardClick}
-      className="aspect-square bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer overflow-hidden group"
+      className="w-full h-full bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer flex flex-row overflow-hidden group min-h-[180px]"
+      onClick={() => router.push(`/stances/${stance.id}`)}
+      tabIndex={0}
+      role="button"
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') router.push(`/stances/${stance.id}`); }}
     >
-      <div className="h-full p-4 flex flex-col">
-        {/* Entity info */}
-        <div
-          className="flex items-center gap-2 mb-3 cursor-pointer transition-colors rounded hover:bg-purple-50/80 hover:text-purple-700 group/entity px-1 -mx-1"
-          onClick={handleEntityClick}
-        >
-          <div className="w-8 h-8 rounded bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-xs font-bold flex-shrink-0 group-hover/entity:ring-2 group-hover/entity:ring-purple-300 transition">
-            {stance.entity.title.charAt(0).toUpperCase()}
-          </div>
-          <span className="text-sm font-medium text-gray-700 truncate group-hover/entity:text-purple-700 transition-colors">
-            {stance.entity.title}
-          </span>
+      {/* Entity info and badge */}
+      <div className="flex flex-col items-center justify-center px-6 py-4 bg-purple-50 border-r border-purple-100 min-w-[120px] relative">
+        <div className="absolute top-2 left-2 z-10">
+          <span className="bg-purple-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">Pinned</span>
         </div>
-
-        {/* Headline */}
-        <h3 className="text-base font-semibold text-gray-900 mb-2 line-clamp-3 group-hover:text-purple-600 transition-colors">
+        <div className="w-10 h-10 rounded bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-lg font-bold mb-2">
+          {stance.entity?.title?.charAt(0).toUpperCase()}
+        </div>
+        <span className="text-xs font-medium text-gray-700 text-center line-clamp-2 max-w-[80px]">
+          {stance.entity?.title}
+        </span>
+      </div>
+      {/* Main content */}
+      <div className="flex-1 flex flex-col justify-between p-4">
+        <h3 className="text-base font-semibold text-gray-900 mb-1 line-clamp-2 group-hover:text-purple-600 transition-colors">
           {stance.headline}
         </h3>
-
-        {/* Content preview - parse JSON and show first bit of text */}
-        <div className="flex-1 overflow-hidden mb-3">
-          <p className="text-sm text-gray-600 line-clamp-3">
+        <div className="flex-1 overflow-hidden mb-2">
+          <p className="text-sm text-gray-600 line-clamp-2">
             {(() => {
               try {
                 const content = JSON.parse(stance.content_json);
-                // Extract text from TipTap JSON structure
                 const getText = (node: any): string => {
                   if (node.type === 'text') return node.text || '';
                   if (node.content) {
@@ -67,8 +55,6 @@ export default function UserStanceCard({ stance }: UserStanceCardProps) {
             })()}
           </p>
         </div>
-
-        {/* Footer with stats */}
         <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-2">
           {/* Rating */}
           <div className="flex items-center gap-2 flex-1">
@@ -86,7 +72,6 @@ export default function UserStanceCard({ stance }: UserStanceCardProps) {
               <span className="text-gray-400 text-[10px]">No ratings</span>
             )}
           </div>
-
           {/* Comments */}
           <div className="flex items-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

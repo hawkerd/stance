@@ -166,13 +166,30 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get Stance Endpoint */
-        get: operations["get_stance_endpoint_stances__stance_id__get"];
+        /** Get Stance Basic Endpoint */
+        get: operations["get_stance_basic_endpoint_stances__stance_id__get"];
         /** Update Stance Endpoint */
         put: operations["update_stance_endpoint_stances__stance_id__put"];
         post?: never;
         /** Delete Stance Endpoint */
         delete: operations["delete_stance_endpoint_stances__stance_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stances/{stance_id}/page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stance Endpoint */
+        get: operations["get_stance_endpoint_stances__stance_id__page_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1035,6 +1052,7 @@ export interface components {
             /** Id */
             id: number;
             user: components["schemas"]["StanceFeedUser"];
+            entity: components["schemas"]["StanceFeedEntity"];
             /** Headline */
             headline: string;
             /** Content Json */
@@ -1049,9 +1067,12 @@ export interface components {
             my_rating: number | null;
             /** Tags */
             tags: components["schemas"]["StanceFeedTag"][];
-            entity?: components["schemas"]["StanceFeedEntity"] | null;
             /** Created At */
             created_at: string;
+        };
+        /** StanceFeedStanceResponse */
+        StanceFeedStanceResponse: {
+            stance: components["schemas"]["StanceFeedStance"];
         };
         /** StanceFeedTag */
         StanceFeedTag: {
@@ -1513,7 +1534,7 @@ export interface operations {
             };
         };
     };
-    get_stance_endpoint_stances__stance_id__get: {
+    get_stance_basic_endpoint_stances__stance_id__get: {
         parameters: {
             query?: never;
             header?: never;
@@ -1597,6 +1618,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StanceDeleteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stance_endpoint_stances__stance_id__page_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceFeedStanceResponse"];
                 };
             };
             /** @description Validation Error */
