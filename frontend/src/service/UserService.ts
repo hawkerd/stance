@@ -1,6 +1,6 @@
 import { AxiosInstance } from "axios";
-import { usersApi } from "@/api";
-import { User } from "@/models/index";
+import { usersApi, profilesApi } from "@/api";
+import { User, ProfilePage, PaginatedStancesByUserStance } from "@/models/index";
 
 export class UserService {
 	async getCurrentUser(api: AxiosInstance): Promise<User> {
@@ -28,5 +28,21 @@ export class UserService {
 	async deleteUser(api: AxiosInstance, userId: number): Promise<boolean> {
 		const response = await usersApi.deleteUser(api, userId);
 		return response.success ?? true;
+	}
+
+	async getProfilePage(api: AxiosInstance, userId: number): Promise<ProfilePage> {
+		const response = await profilesApi.getProfilePage(api, userId);
+		const profilePage: ProfilePage = {
+			username: response.username,
+			bio: response.bio,
+			avatar_url: response.avatar_url,
+			pinned_stance_id: response.pinned_stance_id,
+		};
+		return profilePage;
+	}
+
+	async getStancesByUser(api: AxiosInstance, userId: number, cursor?: string): Promise<{stances: PaginatedStancesByUserStance[], next_cursor?: string}> {
+		const response = await usersApi.getStancesByUser(api, userId, 10, cursor);
+		return {stances: response.stances, next_cursor: response.next_cursor || undefined};
 	}
 }

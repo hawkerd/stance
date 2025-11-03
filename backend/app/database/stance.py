@@ -157,3 +157,13 @@ def get_stances_by_entity_paginated(db: Session, entity_ids: List[int], limit: i
     except Exception as e:
         logging.error(f"Error getting paginated stances: {e}")
         raise DatabaseError("Failed to get paginated stances")
+    
+def get_stances_by_user_paginated(db: Session, user_id: int, limit: int, cursor: Optional[str]) -> List[Stance]:
+    try:
+        query = db.query(Stance).filter(Stance.user_id == user_id)
+        if cursor:
+            query = query.filter(Stance.created_at < cursor)
+        return query.order_by(Stance.created_at.desc(), Stance.id.desc()).limit(limit).all()
+    except Exception as e:
+        logging.error(f"Error getting paginated stances for user {user_id}: {e}")
+        raise DatabaseError("Failed to get paginated stances by user")

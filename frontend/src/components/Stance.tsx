@@ -154,7 +154,9 @@ const Stance: React.FC<StanceProps> = ({ stance, onAddComment }) => {
       {/* Stance content */}
       {stance.content_json && (
         <div className="mb-4">
-          <StanceContentRenderer content_json={stance.content_json} />
+          <div className="tiptap text-base">
+            <StanceContentRenderer content_json={stance.content_json} />
+          </div>
         </div>
       )}
 

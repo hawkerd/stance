@@ -15,7 +15,8 @@ import {
   StanceRateResponse,
   ReadStanceRatingResponse,
   NumRatingsResponse,
-  CommentListResponse
+  CommentListResponse,
+  StanceFeedStanceResponse
 } from "@/api/stances";
 
 export class StanceService {
@@ -77,6 +78,11 @@ export class StanceService {
       num_ratings: 0,
     };
     return stance;
+  }
+
+  async getStancePage(api: AxiosInstance, stanceId: number): Promise<StanceFeedStance> {
+    const response: StanceFeedStanceResponse = await stancesApi.getStancePage(api, stanceId);
+    return response.stance;
   }
 
   async getAllStances(api: AxiosInstance): Promise<Stance[]> {

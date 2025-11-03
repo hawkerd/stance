@@ -82,7 +82,7 @@ export default function EntityFeed() {
   }
 
   return (
-    <div className="w-full max-w-4xl space-y-8">
+  <div className="w-full max-w-3xl space-y-10">
       {error && <div className="text-red-500 text-center font-medium">{error}</div>}
 
       {entities.map(entity => (
@@ -92,7 +92,6 @@ export default function EntityFeed() {
           ) : entity.type === EntityType.ISSUE ? (
             <IssueCard issue={entity as EntityFeedIssue} />
           ) : null}
-          <div className="border-t border-gray-200 w-[90%] mx-auto" />
         </div>
       ))}
 
