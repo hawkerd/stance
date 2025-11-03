@@ -26,6 +26,21 @@ export async function createEntity(
 }
 
 /**
+ * Fetch the home feed data with cursor-based pagination
+ */
+export async function getFeed(
+  api: AxiosInstance,
+  num_entities: number,
+  num_stances_per_entity: number,
+  cursor?: string
+): Promise<EntityFeedResponse> {
+  const res = await api.get<EntityFeedResponse>("/entities/feed", {
+    params: { num_entities, num_stances_per_entity, cursor }
+  });
+  return res.data;
+}
+
+/**
  * Fetch a single entity by ID
  */
 export async function getEntity(
@@ -64,43 +79,5 @@ export async function deleteEntity(
  */
 export async function listEntities(api: AxiosInstance): Promise<EntityListResponse> {
   const res = await api.get<EntityListResponse>("/entities");
-  return res.data;
-}
-
-/**
- * Fetch the current user's stance for a specific entity.
- */
-export async function getMyStanceForEntity(
-  api: AxiosInstance,
-  entityId: number
-): Promise<PaginatedStancesByEntityStanceResponse | null> {
-  const res = await api.get<PaginatedStancesByEntityStanceResponse | null>(`/entities/${entityId}/stances/me`);
-  return res.data;
-}
-
-/**
- * Fetch the home feed data with cursor-based pagination
- */
-export async function getFeed(
-  api: AxiosInstance,
-  num_entities: number,
-  num_stances_per_entity: number,
-  cursor?: string
-): Promise<EntityFeedResponse> {
-  const res = await api.get<EntityFeedResponse>("/entities/feed", {
-    params: { num_entities, num_stances_per_entity, cursor }
-  });
-  return res.data;
-}
-
-/**
- * Get stances for a specific entity, paginated
- */
-export async function getStancesByEntity(
-  api: AxiosInstance,
-  entityId: number,
-  payload: PaginatedStanceByEntityRequest
-): Promise<PaginatedStancesByEntityResponse> {
-  const res = await api.post<PaginatedStancesByEntityResponse>(`/entities/${entityId}/stances`, payload);
   return res.data;
 }

@@ -4,7 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import StanceCard from "@/components/entity-page/EntityStanceCard";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { PaginatedStancesByEntityStance } from "@/models";
-import { EntityService } from "@/service/EntityService";
+import { StanceService } from "@/service/StanceService";
 import { useRouter } from "next/navigation";
 import { useInfiniteScroll } from "@/app/hooks/useInfiniteScroll";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,7 +24,7 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
   const [nextCursorId, setNextCursorId] = useState<number | null>(null);
 
   const API = useAuthApi();
-  const entityService = new EntityService();
+  const stanceService = new StanceService();
   const router = useRouter();
   const { isAuthenticated, initialized } = useAuth();
 
@@ -34,7 +34,7 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
 
     async function fetchUserStance() {
       try {
-        const response = await entityService.getMyStanceForEntity(API, entityId);
+        const response = await stanceService.getMyStanceForEntity(API, entityId);
         if (response) {
           setUserStance(response);
         }
@@ -51,7 +51,7 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
     async function initialFetch() {
       try {
         setLoading(true);
-        const response = await entityService.getStancesByEntity(API, entityId);
+        const response = await stanceService.getStancesByEntity(API, entityId);
         setStances(response.stances);
         setNextCursorScore(response.nextCursorScore);
         setNextCursorId(response.nextCursorId);
@@ -74,7 +74,7 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
       
       setLoadingMore(true);
 
-      const newStances = await entityService.getStancesByEntity(
+      const newStances = await stanceService.getStancesByEntity(
         API,
         entityId,
         {
@@ -119,6 +119,14 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
     return null;
   }
 
+  // Handler to navigate to stance page with entityId
+  const handleStanceClick = (stanceId: number) => {
+    router.push(`/entities/${entityId}/stances/${stanceId}`);
+  };
+  const handleUserClick = (userId: number) => {
+    router.push(`/users/${userId}`);
+  }
+
   return (
     <div className="w-full">
       {/* Grid of stance cards */}
@@ -129,6 +137,8 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
             key={userStance.id}
             stance={userStance}
             isUserStance={true}
+            onStanceClick={() => handleStanceClick(userStance.id)}
+            onUserClick={() => handleUserClick(userStance.user.id)}
           />
         )}
         {/* Rest of the stances, filtering out the user's stance if it's already shown */}
@@ -138,6 +148,8 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
             <StanceCard
               key={stance.id}
               stance={stance}
+              onStanceClick={() => handleStanceClick(stance.id)}
+              onUserClick={() => handleUserClick(stance.user.id)}
             />
           ))}
       </div>

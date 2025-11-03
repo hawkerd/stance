@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import Optional
 
 class CommentCreateRequest(BaseModel):
-    stance_id: int
     content: str
     parent_id: Optional[int] = None
 
@@ -39,3 +38,12 @@ class CommentDeleteResponse(BaseModel):
 
 class CommentListResponse(BaseModel):
     comments: list[CommentReadResponse]
+
+class CommentReactionCreateRequest(BaseModel):
+    is_like: bool
+
+class CommentReactionReadResponse(BaseModel):
+    id: int
+    user_id: int
+    comment_id: int
+    is_like: bool

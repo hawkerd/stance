@@ -94,7 +94,7 @@ export default function ProfilePage({ userId }: ProfilePageProps) {
 
       {/* Stances Grid */}
       <div className="mb-8">
-        <UserStancesGrid userId={userId} pinnedStanceId={profilePage.pinned_stance_id} />
+        <UserStancesGrid userId={userId} pinnedStanceDetails={{ entityId: profilePage.pinned_stance_entity_id || undefined, stanceId: profilePage.pinned_stance_id || undefined }} />
       </div>
     </div>
   </main>

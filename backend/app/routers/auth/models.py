@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 
 class SignupRequest(BaseModel):
     username: str
@@ -30,6 +29,3 @@ class RefreshResponse(BaseModel):
 
 class LogoutRequest(BaseModel):
     refresh_token: str
-
-class LogoutResponse(BaseModel):
-    success: bool

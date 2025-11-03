@@ -13,7 +13,7 @@ export default function UserStanceCard({ stance }: UserStanceCardProps) {
 
   // Navigate to stance page
   const handleCardClick = (e: React.MouseEvent) => {
-    router.push(`/stances/${stance.id}`);
+    router.push(`/entities/${stance.entity.id}/stances/${stance.id}`);
   };
 
   // Navigate to entity page

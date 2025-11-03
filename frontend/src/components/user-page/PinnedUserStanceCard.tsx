@@ -14,10 +14,10 @@ export default function PinnedUserStanceCard({ stance }: PinnedUserStanceCardPro
   return (
     <div
       className="w-full h-full bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer flex flex-row overflow-hidden group min-h-[180px]"
-      onClick={() => router.push(`/stances/${stance.id}`)}
+      onClick={() => router.push(`/entities/${stance.entity.id}/stances/${stance.id}`)}
       tabIndex={0}
       role="button"
-      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') router.push(`/stances/${stance.id}`); }}
+      onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') router.push(`/entities/${stance.entity.id}/stances/${stance.id}`); }}
     >
       {/* Entity info and badge */}
       <div className="flex flex-col items-center justify-center px-6 py-4 bg-purple-50 border-r border-purple-100 min-w-[120px] relative">

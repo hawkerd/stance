@@ -28,7 +28,7 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
     setRatingSubmitting(true);
     setRatingError(null);
     try {
-      await stanceService.rateStance(API, stance.id, rating);
+      await stanceService.rateStance(API, stance.entity.id, stance.id, rating);
       if (selectedRating === null) {
         let newNumRatings = localNumRatings + 1;
         let newAverage = localAverageRating !== null
@@ -54,7 +54,7 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
     setRatingSubmitting(true);
     setRatingError(null);
     try {
-      await stanceService.rateStance(API, stance.id, null);
+      await stanceService.rateStance(API, stance.entity.id, stance.id, null);
       if (localNumRatings > 1 && localAverageRating !== null && selectedRating !== null) {
         let newNumRatings = localNumRatings - 1;
         let newAverage = newNumRatings > 0 ? ((localAverageRating * localNumRatings - selectedRating) / newNumRatings) : null;
@@ -144,6 +144,7 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
 
       {/* Comments Modal */}
       <CommentsModal
+        entityId={stance.entity.id}
         stanceId={stance.id}
         isOpen={isCommentsModalOpen}
         onClose={() => setIsCommentsModalOpen(false)}

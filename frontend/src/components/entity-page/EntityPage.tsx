@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState, use } from "react";
-import { StanceFeedStance, Entity, EntityType } from "@/models";
+import { StanceFeedStance, Entity, EntityType, PaginatedStancesByEntityStance } from "@/models";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import StanceCreateModal from "@/components/modals/StanceCreateModal";
 import { EntityService } from "@/service/EntityService";
+import { StanceService } from "@/service/StanceService";
 import EntityStancesGrid from "@/components/entity-page/EntityStancesGrid";
 import EntityFeedTagComponent from "@/components/entity-feed/EntityFeedTag";
 
@@ -28,6 +29,7 @@ export default function EntityPage({ params }: EntityPageProps) {
     const API = useAuthApi();
     const { isAuthenticated } = useAuth();
     const entityService = new EntityService();
+    const stanceService = new StanceService();
 
     // fetch entity details
     useEffect(() => {
@@ -54,7 +56,7 @@ export default function EntityPage({ params }: EntityPageProps) {
                 return;
             }
             try {
-                const userStanceResponse: StanceFeedStance | null = await entityService.getMyStanceForEntity(API, parseInt(entity_id));
+                const userStanceResponse: PaginatedStancesByEntityStance | null = await stanceService.getMyStanceForEntity(API, parseInt(entity_id));
                 if (userStanceResponse === null) {
                     setHasUserStance(false);
                     return;

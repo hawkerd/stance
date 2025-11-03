@@ -5,11 +5,12 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.dependencies import get_db
 import logging
-from app.routers import (
-    users, auth, stances, demographics, profiles, 
-    comments, comment_reactions, images, entities
-)
-
+from app.api.comments import router as comments_router
+from app.api.auth import router as auth_router
+from app.api.entities import router as entities_router
+from app.api.stances import stance_router, user_stances_router, entity_stances_router
+from app.api.images import router as images_router
+from app.api.users import router as users_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -28,12 +29,11 @@ app.add_middleware(
     allow_headers=["*"],        # Allow all headers
 )
 
-app.include_router(users.router)
-app.include_router(auth.router)
-app.include_router(stances.router)
-app.include_router(demographics.router)
-app.include_router(profiles.router)
-app.include_router(comments.router)
-app.include_router(entities.router)
-app.include_router(comment_reactions.router)
-app.include_router(images.router)
+app.include_router(entities_router.router)
+app.include_router(stance_router.router)
+app.include_router(user_stances_router.router)
+app.include_router(entity_stances_router.router)
+app.include_router(users_router.router)
+app.include_router(auth_router.router)
+app.include_router(comments_router.router)
+app.include_router(images_router.router)

@@ -8,12 +8,14 @@ import { useAuth } from "../contexts/AuthContext";
 import { CommentService } from "@/service/CommentService";
 
 interface CommentReplyProps {
+    entityId: number;
+    stanceId: number;
     isDirectChild: boolean;
     reply: Comment;
     setSelectedCommentId?: (id: number) => void;
 }
 
-const CommentReply: React.FC<CommentReplyProps> = ({ reply, isDirectChild, setSelectedCommentId }) => {
+const CommentReply: React.FC<CommentReplyProps> = ({ entityId, stanceId, reply, isDirectChild, setSelectedCommentId }) => {
   const api = useAuthApi();
   const { isAuthenticated } = useAuth();
   const [likes, setLikes] = useState(reply.likes);
@@ -28,11 +30,11 @@ const CommentReply: React.FC<CommentReplyProps> = ({ reply, isDirectChild, setSe
     try {
       if (userReaction === (isLike ? "like" : "dislike")) {
         setUserReaction(null);
-        await commentService.removeCommentReaction(api, reply.id);
+        await commentService.removeCommentReaction(api, entityId, stanceId, reply.id);
         if (isLike) setLikes(likes - 1);
         else setDislikes(dislikes - 1);
       } else {
-        await commentService.reactToComment(api, reply.id, isLike);
+        await commentService.reactToComment(api, entityId, stanceId, reply.id, isLike);
         if (isLike) {
           setUserReaction("like");
           setLikes(likes + 1);

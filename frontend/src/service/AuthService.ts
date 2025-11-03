@@ -6,8 +6,7 @@ import {
   TokenResponse,
   RefreshRequest,
   RefreshResponse,
-  LogoutRequest,
-  LogoutResponse
+  LogoutRequest
 } from "@/api/auth";
 import { authApi } from "@/api";
 import { User } from "@/models/index";
@@ -45,7 +44,7 @@ export class AuthService {
 
   async logout(api: AxiosInstance, refreshToken: string): Promise<boolean> {
     const request: LogoutRequest = { refresh_token: refreshToken };
-    const response: LogoutResponse = await authApi.logout(api, request);
-    return response.success ?? true;
+    const response: boolean = await authApi.logout(api, request);
+    return response;
   }
 }

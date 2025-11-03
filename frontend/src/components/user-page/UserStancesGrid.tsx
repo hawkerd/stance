@@ -14,10 +14,13 @@ import { StanceService } from "@/service/StanceService";
 
 interface UserStancesGridProps {
   userId: number;
-  pinnedStanceId?: number | null;
+  pinnedStanceDetails: {
+    entityId?: number;
+    stanceId?: number;
+  }
 }
 
-export default function UserStancesGrid({ userId, pinnedStanceId }: UserStancesGridProps) {
+export default function UserStancesGrid({ userId, pinnedStanceDetails }: UserStancesGridProps) {
   const [stances, setStances] = useState<PaginatedStancesByUserStance[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(true);
@@ -34,24 +37,24 @@ export default function UserStancesGrid({ userId, pinnedStanceId }: UserStancesG
 
   // Fetch pinned stance if provided
   useEffect(() => {
-    if (!pinnedStanceId) {
+    if (!pinnedStanceDetails.entityId || !pinnedStanceDetails.stanceId) {
       setPinnedStance(null);
       return;
     }
     setLoadingPinned(true);
-    stanceService.getStancePage(API, pinnedStanceId)
+    stanceService.getStancePage(API, pinnedStanceDetails.entityId, pinnedStanceDetails.stanceId)
       .then((stance) => setPinnedStance(stance))
       .catch(() => setPinnedStance(null))
       .finally(() => setLoadingPinned(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pinnedStanceId]);
+  }, [pinnedStanceDetails]);
 
   // Initial fetch
   useEffect(() => {
     async function initialFetch() {
       try {
         setLoading(true);
-        const response = await userService.getStancesByUser(API, userId);
+        const response = await stanceService.getStancesByUser(API, userId);
         setStances(response.stances);
         if (response.next_cursor) {
           setNextCursor(response.next_cursor);
@@ -74,7 +77,7 @@ export default function UserStancesGrid({ userId, pinnedStanceId }: UserStancesG
       
       setLoadingMore(true);
 
-      const stancesResponse = await userService.getStancesByUser(API, userId, nextCursor);
+      const stancesResponse = await stanceService.getStancesByUser(API, userId, nextCursor);
       
       setStances((prev) => [...prev, ...stancesResponse.stances]);
       

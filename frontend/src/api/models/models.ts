@@ -4,6 +4,249 @@
  */
 
 export interface paths {
+    "/entities/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get All Entities Endpoint */
+        get: operations["get_all_entities_endpoint_entities__get"];
+        put?: never;
+        /** Create Entity Endpoint */
+        post: operations["create_entity_endpoint_entities__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Home Feed */
+        get: operations["get_home_feed_entities_feed_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Entity Endpoint */
+        get: operations["get_entity_endpoint_entities__entity_id__get"];
+        /** Update Entity Endpoint */
+        put: operations["update_entity_endpoint_entities__entity_id__put"];
+        post?: never;
+        /** Delete Entity Endpoint */
+        delete: operations["delete_entity_endpoint_entities__entity_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stances/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stances Endpoint */
+        get: operations["get_stances_endpoint_stances__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stances/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get Stance Feed Endpoint */
+        post: operations["get_stance_feed_endpoint_stances_feed_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/stances/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get Stances By User Paginated Endpoint */
+        post: operations["get_stances_by_user_paginated_endpoint_users__user_id__stances_feed_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/{stance_id}/my-rating": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Stance Rating Endpoint */
+        get: operations["get_my_stance_rating_endpoint_entities__entity_id__stances__stance_id__my_rating_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create Stance Endpoint */
+        post: operations["create_stance_endpoint_entities__entity_id__stances__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/{stance_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stance Basic Endpoint */
+        get: operations["get_stance_basic_endpoint_entities__entity_id__stances__stance_id__get"];
+        /** Update Stance Endpoint */
+        put: operations["update_stance_endpoint_entities__entity_id__stances__stance_id__put"];
+        post?: never;
+        /** Delete Stance Endpoint */
+        delete: operations["delete_stance_endpoint_entities__entity_id__stances__stance_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/{stance_id}/page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Stance Endpoint */
+        get: operations["get_stance_endpoint_entities__entity_id__stances__stance_id__page_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/{stance_id}/rate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rate Stance Endpoint */
+        post: operations["rate_stance_endpoint_entities__entity_id__stances__stance_id__rate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/{stance_id}/num-ratings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Num Ratings Endpoint */
+        get: operations["get_num_ratings_endpoint_entities__entity_id__stances__stance_id__num_ratings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get Stances By Entity Paginated Endpoint */
+        post: operations["get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_feed_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Stance For Entity */
+        get: operations["get_my_stance_for_entity_entities__entity_id__stances_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/me": {
         parameters: {
             query?: never;
@@ -39,17 +282,55 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/users/{user_id}/stances": {
+    "/users/{user_id}/demographics": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** Get Demographic Endpoint */
+        get: operations["get_demographic_endpoint_users__user_id__demographics_get"];
+        /** Update Demographic Endpoint */
+        put: operations["update_demographic_endpoint_users__user_id__demographics_put"];
+        /** Create Demographic Endpoint */
+        post: operations["create_demographic_endpoint_users__user_id__demographics_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Profile Endpoint */
+        get: operations["get_profile_endpoint_users__user_id__profile_get"];
+        /** Update Profile Endpoint */
+        put: operations["update_profile_endpoint_users__user_id__profile_put"];
+        /** Create Profile Endpoint */
+        post: operations["create_profile_endpoint_users__user_id__profile_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/profile_page": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Profile Page Endpoint */
+        get: operations["get_profile_page_endpoint_users__user_id__profile_page_get"];
         put?: never;
-        /** Get Stances By User Paginated Endpoint */
-        post: operations["get_stances_by_user_paginated_endpoint_users__user_id__stances_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -124,201 +405,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/stances/{stance_id}/my-rating": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get My Stance Rating Endpoint */
-        get: operations["get_my_stance_rating_endpoint_stances__stance_id__my_rating_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Stances Endpoint */
-        get: operations["get_stances_endpoint_stances__get"];
-        put?: never;
-        /** Create Stance Endpoint */
-        post: operations["create_stance_endpoint_stances__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/{stance_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Stance Basic Endpoint */
-        get: operations["get_stance_basic_endpoint_stances__stance_id__get"];
-        /** Update Stance Endpoint */
-        put: operations["update_stance_endpoint_stances__stance_id__put"];
-        post?: never;
-        /** Delete Stance Endpoint */
-        delete: operations["delete_stance_endpoint_stances__stance_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/{stance_id}/page": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Stance Endpoint */
-        get: operations["get_stance_endpoint_stances__stance_id__page_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/{stance_id}/comments": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Comments By Stance Endpoint */
-        get: operations["get_comments_by_stance_endpoint_stances__stance_id__comments_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/{stance_id}/rate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Rate Stance Endpoint */
-        post: operations["rate_stance_endpoint_stances__stance_id__rate_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/{stance_id}/num-ratings": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Num Ratings Endpoint */
-        get: operations["get_num_ratings_endpoint_stances__stance_id__num_ratings_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/stances/feed": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get Stance Feed Endpoint */
-        post: operations["get_stance_feed_endpoint_stances_feed_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{user_id}/demographics": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Demographic Endpoint */
-        get: operations["get_demographic_endpoint_users__user_id__demographics_get"];
-        /** Update Demographic Endpoint */
-        put: operations["update_demographic_endpoint_users__user_id__demographics_put"];
-        /** Create Demographic Endpoint */
-        post: operations["create_demographic_endpoint_users__user_id__demographics_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{user_id}/profile": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Profile Endpoint */
-        get: operations["get_profile_endpoint_users__user_id__profile_get"];
-        /** Update Profile Endpoint */
-        put: operations["update_profile_endpoint_users__user_id__profile_put"];
-        /** Create Profile Endpoint */
-        post: operations["create_profile_endpoint_users__user_id__profile_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/users/{user_id}/profile_page": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Profile Page Endpoint */
-        get: operations["get_profile_page_endpoint_users__user_id__profile_page_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/comments": {
+    "/entities/{entity_id}/stances/{stance_id}/comments/": {
         parameters: {
             query?: never;
             header?: never;
@@ -328,14 +415,31 @@ export interface paths {
         get?: never;
         put?: never;
         /** Create Comment Endpoint */
-        post: operations["create_comment_endpoint_comments_post"];
+        post: operations["create_comment_endpoint_entities__entity_id__stances__stance_id__comments__post"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/comments/{comment_id}": {
+    "/entities/{entity_id}/stances/{stance_id}/comments/comments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Comments Endpoint */
+        get: operations["get_comments_endpoint_entities__entity_id__stances__stance_id__comments_comments_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/entities/{entity_id}/stances/{stance_id}/comments/{comment_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -343,18 +447,18 @@ export interface paths {
             cookie?: never;
         };
         /** Get Comment Endpoint */
-        get: operations["get_comment_endpoint_comments__comment_id__get"];
+        get: operations["get_comment_endpoint_entities__entity_id__stances__stance_id__comments__comment_id__get"];
         /** Update Comment Endpoint */
-        put: operations["update_comment_endpoint_comments__comment_id__put"];
+        put: operations["update_comment_endpoint_entities__entity_id__stances__stance_id__comments__comment_id__put"];
         post?: never;
         /** Delete Comment Endpoint */
-        delete: operations["delete_comment_endpoint_comments__comment_id__delete"];
+        delete: operations["delete_comment_endpoint_entities__entity_id__stances__stance_id__comments__comment_id__delete"];
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/comments/{comment_id}/replies": {
+    "/entities/{entity_id}/stances/{stance_id}/comments/{comment_id}/replies": {
         parameters: {
             query?: never;
             header?: never;
@@ -362,7 +466,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get Comment Replies Endpoint */
-        get: operations["get_comment_replies_endpoint_comments__comment_id__replies_get"];
+        get: operations["get_comment_replies_endpoint_entities__entity_id__stances__stance_id__comments__comment_id__replies_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -371,95 +475,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/entities/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get All Entities Endpoint */
-        get: operations["get_all_entities_endpoint_entities__get"];
-        put?: never;
-        /** Create Entity Endpoint */
-        post: operations["create_entity_endpoint_entities__post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/feed": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Home Feed */
-        get: operations["get_home_feed_entities_feed_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/{entity_id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get Entity Endpoint */
-        get: operations["get_entity_endpoint_entities__entity_id__get"];
-        /** Update Entity Endpoint */
-        put: operations["update_entity_endpoint_entities__entity_id__put"];
-        post?: never;
-        /** Delete Entity Endpoint */
-        delete: operations["delete_entity_endpoint_entities__entity_id__delete"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/{entity_id}/stances": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Get Stances By Entity Paginated Endpoint */
-        post: operations["get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/{entity_id}/stances/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get My Stance For Event */
-        get: operations["get_my_stance_for_event_entities__entity_id__stances_me_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/comment-reactions/{comment_id}": {
+    "/entities/{entity_id}/stances/{stance_id}/comments/{comment_id}/reaction": {
         parameters: {
             query?: never;
             header?: never;
@@ -469,9 +485,9 @@ export interface paths {
         get?: never;
         put?: never;
         /** React To Comment */
-        post: operations["react_to_comment_comment_reactions__comment_id__post"];
+        post: operations["react_to_comment_entities__entity_id__stances__stance_id__comments__comment_id__reaction_post"];
         /** Remove Comment Reaction */
-        delete: operations["remove_comment_reaction_comment_reactions__comment_id__delete"];
+        delete: operations["remove_comment_reaction_entities__entity_id__stances__stance_id__comments__comment_id__reaction_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -500,17 +516,10 @@ export interface components {
     schemas: {
         /** CommentCreateRequest */
         CommentCreateRequest: {
-            /** Stance Id */
-            stance_id: number;
             /** Content */
             content: string;
             /** Parent Id */
             parent_id?: number | null;
-        };
-        /** CommentDeleteResponse */
-        CommentDeleteResponse: {
-            /** Success */
-            success: boolean;
         };
         /** CommentListResponse */
         CommentListResponse: {
@@ -519,17 +528,6 @@ export interface components {
         };
         /** CommentReactionCreateRequest */
         CommentReactionCreateRequest: {
-            /** Is Like */
-            is_like: boolean;
-        };
-        /** CommentReactionReadResponse */
-        CommentReactionReadResponse: {
-            /** Id */
-            id: number;
-            /** User Id */
-            user_id: number;
-            /** Comment Id */
-            comment_id: number;
             /** Is Like */
             is_like: boolean;
         };
@@ -788,11 +786,6 @@ export interface components {
             /** Refresh Token */
             refresh_token: string;
         };
-        /** LogoutResponse */
-        LogoutResponse: {
-            /** Success */
-            success: boolean;
-        };
         /** NumRatingsResponse */
         NumRatingsResponse: {
             /** Num Ratings */
@@ -904,6 +897,8 @@ export interface components {
             avatar_url: string | null;
             /** Pinned Stance Id */
             pinned_stance_id: number | null;
+            /** Pinned Stance Id Entity Id */
+            pinned_stance_id_entity_id: number | null;
         };
         /** ProfileReadResponse */
         ProfileReadResponse: {
@@ -977,8 +972,6 @@ export interface components {
         };
         /** StanceCreateRequest */
         StanceCreateRequest: {
-            /** Entity Id */
-            entity_id: number;
             /** Headline */
             headline: string;
             /** Content Json */
@@ -996,11 +989,6 @@ export interface components {
             headline: string;
             /** Content Json */
             content_json: string;
-        };
-        /** StanceDeleteResponse */
-        StanceDeleteResponse: {
-            /** Success */
-            success: boolean;
         };
         /** StanceFeedCursor */
         StanceFeedCursor: {
@@ -1167,11 +1155,6 @@ export interface components {
             /** Refresh Token */
             refresh_token: string;
         };
-        /** UserDeleteResponse */
-        UserDeleteResponse: {
-            /** Success */
-            success: boolean;
-        };
         /** UserReadResponse */
         UserReadResponse: {
             /** Id */
@@ -1201,6 +1184,608 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    get_all_entities_endpoint_entities__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntityListResponse"];
+                };
+            };
+        };
+    };
+    create_entity_endpoint_entities__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntityReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_home_feed_entities_feed_get: {
+        parameters: {
+            query?: {
+                num_entities?: number;
+                num_stances_per_entity?: number;
+                cursor?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntityFeedResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_entity_endpoint_entities__entity_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntityReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_entity_endpoint_entities__entity_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EntityUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntityUpdateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_entity_endpoint_entities__entity_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EntityDeleteResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stances_endpoint_stances__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceListResponse"];
+                };
+            };
+        };
+    };
+    get_stance_feed_endpoint_stances_feed_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceFeedRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceFeedResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stances_by_user_paginated_endpoint_users__user_id__stances_feed_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaginatedStancesByUserRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStancesByUserResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_stance_rating_endpoint_entities__entity_id__stances__stance_id__my_rating_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadStanceRatingResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_stance_endpoint_entities__entity_id__stances__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceCreateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceCreateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stance_basic_endpoint_entities__entity_id__stances__stance_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_stance_endpoint_entities__entity_id__stances__stance_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceUpdateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_stance_endpoint_entities__entity_id__stances__stance_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stance_endpoint_entities__entity_id__stances__stance_id__page_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceFeedStanceResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    rate_stance_endpoint_entities__entity_id__stances__stance_id__rate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceRateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceRateResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_num_ratings_endpoint_entities__entity_id__stances__stance_id__num_ratings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NumRatingsResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_feed_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaginatedStanceByEntityRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStancesByEntityResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_my_stance_for_entity_entities__entity_id__stances_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStancesByEntityStanceResponse"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_current_user_endpoint_users_me_get: {
         parameters: {
             query?: never;
@@ -1264,522 +1849,11 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["UserDeleteResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_stances_by_user_paginated_endpoint_users__user_id__stances_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                user_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PaginatedStancesByUserRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedStancesByUserResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    signup_auth_signup_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SignupRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SignupResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    login_auth_login_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LoginRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["TokenResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    refresh_token_auth_refresh_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RefreshRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["RefreshResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    logout_auth_logout_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["LogoutRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["LogoutResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_my_stance_rating_endpoint_stances__stance_id__my_rating_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                stance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ReadStanceRatingResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_stances_endpoint_stances__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceListResponse"];
-                };
-            };
-        };
-    };
-    create_stance_endpoint_stances__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StanceCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceCreateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_stance_basic_endpoint_stances__stance_id__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                stance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceReadResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_stance_endpoint_stances__stance_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                stance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StanceUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceUpdateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_stance_endpoint_stances__stance_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                stance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceDeleteResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_stance_endpoint_stances__stance_id__page_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                stance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceFeedStanceResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_comments_by_stance_endpoint_stances__stance_id__comments_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                stance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["CommentListResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    rate_stance_endpoint_stances__stance_id__rate_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                stance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StanceRateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceRateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_num_ratings_endpoint_stances__stance_id__num_ratings_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                stance_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NumRatingsResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_stance_feed_endpoint_stances_feed_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["StanceFeedRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["StanceFeedResponse"];
-                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -2025,11 +2099,144 @@ export interface operations {
             };
         };
     };
-    create_comment_endpoint_comments_post: {
+    signup_auth_signup_post: {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignupRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SignupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    login_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    refresh_token_auth_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    logout_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LogoutRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_comment_endpoint_entities__entity_id__stances__stance_id__comments__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
+            };
             cookie?: never;
         };
         requestBody: {
@@ -2058,11 +2265,45 @@ export interface operations {
             };
         };
     };
-    get_comment_endpoint_comments__comment_id__get: {
+    get_comments_endpoint_entities__entity_id__stances__stance_id__comments_comments_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
+                entity_id: number;
+                stance_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommentListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_comment_endpoint_entities__entity_id__stances__stance_id__comments__comment_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+                stance_id: number;
                 comment_id: number;
             };
             cookie?: never;
@@ -2089,11 +2330,13 @@ export interface operations {
             };
         };
     };
-    update_comment_endpoint_comments__comment_id__put: {
+    update_comment_endpoint_entities__entity_id__stances__stance_id__comments__comment_id__put: {
         parameters: {
             query?: never;
             header?: never;
             path: {
+                entity_id: number;
+                stance_id: number;
                 comment_id: number;
             };
             cookie?: never;
@@ -2124,11 +2367,13 @@ export interface operations {
             };
         };
     };
-    delete_comment_endpoint_comments__comment_id__delete: {
+    delete_comment_endpoint_entities__entity_id__stances__stance_id__comments__comment_id__delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
+                entity_id: number;
+                stance_id: number;
                 comment_id: number;
             };
             cookie?: never;
@@ -2136,13 +2381,11 @@ export interface operations {
         requestBody?: never;
         responses: {
             /** @description Successful Response */
-            200: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content: {
-                    "application/json": components["schemas"]["CommentDeleteResponse"];
-                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -2155,11 +2398,13 @@ export interface operations {
             };
         };
     };
-    get_comment_replies_endpoint_comments__comment_id__replies_get: {
+    get_comment_replies_endpoint_entities__entity_id__stances__stance_id__comments__comment_id__replies_get: {
         parameters: {
             query?: never;
             header?: never;
             path: {
+                entity_id: number;
+                stance_id: number;
                 comment_id: number;
             };
             cookie?: never;
@@ -2186,260 +2431,13 @@ export interface operations {
             };
         };
     };
-    get_all_entities_endpoint_entities__get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntityListResponse"];
-                };
-            };
-        };
-    };
-    create_entity_endpoint_entities__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EntityCreateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntityReadResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_home_feed_entities_feed_get: {
-        parameters: {
-            query?: {
-                num_entities?: number;
-                num_stances_per_entity?: number;
-                cursor?: string | null;
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntityFeedResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_entity_endpoint_entities__entity_id__get: {
+    react_to_comment_entities__entity_id__stances__stance_id__comments__comment_id__reaction_post: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntityReadResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    update_entity_endpoint_entities__entity_id__put: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EntityUpdateRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntityUpdateResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    delete_entity_endpoint_entities__entity_id__delete: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EntityDeleteResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PaginatedStanceByEntityRequest"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedStancesByEntityResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_my_stance_for_event_entities__entity_id__stances_me_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedStancesByEntityStanceResponse"] | null;
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    react_to_comment_comment_reactions__comment_id__post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
+                stance_id: number;
                 comment_id: number;
             };
             cookie?: never;
@@ -2451,12 +2449,12 @@ export interface operations {
         };
         responses: {
             /** @description Successful Response */
-            200: {
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CommentReactionReadResponse"];
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -2470,11 +2468,13 @@ export interface operations {
             };
         };
     };
-    remove_comment_reaction_comment_reactions__comment_id__delete: {
+    remove_comment_reaction_entities__entity_id__stances__stance_id__comments__comment_id__reaction_delete: {
         parameters: {
             query?: never;
             header?: never;
             path: {
+                entity_id: number;
+                stance_id: number;
                 comment_id: number;
             };
             cookie?: never;

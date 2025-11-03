@@ -1,44 +1,49 @@
 import { AxiosInstance } from "axios";
 import {
-    CommentReactionCreateRequest,
-    CommentReactionReadResponse,
-} from "@/api/comment_reactions";
-import {
     CommentCreateRequest,
     CommentReadResponse,
     CommentUpdateRequest,
     CommentUpdateResponse,
-    CommentDeleteResponse,
+    CommentReactionCreateRequest,
     CommentListResponse
 } from "@/api/comments";
-import { commentReactionsApi } from "@/api";
 import { commentsApi } from "@/api";
 import { Comment } from "@/models/index";
 
 export class CommentService {
+
     async reactToComment(
         api: AxiosInstance,
+        entityId: number,
+        stanceId: number,
         commentId: number,
         like: boolean
     ): Promise<boolean> {
         const request: CommentReactionCreateRequest = { is_like: like };
-        const response: CommentReactionReadResponse = await commentReactionsApi.reactToComment(api, commentId, request);
-        return true;
+        return await commentsApi.reactToComment(api, entityId, stanceId, commentId, request);
     }
 
-    async removeCommentReaction(api: AxiosInstance, commentId: number): Promise<void> {
-        await commentReactionsApi.removeCommentReaction(api, commentId);
+
+    async removeCommentReaction(
+        api: AxiosInstance,
+        entityId: number,
+        stanceId: number,
+        commentId: number
+    ): Promise<boolean> {
+        return await commentsApi.removeCommentReaction(api, entityId, stanceId, commentId);
     }
+
 
     async createComment(
         api: AxiosInstance,
+        entityId: number,
         stanceId: number,
         content: string,
         parentCommentId?: number
     ): Promise<Comment> {
-        const request: CommentCreateRequest = { stance_id: stanceId, content, parent_id: parentCommentId };
-        const response: CommentReadResponse = await commentsApi.createComment(api, request);
-        const comment: Comment = {
+        const request: CommentCreateRequest = { content, parent_id: parentCommentId };
+        const response: CommentReadResponse = await commentsApi.createComment(api, entityId, stanceId, request);
+        return {
             id: response.id,
             user_id: response.user_id,
             parent_id: response.parent_id ?? undefined,
@@ -48,12 +53,34 @@ export class CommentService {
             count_nested_replies: response.count_nested,
             user_reaction: response.user_reaction as "like" | "dislike" | null
         };
-        return comment;
     }
 
-    async getComment(api: AxiosInstance, commentId: number): Promise<Comment> {
-        const response: CommentReadResponse = await commentsApi.getComment(api, commentId);
-        const comment: Comment = {
+    async getComments(
+        api: AxiosInstance,
+        entityId: number,
+        stanceId: number
+    ): Promise<Comment[]> {
+        const response: CommentListResponse = await commentsApi.getComments(api, entityId, stanceId);
+        return response.comments.map(comment => ({
+            id: comment.id,
+            user_id: comment.user_id,
+            parent_id: comment.parent_id ?? undefined,
+            content: comment.content,
+            likes: comment.likes,
+            dislikes: comment.dislikes,
+            count_nested_replies: comment.count_nested,
+            user_reaction: comment.user_reaction as "like" | "dislike" | null
+        }));
+    }
+
+    async getComment(
+        api: AxiosInstance,
+        entityId: number,
+        stanceId: number,
+        commentId: number
+    ): Promise<Comment> {
+        const response: CommentReadResponse = await commentsApi.getComment(api, entityId, stanceId, commentId);
+        return {
             id: response.id,
             user_id: response.user_id,
             parent_id: response.parent_id ?? undefined,
@@ -63,18 +90,20 @@ export class CommentService {
             count_nested_replies: response.count_nested,
             user_reaction: response.user_reaction as "like" | "dislike" | null
         };
-        return comment;
     }
+
 
     async updateComment(
         api: AxiosInstance,
+        entityId: number,
+        stanceId: number,
         commentId: number,
         content?: string,
         is_active?: boolean
     ): Promise<Comment> {
         const request: CommentUpdateRequest = { content, is_active };
-        const response: CommentUpdateResponse = await commentsApi.updateComment(api, commentId, request);
-        const comment: Comment = {
+        const response: CommentUpdateResponse = await commentsApi.updateComment(api, entityId, stanceId, commentId, request);
+        return {
             id: response.id,
             user_id: response.user_id,
             parent_id: response.parent_id ?? undefined,
@@ -84,16 +113,26 @@ export class CommentService {
             count_nested_replies: 0,
             user_reaction: null
         };
-        return comment;
     }
 
-    async deleteComment(api: AxiosInstance, commentId: number): Promise<boolean> {
-        const response: CommentDeleteResponse = await commentsApi.deleteComment(api, commentId);
-        return response.success ?? true;
+
+    async deleteComment(
+        api: AxiosInstance,
+        entityId: number,
+        stanceId: number,
+        commentId: number
+    ): Promise<boolean> {
+        return await commentsApi.deleteComment(api, entityId, stanceId, commentId);
     }
 
-    async getCommentReplies(api: AxiosInstance, commentId: number): Promise<Comment[]> {
-        const response: CommentListResponse = await commentsApi.getCommentReplies(api, commentId);
+
+    async getCommentReplies(
+        api: AxiosInstance,
+        entityId: number,
+        stanceId: number,
+        commentId: number
+    ): Promise<Comment[]> {
+        const response: CommentListResponse = await commentsApi.getCommentReplies(api, entityId, stanceId, commentId);
         return response.comments.map(comment => ({
             id: comment.id,
             user_id: comment.user_id,

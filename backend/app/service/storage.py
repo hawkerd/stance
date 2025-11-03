@@ -2,7 +2,7 @@ from supabase import create_client, Client
 import os
 import uuid
 import logging
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 IMAGES_BUCKET = "stance-images"
 
@@ -12,7 +12,7 @@ def get_supabase_client() -> Client:
     supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY")
     
     if not supabase_url or not supabase_key:
-        raise HTTPException(status_code=500, detail="Supabase configuration missing")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Supabase configuration missing")
     
     return create_client(supabase_url, supabase_key)
 
@@ -56,7 +56,7 @@ def upload_image_to_storage(file_content: bytes, content_type: str) -> str:
         # Check if upload was successful
         if hasattr(storage_response, 'error') and storage_response.error:
             logging.error(f"Supabase upload error: {storage_response.error}")
-            raise HTTPException(status_code=500, detail="Failed to upload image")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to upload image")
         
         # Get public URL
         public_url = supabase.storage.from_(IMAGES_BUCKET).get_public_url(unique_filename)
@@ -67,4 +67,4 @@ def upload_image_to_storage(file_content: bytes, content_type: str) -> str:
         raise
     except Exception as e:
         logging.error(f"Error uploading image to storage: {e}")
-        raise HTTPException(status_code=500, detail="Failed to upload image")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to upload image")

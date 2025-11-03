@@ -9,7 +9,6 @@ export type TokenResponse = components["schemas"]["TokenResponse"];
 export type RefreshRequest = components["schemas"]["RefreshRequest"];
 export type RefreshResponse = components["schemas"]["RefreshResponse"];
 export type LogoutRequest = components["schemas"]["LogoutRequest"];
-export type LogoutResponse = components["schemas"]["LogoutResponse"];
 
 /**
  * Signup a new user
@@ -38,7 +37,7 @@ export async function refreshToken(api: AxiosInstance, data: RefreshRequest): Pr
 /**
  * Logout user by revoking refresh token
  */
-export async function logout(api: AxiosInstance, data: LogoutRequest): Promise<LogoutResponse> {
-  const res = await api.post<LogoutResponse>("/auth/logout", data);
-  return res.data;
+export async function logout(api: AxiosInstance, data: LogoutRequest): Promise<boolean> {
+  const res = await api.post("/auth/logout", data);
+  return res.status === 204;
 }

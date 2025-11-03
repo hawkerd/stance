@@ -28,7 +28,7 @@ export default function ProfileRoute() {
     };
 
     fetchCurrentUser();
-  }, [api, initialized]);
+  }, [api, initialized, userService]);
 
   if (!initialized || loading) {
     return (

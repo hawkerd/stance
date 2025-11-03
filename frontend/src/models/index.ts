@@ -53,7 +53,7 @@ export interface StanceFeedEntity {
 export interface StanceFeedStance {
     id: number;
     user: StanceFeedUser;
-    entity?: StanceFeedEntity;
+    entity: StanceFeedEntity;
     headline: string;
     content_json: string;
     num_comments: number;
@@ -177,4 +177,5 @@ export interface ProfilePage {
     bio: string | null;
     avatar_url: string | null;
     pinned_stance_id: number | null;
+    pinned_stance_entity_id: number | null;
 }

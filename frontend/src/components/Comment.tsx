@@ -8,11 +8,13 @@ import { useAuth } from "../contexts/AuthContext";
 import { CommentService } from "../service/CommentService";
 
 interface CommentProps {
+  entityId: number;
+  stanceId: number;
   comment: Comment;
   setSelectedCommentId?: (id: number) => void;
 }
 
-const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentId }) => {
+const CommentComponent: React.FC<CommentProps> = ({ entityId, stanceId, comment, setSelectedCommentId }) => {
   const api = useAuthApi();
   const { isAuthenticated } = useAuth();
   const [likes, setLikes] = useState(comment.likes);
@@ -31,13 +33,13 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
     try {
       if (userReaction === (isLike ? "like" : "dislike")) {
         // remove reaction
-        await commentService.removeCommentReaction(api, comment.id);
+        await commentService.removeCommentReaction(api, entityId, stanceId, comment.id);
         setUserReaction(null);
         if (isLike) setLikes(likes - 1);
         else setDislikes(dislikes - 1);
       } else {
         // switch or add reaction
-        await commentService.reactToComment(api, comment.id, isLike);
+        await commentService.reactToComment(api, entityId, stanceId, comment.id, isLike);
         if (isLike) {
           setLikes(likes + 1);
           if (userReaction === "dislike") setDislikes(dislikes - 1);
@@ -58,7 +60,7 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
     if (!showReplies) {
       setLoadingReplies(true);
       try {
-        const fetchedReplies: Comment[] = await commentService.getCommentReplies(api, comment.id);
+        const fetchedReplies: Comment[] = await commentService.getCommentReplies(api, entityId, stanceId, comment.id);
         setReplies(fetchedReplies);
       } catch (e) {
         console.error("Failed to load replies", e);
@@ -158,6 +160,8 @@ const CommentComponent: React.FC<CommentProps> = ({ comment, setSelectedCommentI
             replies.map(reply => (
               <CommentReply
                 key={reply.id}
+                entityId={entityId}
+                stanceId={stanceId}
                 reply={reply}
                 isDirectChild={reply.parent_id === comment.id}
                 setSelectedCommentId={setSelectedCommentId}

@@ -5,9 +5,9 @@ import { Comment } from "@/models";
 import CommentComponent from "@/components/Comment";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { CommentService } from "@/service/CommentService";
-import { stancesApi } from "@/api";
 
 interface CommentsModalProps {
+  entityId: number;
   stanceId: number;
   isOpen: boolean;
   onClose: () => void;
@@ -15,6 +15,7 @@ interface CommentsModalProps {
 }
 
 const CommentsModal: React.FC<CommentsModalProps> = ({
+  entityId,
   stanceId,
   isOpen,
   onClose,
@@ -71,18 +72,8 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
     setLoading(true);
     setError(null);
     try {
-      const response = await stancesApi.getCommentsByStance(API, stanceId);
-      const fetchedComments: Comment[] = response.comments.map(c => ({
-        id: c.id,
-        user_id: c.user_id,
-        parent_id: c.parent_id ?? undefined,
-        content: c.content,
-        likes: c.likes,
-        dislikes: c.dislikes,
-        count_nested_replies: c.count_nested,
-        user_reaction: c.user_reaction as "like" | "dislike" | null,
-      }));
-      setComments(fetchedComments);
+      const response = await commentService.getComments(API, entityId, stanceId);
+      setComments(response);
     } catch (err: any) {
       setError("Failed to load comments");
     } finally {
@@ -99,6 +90,7 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
     try {
       const newComment = await commentService.createComment(
         API,
+        entityId,
         stanceId,
         commentContent,
         selectedCommentId ?? undefined
@@ -161,7 +153,9 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
           {!loading && topLevelComments.map((comment, idx) => (
             <React.Fragment key={comment.id}>
               <div className="mb-2">
-                <CommentComponent 
+                <CommentComponent
+                  entityId={entityId}
+                  stanceId={stanceId}
                   comment={comment} 
                   setSelectedCommentId={setSelectedCommentId}
                 />
@@ -170,7 +164,9 @@ const CommentsModal: React.FC<CommentsModalProps> = ({
                   .filter(reply => reply.parent_id === comment.id)
                   .map(reply => (
                     <div key={reply.id} className="ml-8 mt-2">
-                      <CommentComponent 
+                      <CommentComponent
+                        entityId={entityId}
+                        stanceId={stanceId}
                         comment={reply} 
                         setSelectedCommentId={setSelectedCommentId}
                       />

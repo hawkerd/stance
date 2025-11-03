@@ -12,10 +12,11 @@ import StancePageEntityPreview from "@/components/stance-page/StancePageEntityPr
 
 
 interface StancePageProps {
+  entity_id: string;
   stance_id: string;
 }
 
-export default function StancePage({ stance_id }: StancePageProps) {
+export default function StancePage({ entity_id, stance_id }: StancePageProps) {
   const API = useAuthApi();
   const stanceService = new StanceService();
   const router = useRouter();
@@ -33,7 +34,7 @@ export default function StancePage({ stance_id }: StancePageProps) {
       try {
         setLoading(true);
         // Fetch stance page (richer info)
-        const stanceResponse = await stanceService.getStancePage(API, parseInt(stance_id));
+        const stanceResponse = await stanceService.getStancePage(API, parseInt(entity_id), parseInt(stance_id));
         setStance(stanceResponse);
         setLocalNumRatings(stanceResponse.num_ratings);
         setLocalAverageRating(stanceResponse.average_rating ?? null);
@@ -49,7 +50,7 @@ export default function StancePage({ stance_id }: StancePageProps) {
 
   const handleRatingChange = async (rating: number | null) => {
     try {
-      await stanceService.rateStance(API, parseInt(stance_id), rating);
+      await stanceService.rateStance(API, parseInt(entity_id), parseInt(stance_id), rating);
       setMyRating(rating);
       // Optimistically update local rating state
       if (stance) {
@@ -75,7 +76,7 @@ export default function StancePage({ stance_id }: StancePageProps) {
 
   const handleResetRating = async () => {
     try {
-      await stanceService.rateStance(API, parseInt(stance_id), null);
+      await stanceService.rateStance(API, parseInt(entity_id), parseInt(stance_id), null);
       if (localNumRatings > 1 && localAverageRating !== null && myRating !== null) {
         const newNumRatings = localNumRatings - 1;
         const newAverage = newNumRatings > 0 ? ((localAverageRating * localNumRatings - myRating) / newNumRatings) : null;
@@ -191,7 +192,8 @@ export default function StancePage({ stance_id }: StancePageProps) {
           </div>
           {/* Comments Modal */}
           <CommentsModal
-            stanceId={stance.id}
+            entityId={parseInt(entity_id)}
+            stanceId={parseInt(stance_id)}
             isOpen={isCommentsModalOpen}
             onClose={() => setIsCommentsModalOpen(false)}
             initialCommentCount={stance.num_comments}

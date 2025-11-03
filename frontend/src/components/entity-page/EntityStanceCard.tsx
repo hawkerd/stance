@@ -7,25 +7,20 @@ import { useRouter } from "next/navigation";
 interface StanceCardProps {
   stance: PaginatedStancesByEntityStance;
   isUserStance?: boolean;
+  onStanceClick?: () => void;
+  onUserClick?: () => void;
 }
 
-export default function StanceCard({ stance, isUserStance = false }: StanceCardProps) {
-  const router = useRouter();
-
-  // navigate to stance page
-  const handleCardClick = (e: React.MouseEvent) => {
-    router.push(`/stances/${stance.id}`);
-  };
-
+export default function StanceCard({ stance, isUserStance = false, onStanceClick, onUserClick }: StanceCardProps) {
   // navigate to user page
   const handleUserClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/users/${stance.user.id}`);
+    if (onUserClick) onUserClick();
   };
 
   return (
     <div
-      onClick={handleCardClick}
+      onClick={onStanceClick}
       className={`aspect-square bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer overflow-hidden group ${
         isUserStance ? 'ring-2 ring-purple-400' : ''
       }`}

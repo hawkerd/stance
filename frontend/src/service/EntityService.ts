@@ -113,18 +113,6 @@ export class EntityService {
         return entities;
     }
 
-    // get my stance for entity
-    async getMyStanceForEntity(
-        api: AxiosInstance,
-        entityId: number
-    ): Promise<PaginatedStancesByEntityStance | null> {
-        const response: PaginatedStancesByEntityStanceResponse | null = await entitiesApi.getMyStanceForEntity(api, entityId);
-        if (response === null) {
-            return null;
-        }
-        return response.stance;
-    }
-
     // get feed
     async getFeed(
         api: AxiosInstance,
@@ -142,36 +130,6 @@ export class EntityService {
             entities: response.entities,
             nextCursor: response.next_cursor,
             hasMore: response.has_more
-        };
-    }
-
-    // get stances by entity with pagination
-    async getStancesByEntity(api: AxiosInstance, entityId: number, cursor?: { score: number; id: number }): Promise<{ stances: PaginatedStancesByEntityStance[]; nextCursorScore: number | null; nextCursorId: number | null }> {
-        const request: PaginatedStanceByEntityRequest = {
-            num_stances: 20,
-            cursor: cursor ? { score: cursor.score, id: cursor.id } : null
-        }
-        
-        const response: PaginatedStancesByEntityResponse = await entitiesApi.getStancesByEntity(
-            api,
-            entityId,
-            request
-        );
-        return {
-            stances: response.stances.map((s) => ({
-                id: s.id,
-                user: s.user,
-                headline: s.headline,
-                content_json: s.content_json,
-                num_comments: s.num_comments,
-                average_rating: s.average_rating,
-                num_ratings: s.num_ratings,
-                my_rating: s.my_rating,
-                tags: s.tags,
-                created_at: s.created_at,
-            })),
-            nextCursorScore: response.next_cursor?.score ?? null,
-            nextCursorId: response.next_cursor?.id ?? null,
         };
     }
 }
