@@ -38,6 +38,7 @@ export interface StanceFeedTag {
 export interface StanceFeedUser {
     id: number;
     username: string;
+    avatar_url: string | null;
 }
 export interface StanceFeedEntity {
     id: number;
@@ -90,6 +91,18 @@ export interface PaginatedStancesByEntityStance {
     created_at?: string | null;
 }
 
+export interface PaginatedStancesByUserStance {
+    id: number;
+    entity: StanceFeedEntity;
+    headline: string;
+    content_json: string;
+    num_comments: number;
+    average_rating?: number | null;
+    num_ratings: number;
+    my_rating?: number | null;
+    tags: StanceFeedTag[];
+    created_at?: string | null;
+}
 
 export interface Event extends Entity {
     type: EntityType.EVENT;
@@ -157,4 +170,11 @@ export interface User {
     username: string;
     full_name: string;
     email: string;
+}
+
+export interface ProfilePage {
+    username: string;
+    bio: string | null;
+    avatar_url: string | null;
+    pinned_stance_id: number | null;
 }

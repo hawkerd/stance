@@ -5,6 +5,8 @@ import { components } from "@/api/models/models";
 // OpenAPI schema types
 export type UserReadResponse = components["schemas"]["UserReadResponse"];
 export type UserDeleteResponse = components["schemas"]["UserDeleteResponse"];
+export type PaginatedStancesByUserResponse = components["schemas"]["PaginatedStancesByUserResponse"];
+export type PaginatedStancesByUserRequest = components["schemas"]["PaginatedStancesByUserRequest"];
 
 /**
  * Fetch the current logged-in user's info
@@ -35,5 +37,23 @@ export async function deleteUser(
   userId: number
 ): Promise<UserDeleteResponse> {
   const res = await api.delete<UserDeleteResponse>(`/users/${userId}`);
+  return res.data;
+}
+
+/**
+ * Get stances created by a user, paginated
+ */
+export async function getStancesByUser(
+  api: AxiosInstance,
+  userId: number,
+  num_stances: number,
+  cursor?: string,
+): Promise<PaginatedStancesByUserResponse> {
+  const request: PaginatedStancesByUserRequest = {
+    num_stances,
+    cursor: cursor || null,
+  };
+
+  const res = await api.post<PaginatedStancesByUserResponse>(`/users/${userId}/stances`, request);
   return res.data;
 }

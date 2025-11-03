@@ -94,7 +94,7 @@ export async function getFeed(
 }
 
 /**
- * Get all stances for a specific entity, paginated
+ * Get stances for a specific entity, paginated
  */
 export async function getStancesByEntity(
   api: AxiosInstance,

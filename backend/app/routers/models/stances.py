@@ -63,6 +63,7 @@ class StanceFeedTag(BaseModel):
 class StanceFeedUser(BaseModel):
     id: int
     username: str
+    avatar_url: Optional[str]
 class StanceFeedEntity(BaseModel):
     id: int
     type: int

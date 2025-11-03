@@ -152,7 +152,7 @@ export class EntityService {
             cursor: cursor ? { score: cursor.score, id: cursor.id } : null
         }
         
-        const response: StanceFeedResponse = await entitiesApi.getStancesByEntity(
+        const response: PaginatedStancesByEntityResponse = await entitiesApi.getStancesByEntity(
             api,
             entityId,
             request

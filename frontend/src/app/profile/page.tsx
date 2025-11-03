@@ -4,44 +4,47 @@ import { useEffect, useState } from "react";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { useAuth } from "@/contexts/AuthContext";
 import { UserService } from "@/service/UserService";
-import { User } from "@/models/index";
+import ProfilePage from "@/components/ProfilePage";
 
-export default function HomePage() {
+export default function ProfileRoute() {
   const api = useAuthApi();
   const { initialized } = useAuth();
-  const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const userService = new UserService();
 
   useEffect(() => {
     if (!initialized) return;
 
-    const fetchUser = async () => {
+    const fetchCurrentUser = async () => {
       try {
-        const userResponse: User = await userService.getCurrentUser(api);
-        setUser(userResponse);
+        const currentUser = await userService.getCurrentUser(api);
+        setUserId(currentUser.id);
       } catch (err: any) {
-        setError(err.response?.data?.detail || "Failed to fetch user");
+        console.error("Failed to fetch current user:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
+    fetchCurrentUser();
   }, [api, initialized]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error}</p>;
-
-  if (!initialized) {
-    return <p>Initializing...</p>;
+  if (!initialized || loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Loading...</p>
+      </div>
+    );
   }
-  return (
-    <div>
-      <h1>Welcome, {user?.full_name || user?.username}!</h1>
-      <p>Email: {user?.email}</p>
-      <p>User ID: {user?.id}</p>
-    </div>
-  );
+
+  if (!userId) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-gray-500">Not logged in</p>
+      </div>
+    );
+  }
+
+  return <ProfilePage userId={userId} />;
 }

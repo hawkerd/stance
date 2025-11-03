@@ -7,7 +7,7 @@ from app.database.stance import get_stances_by_user_paginated, get_comment_count
 from app.database.entity_tag import get_tags_for_entity
 from app.database.rating import read_rating_by_user_and_stance, get_average_rating_for_stance, get_num_ratings_for_stance
 from app.database.models import Stance, Entity, Tag, Rating
-from app.routers.models import UserReadResponse, UserDeleteResponse, PaginatedStancesByUserResponse, PaginatedStancesByUserRequest, PaginatedStancesByUserStance, StanceFeedEntity, StanceFeedUser, StanceFeedTag
+from app.routers.models import UserReadResponse, UserDeleteResponse, PaginatedStancesByUserResponse, PaginatedStancesByUserRequest, PaginatedStancesByUserStance, StanceFeedEntity, StanceFeedTag
 from typing import List, Optional
 import logging
 

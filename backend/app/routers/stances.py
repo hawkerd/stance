@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user, get_current_user_optional
 from app.service.stance import process_stance_content_json
-from app.database.models import User, Entity, Stance, Tag, Rating
+from app.database.models import User, Entity, Stance, Tag, Rating, Profile
 from app.database.image import create_image
 from app.database.comment import count_comment_nested_replies
 from app.database.user import read_user
@@ -19,6 +19,7 @@ from app.database.rating import (
     get_average_rating_for_stance, rate_stance, 
     read_rating_by_user_and_stance, get_num_ratings_for_stance
 )
+from app.database.profile import get_profile_by_user_id
 from app.routers.models import (
     StanceCreateRequest, StanceCreateResponse,
     StanceUpdateRequest, StanceUpdateResponse,
@@ -296,9 +297,13 @@ def get_stance_feed_endpoint(
             user: Optional[User] = read_user(db, stance.user_id)
             if not user:
                 continue
+
+            profile: Optional[Profile] = get_profile_by_user_id(db, user.id)
+
             stance_user: StanceFeedUser = StanceFeedUser(
                 id=user.id,
-                username=user.username
+                username=user.username,
+                avatar_url=profile.avatar_url if profile else None
             )
 
             tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)

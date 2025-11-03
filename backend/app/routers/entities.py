@@ -7,7 +7,7 @@ from app.routers.models import (
 )
 from app.database.rating import get_average_rating_for_stance, get_num_ratings_for_stance, read_rating_by_user_and_stance
 from app.database.stance import get_user_stance_by_entity, get_n_stances_by_entity, get_comment_count_by_stance, get_stances_by_entity_paginated
-from app.database.models import Stance, Entity, Tag, User, Rating
+from app.database.models import Stance, Entity, Tag, User, Rating, Profile
 from app.database.user import read_user
 from app.routers.models import PaginatedStancesByEntityResponse, StanceFeedUser, PaginatedStancesByEntityStance, StanceFeedTag, PaginatedStancesByEntityStanceResponse, PaginatedStancesByEntityCursor, PaginatedStanceByEntityRequest
 from app.service.storage import upload_image_to_storage
@@ -16,6 +16,7 @@ from typing import Optional, List
 from datetime import datetime
 import json
 import base64
+from app.database.profile import get_profile_by_user_id
 from app.database.tag import create_tag, find_tag
 from app.database.entity_tag import create_entity_tag, find_entity_tag, delete_entity_tags_for_entity, get_tags_for_entity
 import logging
@@ -251,9 +252,13 @@ def get_stances_by_entity_paginated_endpoint(
             user: Optional[User] = read_user(db, stance.user_id)
             if not user:
                 continue
+
+            profile: Optional[Profile] = get_profile_by_user_id(db, user.id)
+
             stance_user: StanceFeedUser = StanceFeedUser(
                 id=user.id,
-                username=user.username
+                username=user.username,
+                avatar_url=profile.avatar_url if profile else None
             )
 
             tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)
@@ -304,9 +309,13 @@ def get_my_stance_for_event(entity_id: int, db: Session = Depends(get_db), user_
     user: Optional[User] = read_user(db, stance.user_id)
     if not user:
         return None
+    
+    profile: Optional[Profile] = get_profile_by_user_id(db, user.id)
+
     stance_user: StanceFeedUser = StanceFeedUser(
         id=user.id,
-        username=user.username
+        username=user.username,
+        avatar_url=profile.avatar_url if profile else None
     )
 
     tags: List[Tag] = get_tags_for_entity(db, stance.entity_id)

@@ -6,6 +6,7 @@ export type ProfileCreateRequest = components["schemas"]["ProfileCreateRequest"]
 export type ProfileReadResponse = components["schemas"]["ProfileReadResponse"];
 export type ProfileUpdateRequest = components["schemas"]["ProfileUpdateRequest"];
 export type ProfileUpdateResponse = components["schemas"]["ProfileUpdateResponse"];
+export type ProfilePageResponse = components["schemas"]["ProfilePageResponse"];
 
 /**
  * Create a profile for a user
@@ -39,5 +40,16 @@ export async function updateProfile(
   payload: ProfileUpdateRequest
 ): Promise<ProfileUpdateResponse> {
   const res = await api.put<ProfileUpdateResponse>(`/users/${userId}/profile`, payload);
+  return res.data;
+}
+
+/**
+ * Get the profile page for a user
+ */
+export async function getProfilePage(
+  api: AxiosInstance,
+  userId: number
+): Promise<ProfilePageResponse> {
+  const res = await api.get<ProfilePageResponse>(`/users/${userId}/profile_page`);
   return res.data;
 }
