@@ -143,6 +143,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/entities/{entity_id}/stances/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get My Stance For Entity */
+        get: operations["get_my_stance_for_entity_entities__entity_id__stances_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/entities/{entity_id}/stances/{stance_id}": {
         parameters: {
             query?: never;
@@ -224,23 +241,6 @@ export interface paths {
         put?: never;
         /** Get Stances By Entity Paginated Endpoint */
         post: operations["get_stances_by_entity_paginated_endpoint_entities__entity_id__stances_feed_post"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/entities/{entity_id}/stances/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get My Stance For Entity */
-        get: operations["get_my_stance_for_entity_entities__entity_id__stances_me_get"];
-        put?: never;
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -329,6 +329,75 @@ export interface paths {
         };
         /** Get Profile Page Endpoint */
         get: operations["get_profile_page_endpoint_users__user_id__profile_page_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/follow": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Follow User Endpoint */
+        post: operations["follow_user_endpoint_users__user_id__follow_post"];
+        /** Unfollow User Endpoint */
+        delete: operations["unfollow_user_endpoint_users__user_id__follow_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/followers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Followers Endpoint */
+        get: operations["get_followers_endpoint_users__user_id__followers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/following": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Following Endpoint */
+        get: operations["get_following_endpoint_users__user_id__following_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{user_id}/following/{followed_user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Is Following Endpoint */
+        get: operations["is_following_endpoint_users__user_id__following__followed_user_id__get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -891,6 +960,14 @@ export interface components {
         ProfilePageResponse: {
             /** Username */
             username: string;
+            /** Full Name */
+            full_name: string;
+            /** Follower Count */
+            follower_count: number;
+            /** Following Count */
+            following_count: number;
+            /** Following */
+            following: boolean | null;
             /** Bio */
             bio: string | null;
             /** Avatar Url */
@@ -1154,6 +1231,11 @@ export interface components {
             access_token: string;
             /** Refresh Token */
             refresh_token: string;
+        };
+        /** UserListResponse */
+        UserListResponse: {
+            /** Users */
+            users: components["schemas"]["UserReadResponse"][];
         };
         /** UserReadResponse */
         UserReadResponse: {
@@ -1522,6 +1604,37 @@ export interface operations {
             };
         };
     };
+    get_my_stance_for_entity_entities__entity_id__stances_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                entity_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStancesByEntityStanceResponse"] | null;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_stance_basic_endpoint_entities__entity_id__stances__stance_id__get: {
         parameters: {
             query?: never;
@@ -1742,37 +1855,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PaginatedStancesByEntityResponse"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    get_my_stance_for_entity_entities__entity_id__stances_me_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                entity_id: number;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["PaginatedStancesByEntityStanceResponse"] | null;
                 };
             };
             /** @description Validation Error */
@@ -2086,6 +2168,160 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProfilePageResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    follow_user_endpoint_users__user_id__follow_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unfollow_user_endpoint_users__user_id__follow_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_followers_endpoint_users__user_id__followers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_following_endpoint_users__user_id__following_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserListResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    is_following_endpoint_users__user_id__following__followed_user_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                followed_user_id: number;
+                user_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": boolean;
                 };
             };
             /** @description Validation Error */

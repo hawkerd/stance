@@ -174,6 +174,10 @@ export interface User {
 
 export interface ProfilePage {
     username: string;
+    full_name: string;
+    follower_count: number;
+    following_count: number;
+    following: boolean | null;
     bio: string | null;
     avatar_url: string | null;
     pinned_stance_id: number | null;

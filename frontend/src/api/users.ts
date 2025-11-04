@@ -153,3 +153,25 @@ export async function getProfilePage(
   );
   return res.data;
 }
+
+/**
+ * Follow user
+ */
+export async function followUser(
+  api: AxiosInstance,
+  userId: number
+): Promise<boolean> {
+  const res = await api.post(`/users/${userId}/follow`);
+  return res.status === 201;
+}
+
+/**
+ * Unfollow user
+ */
+export async function unfollowUser(
+  api: AxiosInstance,
+  userId: number
+): Promise<boolean> {
+  const res = await api.delete(`/users/${userId}/follow`);
+  return res.status === 204;
+}

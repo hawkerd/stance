@@ -46,5 +46,5 @@ export default function ProfileRoute() {
     );
   }
 
-  return <ProfilePage userId={userId} />;
+  return <ProfilePage userId={userId} isOwnProfile={true} />;
 }

@@ -21,3 +21,5 @@ class User(Base):
     comments = relationship("Comment", back_populates="user", cascade="all, delete-orphan")
     comment_reactions = relationship("CommentReaction", back_populates="user", cascade="all, delete-orphan")
     stances = relationship("Stance", back_populates="user", cascade="all, delete-orphan")
+    following = relationship("Follow", foreign_keys="[Follow.follower_id]", back_populates="follower", cascade="all, delete-orphan")
+    followers = relationship("Follow", foreign_keys="[Follow.followed_id]", back_populates="followed", cascade="all, delete-orphan")

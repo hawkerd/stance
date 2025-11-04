@@ -1,7 +1,6 @@
 import { AxiosInstance } from "axios";
 import { usersApi } from "@/api";
-import { User, ProfilePage, PaginatedStancesByUserStance } from "@/models/index";
-import { PaginatedStancesByUserRequest } from "@/api/users";
+import { User, ProfilePage } from "@/models/index";
 
 export class UserService {
 	async getCurrentUser(api: AxiosInstance): Promise<User> {
@@ -35,11 +34,23 @@ export class UserService {
 		const response = await usersApi.getProfilePage(api, userId);
 		const profilePage: ProfilePage = {
 			username: response.username,
+			full_name: response.full_name,
+			follower_count: response.follower_count,
+			following_count: response.following_count,
+			following: response.following,
 			bio: response.bio,
 			avatar_url: response.avatar_url,
 			pinned_stance_id: response.pinned_stance_id,
 			pinned_stance_entity_id: response.pinned_stance_id_entity_id,
 		};
 		return profilePage;
+	}
+
+	async followUser(api: AxiosInstance, userId: number): Promise<boolean> {
+		return usersApi.followUser(api, userId);
+	}
+
+	async unfollowUser(api: AxiosInstance, userId: number): Promise<boolean> {
+		return usersApi.unfollowUser(api, userId);
 	}
 }
