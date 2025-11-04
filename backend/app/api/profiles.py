@@ -4,7 +4,7 @@ from app.dependencies import get_db, get_current_user
 from app.database.profile import create_profile, get_profile_by_user_id, update_profile
 from app.database.user import read_user
 from app.database.models import User, Profile
-from app.routers.models import ProfileCreateRequest, ProfileReadResponse, ProfileUpdateRequest, ProfileUpdateResponse, ProfilePageResponse
+from app.api.models import ProfileCreateRequest, ProfileReadResponse, ProfileUpdateRequest, ProfileUpdateResponse, ProfilePageResponse
 import logging
 from typing import Optional
 
