@@ -96,6 +96,14 @@ class StanceFeedStanceResponse(BaseModel):
     stance: StanceFeedStance
 
 
+# following feed
+class StanceFollowingFeedRequest(BaseModel):
+    num_stances: int = 20
+    cursor: Optional[str] = None
+class StanceFollowingFeedResponse(BaseModel):
+    stances: List[StanceFeedStance]
+    next_cursor: Optional[str] = None
+
 # paginated stances by entity do not include entity info, and use a str for cursor
 class PaginatedStancesByEntityStance(BaseModel):
     id: int

@@ -2,25 +2,27 @@
 
 import React from "react";
 import { PaginatedStancesByEntityStance } from "@/models";
-import { useRouter } from "next/navigation";
 
 interface StanceCardProps {
   stance: PaginatedStancesByEntityStance;
-  isUserStance?: boolean;
-  onStanceClick?: () => void;
-  onUserClick?: () => void;
+  isUserStance: boolean;
+  onStanceClick: () => void;
+  onUserClick: () => void;
 }
 
-export default function StanceCard({ stance, isUserStance = false, onStanceClick, onUserClick }: StanceCardProps) {
-  // navigate to user page
+export default function StanceCard({ stance, isUserStance, onStanceClick, onUserClick }: StanceCardProps) {
+  // handle clicks on user + stance
   const handleUserClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (onUserClick) onUserClick();
+    onUserClick();
+  };
+  const handleStanceClick = (e: React.MouseEvent) => {
+    onStanceClick();
   };
 
   return (
     <div
-      onClick={onStanceClick}
+      onClick={handleStanceClick}
       className={`aspect-square bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer overflow-hidden group ${
         isUserStance ? 'ring-2 ring-purple-400' : ''
       }`}

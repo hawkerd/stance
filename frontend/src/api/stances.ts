@@ -21,6 +21,8 @@ export type PaginatedStancesByEntityResponse = components["schemas"]["PaginatedS
 export type PaginatedStancesByEntityStanceResponse = components["schemas"]["PaginatedStancesByEntityStanceResponse"];
 export type PaginatedStancesByUserRequest = components["schemas"]["PaginatedStancesByUserRequest"];
 export type PaginatedStancesByUserResponse = components["schemas"]["PaginatedStancesByUserResponse"];
+export type StanceFollowingFeedRequest = components["schemas"]["StanceFollowingFeedRequest"];
+export type StanceFollowingFeedResponse = components["schemas"]["StanceFollowingFeedResponse"];
 
 /**
  * Get the current user's rating for a stance
@@ -205,5 +207,17 @@ export async function getFeed(
   data: StanceFeedRequest
 ): Promise<StanceFeedResponse> {
   const res = await api.post<StanceFeedResponse>(`/stances/feed`, data);
+  return res.data;
+}
+
+/**
+ * Get the following feed of stances (from followed users)
+ * Backend: POST /stances/following-feed
+ */
+export async function getFollowingFeed(
+  api: AxiosInstance,
+  data: StanceFollowingFeedRequest
+): Promise<StanceFollowingFeedResponse> {
+  const res = await api.post<StanceFollowingFeedResponse>(`/stances/following-feed`, data);
   return res.data;
 }

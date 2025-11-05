@@ -2,24 +2,21 @@
 
 import React from "react";
 import { PaginatedStancesByUserStance } from "@/models";
-import { useRouter } from "next/navigation";
 
 interface UserStanceCardProps {
   stance: PaginatedStancesByUserStance;
+  onStanceClick: () => void;
+  onEntityClick: () => void;
 }
 
-export default function UserStanceCard({ stance }: UserStanceCardProps) {
-  const router = useRouter();
-
-  // Navigate to stance page
+export default function UserStanceCard({ stance, onStanceClick, onEntityClick }: UserStanceCardProps) {
+  // handle clicks on stance + entity
   const handleCardClick = (e: React.MouseEvent) => {
-    router.push(`/entities/${stance.entity.id}/stances/${stance.id}`);
+    onStanceClick();
   };
-
-  // Navigate to entity page
   const handleEntityClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    router.push(`/entities/${stance.entity.id}`);
+    onEntityClick();
   };
 
   return (

@@ -19,24 +19,40 @@ import {
   PaginatedStancesByEntityResponse,
   PaginatedStancesByEntityStanceResponse,
   PaginatedStancesByUserRequest,
-  PaginatedStancesByUserResponse
+  PaginatedStancesByUserResponse,
+  StanceFollowingFeedRequest,
+  StanceFollowingFeedResponse
 } from "@/api/stances";
 
 export class StanceService {
   async fetchStanceFeed(
     api: AxiosInstance,
     num_stances: number,
-    entities: number[],
+    entities?: number[],
     initial_stance_id?: number
   ): Promise<StanceFeedStance[]> {
     const request: StanceFeedRequest = {
       num_stances,
       initial_stance_id: initial_stance_id ?? null,
-      entities,
+      entities: entities ?? [],
     };
     const response: StanceFeedResponse = await stancesApi.getFeed(api, request);
     console.log("Fetched stances:", response.stances);
     return response.stances;
+  }
+
+  async fetchUserStanceFeed(
+    api: AxiosInstance,
+    num_stances: number,
+    cursor?: string
+  ): Promise<{stances: StanceFeedStance[], next_cursor?: string}> {
+    const request: StanceFollowingFeedRequest = {
+      num_stances,
+      cursor: cursor ?? null,
+    };
+    const response: StanceFollowingFeedResponse = await stancesApi.getFollowingFeed(api, request);
+    console.log("Fetched stances:", response.stances);
+    return {stances: response.stances, next_cursor: response.next_cursor || undefined};
   }
 
   async createStance(

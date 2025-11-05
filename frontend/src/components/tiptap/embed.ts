@@ -62,7 +62,7 @@ export default Node.create<EmbedOptions>({
   renderHTML({ HTMLAttributes }) {
     const src = HTMLAttributes.src || '';
     // Instagram video embed detection
-    console.log('Embed src:', src);
+    //console.log('Embed src:', src);
     const isInstagram = src.includes('instagram.com');
     if (isInstagram) {
       // Extract shortcode for posts
@@ -118,7 +118,7 @@ export default Node.create<EmbedOptions>({
     const isTikTok = src.includes('tiktok.com');
     if (isTikTok) {
       // Standard TikTok video URL: https://www.tiktok.com/@username/video/{id}
-      console.log('Detected TikTok URL');
+      //console.log('Detected TikTok URL');
       const videoMatch = src.match(/tiktok\.com\/(?:@([\w.-]+)\/)?video\/([\d]+)/);
       if (videoMatch && videoMatch[2]) {
         const videoId = videoMatch[2];

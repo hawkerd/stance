@@ -148,6 +148,7 @@ export default function EntityStancesGrid({ entityId }: EntityStancesGridProps) 
             <StanceCard
               key={stance.id}
               stance={stance}
+              isUserStance={false}
               onStanceClick={() => handleStanceClick(stance.id)}
               onUserClick={() => handleUserClick(stance.user.id)}
             />

@@ -92,6 +92,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/stances/following-feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Get Stance Feed Endpoint */
+        post: operations["get_stance_feed_endpoint_stances_following_feed_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/users/{user_id}/stances/feed": {
         parameters: {
             query?: never;
@@ -1157,6 +1174,23 @@ export interface components {
             /** Avatar Url */
             avatar_url: string | null;
         };
+        /** StanceFollowingFeedRequest */
+        StanceFollowingFeedRequest: {
+            /**
+             * Num Stances
+             * @default 20
+             */
+            num_stances: number;
+            /** Cursor */
+            cursor?: string | null;
+        };
+        /** StanceFollowingFeedResponse */
+        StanceFollowingFeedResponse: {
+            /** Stances */
+            stances: components["schemas"]["StanceFeedStance"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+        };
         /** StanceListResponse */
         StanceListResponse: {
             /** Stances */
@@ -1489,6 +1523,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StanceFeedResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stance_feed_endpoint_stances_following_feed_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StanceFollowingFeedRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StanceFollowingFeedResponse"];
                 };
             };
             /** @description Validation Error */

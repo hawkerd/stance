@@ -119,6 +119,16 @@ export default function UserStancesGrid({ userId, pinnedStanceDetails }: UserSta
     );
   }
 
+  // Handler to navigate to stance page
+  const handleStanceClick = (entityId: number, stanceId: number) => {
+    router.push(`/entities/${entityId}/stances/${stanceId}`);
+  };
+
+  // Handler to navigate to entity page
+  const handleEntityClick = (entityId: number) => {
+    router.push(`/entities/${entityId}`);
+  };
+
   return (
     <div className="w-full">
       {loadingPinned && (
@@ -136,6 +146,8 @@ export default function UserStancesGrid({ userId, pinnedStanceDetails }: UserSta
             <UserStanceCard
               key={stance.id}
               stance={stance}
+              onStanceClick={() => handleStanceClick(stance.entity.id, stance.id)}
+              onEntityClick={() => handleEntityClick(stance.entity.id)}
             />
           ))}
       </div>

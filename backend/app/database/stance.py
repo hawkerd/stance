@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from app.database.models import Entity, Stance, User, Comment
+from app.database.models import *
 from typing import Optional, List
 from app.errors import DatabaseError
 import logging
-import random
+import datetime
 
 def create_stance(db: Session, user_id: int, entity_id: int, headline: str, content_json: str) -> Stance:
     try:
@@ -167,3 +167,13 @@ def get_stances_by_user_paginated(db: Session, user_id: int, limit: int, cursor:
     except Exception as e:
         logging.error(f"Error getting paginated stances for user {user_id}: {e}")
         raise DatabaseError("Failed to get paginated stances by user")
+    
+def get_stance_feed_for_user(db: Session, user_id: int, limit: int, cursor: Optional[datetime.datetime]) -> List[Stance]:
+    try:
+        query = db.query(Stance).join(User).join(Follow, Follow.followed_id == Stance.user_id).filter(Follow.follower_id == user_id)
+        if cursor:
+            query = query.filter(Stance.created_at < cursor)
+        return query.order_by(Stance.created_at.desc(), Stance.id.desc()).limit(limit).all()
+    except Exception as e:
+        logging.error(f"Error getting stance feed for user {user_id}: {e}")
+        raise DatabaseError("Failed to get stance feed for user")

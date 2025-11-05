@@ -73,9 +73,9 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
   }
 
   return (
-    <div className="flex gap-6 relative">
+    <div className="flex gap-6 relative h-full">
       {/* Main Content */}
-      <div className="flex-1 relative rounded-lg border border-gray-200 shadow-sm bg-white p-8 transition-all hover:shadow-xl hover:shadow-purple-100 hover:border-purple-200">
+      <div className="flex-1 relative rounded-lg border border-gray-200 shadow-sm bg-white p-8 transition-all hover:shadow-xl hover:shadow-purple-100 hover:border-purple-200 flex flex-col overflow-y-auto scrollbar-hidden">
         <div className="absolute top-4 right-4 flex flex-col items-center z-10">
           <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xl font-bold shadow-md border border-gray-300">
             <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
