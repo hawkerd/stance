@@ -38,18 +38,17 @@ export default function StanceFeedEntityPreview({ entity }: StanceFeedEntityPrev
       style={{ cursor: "pointer" }}
     >
       {!expanded ? (
-        <div className="flex items-center gap-4">
+        <div className="grid grid-cols-4 gap-4">
           {hasImages && (
-            <div className="w-80 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200 overflow-hidden">
+            <div className="col-span-1 aspect-video flex items-center justify-center bg-gray-100 rounded-lg border border-gray-200 overflow-hidden">
               <img
                 src={imageUrls[0]}
                 alt={entity.title}
-                className="object-contain w-full h-full"
-                style={{ maxHeight: 220 }}
+                className="object-cover w-full h-full"
               />
             </div>
           )}
-          <div>
+          <div className={hasImages ? "col-span-3" : "col-span-4"}>
             <div
               className="font-semibold text-base text-purple-900 mb-1 cursor-pointer"
               onClick={handleTitleClick}

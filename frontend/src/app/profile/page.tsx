@@ -8,13 +8,18 @@ import ProfilePage from "@/components/user-page/ProfilePage";
 
 export default function ProfileRoute() {
   const api = useAuthApi();
-  const { initialized } = useAuth();
+  const { initialized, isAuthenticated } = useAuth();
   const [userId, setUserId] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const userService = new UserService();
 
   useEffect(() => {
     if (!initialized) return;
+    
+    if (!isAuthenticated) {
+      setLoading(false);
+      return;
+    }
 
     const fetchCurrentUser = async () => {
       try {
@@ -28,7 +33,7 @@ export default function ProfileRoute() {
     };
 
     fetchCurrentUser();
-  }, [api, initialized, userService]);
+  }, [api, initialized, isAuthenticated, userService]);
 
   if (!initialized || loading) {
     return (

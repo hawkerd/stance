@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 import { UserService } from "@/service/UserService";
 import UserStancesGrid from "@/components/user-page/UserStancesGrid";
 import type { ProfilePage as ProfilePageType } from "@/models/index";
@@ -14,7 +15,8 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) {
   const api = useAuthApi();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
+  const router = useRouter();
   const [profilePage, setProfilePage] = useState<ProfilePageType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -62,6 +64,11 @@ export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) 
     } finally {
       setFollowLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
   };
 
   if (loading) {
@@ -120,6 +127,14 @@ export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) 
                 <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
                   {profilePage.username}
                 </h1>
+                {isOwnProfile && (
+                  <button
+                    onClick={handleLogout}
+                    className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-red-100 text-red-700 hover:bg-red-200"
+                  >
+                    Logout
+                  </button>
+                )}
                 {isAuthenticated && !isOwnProfile && profilePage.following !== null && (
                   <button
                     onClick={handleFollowToggle}
