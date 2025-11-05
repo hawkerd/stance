@@ -58,19 +58,6 @@ const VerticalRating: React.FC<VerticalRatingProps> = ({ value, averageRating, o
       className="relative w-12 h-40 bg-gray-200 rounded-lg cursor-pointer select-none mx-auto"
       onMouseDown={(e) => handleMouseDown(e.clientY)}
     >
-      {/* Level notches */}
-      {[1, 2, 3, 4].map((level) => {
-        const percent = level / levels; // 1/5, 2/5, 3/5, 4/5
-        return (
-          <div
-            key={level}
-            className="absolute left-0 w-full flex items-center justify-center pointer-events-none"
-            style={{ bottom: `calc(${percent * 100}% - 0.5px)`, height: "1px", zIndex: 3 }}
-          >
-            <div className="w-full h-[1px] bg-purple-500 opacity-40" />
-          </div>
-        );
-      })}
 
       {/* User rating fill (behind) */}
       <div

@@ -51,7 +51,7 @@ def create_comment_endpoint(
         logging.error(f"Error creating comment: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
-@router.get("/comments", response_model=CommentListResponse)
+@router.get("/", response_model=CommentListResponse)
 def get_comments_endpoint(
     db: Session = Depends(get_db),
     current_user_id: Optional[int] = Depends(get_current_user_optional),

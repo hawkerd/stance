@@ -8,7 +8,7 @@ import { StanceFeedStance } from "@/models";
 import StanceContentRenderer from "@/components/StanceContentRenderer";
 import VerticalRating from "@/components/VerticalRating";
 import CommentsModal from "@/components/modals/CommentsModal";
-import StancePageEntityPreview from "@/components/stance-page/StancePageEntityPreview";
+import StancePageEntityPreview from "@/components/EntityPreview";
 
 
 interface StancePageProps {

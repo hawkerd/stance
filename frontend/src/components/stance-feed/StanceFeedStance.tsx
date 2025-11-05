@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
+import { useRouter } from "next/navigation";
 import StanceContentRenderer from "@/components/StanceContentRenderer";
 import { StanceFeedStance } from "@/models";
 import { StanceService } from "@/service/StanceService";
 import VerticalRating from "@/components/VerticalRating";
 import CommentsModal from "@/components/modals/CommentsModal";
+import StancePageEntityPreview from "@/components/EntityPreview";
 
 interface StanceProps {
   stance: StanceFeedStance;
@@ -21,6 +23,7 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
   const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false);
   const stanceService = new StanceService();
   const API = useAuthApi();
+  const router = useRouter();
 
   const handleRateStance = async (rating: number | null) => {
     if (rating === null) return;
@@ -76,15 +79,8 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
     <div className="flex gap-6 relative h-full">
       {/* Main Content */}
       <div className="flex-1 relative rounded-lg border border-gray-200 shadow-sm bg-white p-8 transition-all hover:shadow-xl hover:shadow-purple-100 hover:border-purple-200 flex flex-col overflow-y-auto scrollbar-hidden">
-        <div className="absolute top-4 right-4 flex flex-col items-center z-10">
-          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 text-xl font-bold shadow-md border border-gray-300">
-            <svg className="w-7 h-7" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-            </svg>
-          </div>
-          <span className="text-xs font-semibold text-purple-700 mt-1">{stance.user.username}</span>
-        </div>
+        {/* Entity Preview */}
+        <StancePageEntityPreview entity={stance.entity} />
 
         <h2 className="text-[2rem] font-extrabold text-[#171717] mb-6 tracking-[-0.02em] text-center" style={{ fontFamily: "'Inter', 'Geist', 'Segoe UI', 'Arial', 'Helvetica', sans-serif" }}>
           {stance.headline}
@@ -95,12 +91,26 @@ const Stance: React.FC<StanceProps> = ({ stance }) => {
             <StanceContentRenderer content_json={stance.content_json} />
           </div>
         )}
-
-        <div className="w-full border-t-2 border-purple-200 my-6 opacity-80" />
       </div>
 
   {/* Sidebar sticky at bottom right of stance container */}
-  <div className="w-12 flex flex-col items-center sticky bottom-4 self-end z-30">
+  <div className="w-12 flex flex-col items-center sticky bottom-4 self-end z-30 gap-3">
+        {/* User Profile - TikTok style */}
+        <div 
+          className="flex flex-col items-center cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => router.push(`/users/${stance.user.id}`)}
+        >
+          <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-400 overflow-hidden shadow-lg border-2 border-white">
+            {stance.user.avatar_url ? (
+              <img src={stance.user.avatar_url} alt={stance.user.username} className="w-full h-full object-cover" />
+            ) : (
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+              </svg>
+            )}
+          </div>
+        </div>
 
         {/* Rating + Reset Block */}
         <div className="relative flex flex-col items-center gap-1.5 group">

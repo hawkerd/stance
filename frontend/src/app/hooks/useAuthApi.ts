@@ -5,6 +5,7 @@ import { useMemo, useRef, useEffect } from "react";
 export const useAuthApi = (): AxiosInstance => {
   const { accessToken, refreshAccessToken, logout } = useAuth();
   const tokenRef = useRef(accessToken);
+  const refreshingRef = useRef<Promise<string | null> | null>(null);
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "";
 
   useEffect(() => {
@@ -30,7 +31,21 @@ export const useAuthApi = (): AxiosInstance => {
         const originalRequest = error.config;
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
-          const newToken = await refreshAccessToken();
+          
+          // wait for ongoing refresh if any
+          if (!refreshingRef.current) {
+            refreshingRef.current = refreshAccessToken()
+              .then((newToken) => {
+                refreshingRef.current = null;
+                return newToken;
+              })
+              .catch((err) => {
+                refreshingRef.current = null;
+                throw err;
+              });
+          }
+          
+          const newToken = await refreshingRef.current;
           console.log("Refreshed token:", newToken);
           if (newToken) {
             tokenRef.current = newToken;

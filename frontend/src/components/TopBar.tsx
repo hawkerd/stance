@@ -6,7 +6,7 @@ import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 
 const TopBar: React.FC = () => {
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout, initialized } = useAuth();
 
   return (
     <aside
@@ -50,7 +50,7 @@ const TopBar: React.FC = () => {
           }>
             Admin
           </SidebarItem>
-        {isAuthenticated ? (
+        {initialized && isAuthenticated ? (
           <SidebarItem href="/profile" icon={
             <span className="w-6 h-6 flex items-center justify-center overflow-hidden rounded-full bg-gray-200">
               <Image src="/profile.png" alt="Profile" width={24} height={24} className="object-cover w-full h-full" />
@@ -58,7 +58,7 @@ const TopBar: React.FC = () => {
           }>
             Profile
           </SidebarItem>
-        ) : (
+        ) : initialized ? (
           <SidebarItem href="/login" icon={
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-3A2.25 2.25 0 008.25 5.25V9m7.5 0v10.5A2.25 2.25 0 0113.5 21h-3A2.25 2.25 0 018.25 19.5V9m7.5 0H8.25m7.5 0a2.25 2.25 0 012.25 2.25v7.5A2.25 2.25 0 0115.75 21h-7.5A2.25 2.25 0 016 19.5v-7.5A2.25 2.25 0 018.25 9h7.5z" />
@@ -66,7 +66,7 @@ const TopBar: React.FC = () => {
           }>
             Sign in
           </SidebarItem>
-        )}
+        ) : null}
       </div>
       <div className="flex-1" />
       {/* Options item at the bottom */}
