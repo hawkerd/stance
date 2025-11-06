@@ -1,12 +1,11 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 from app.database.models import Entity
-from typing import Optional, List
 from app.errors import DatabaseError
 import logging
 from datetime import datetime
 
-def create_entity(db: Session, type: int, title: str, images_json: str, description: str = None, start_time: Optional[datetime] = None, end_time: Optional[datetime] = None) -> Entity:
+def create_entity(db: Session, type: int, title: str, images_json: str, description: str = None, start_time: datetime | None = None, end_time: datetime | None = None) -> Entity:
     try:
         entity = Entity(
             type=type,
@@ -24,14 +23,14 @@ def create_entity(db: Session, type: int, title: str, images_json: str, descript
         logging.error(f"Error creating entity: {e}")
         raise DatabaseError("Failed to create entity")
 
-def read_entity(db: Session, entity_id: int) -> Optional[Entity]:
+def read_entity(db: Session, entity_id: int) -> Entity | None:
     try:
         return db.query(Entity).filter(Entity.id == entity_id).first()
     except Exception as e:
         logging.error(f"Error reading entity {entity_id}: {e}")
         raise DatabaseError("Failed to read entity")
 
-def update_entity(db: Session, entity_id: int, **kwargs) -> Optional[Entity]:
+def update_entity(db: Session, entity_id: int, **kwargs) -> Entity | None:
     ALLOWED_FIELDS = {"title", "description", "start_time", "end_time", "images_json"}
     try:
         entity = db.query(Entity).filter(Entity.id == entity_id).first()
@@ -59,14 +58,14 @@ def delete_entity(db: Session, entity_id: int) -> bool:
         raise DatabaseError("Failed to delete entity")
     return False
 
-def get_all_entities(db: Session) -> List[Entity]:
+def get_all_entities(db: Session) -> list[Entity]:
     try:
         return db.query(Entity).all()
     except Exception as e:
         logging.error(f"Error getting all entities: {e}")
         raise DatabaseError("Failed to get all entities")
 
-def get_random_entities(db: Session, n: int) -> List[Entity]:
+def get_random_entities(db: Session, n: int) -> list[Entity]:
     """Fetch n random entities from the database."""
     try:
         entities = db.query(Entity).order_by(func.random()).limit(n).all()
@@ -75,7 +74,7 @@ def get_random_entities(db: Session, n: int) -> List[Entity]:
         logging.error(f"Error getting {n} random entities: {e}")
         raise DatabaseError("Failed to get random entities")
 
-def get_entities_paginated(db: Session, limit: int, cursor: Optional[datetime] = None) -> List[Entity]:
+def get_entities_paginated(db: Session, limit: int, cursor: datetime | None = None) -> list[Entity]:
     """Fetch entities ordered by created_at (descending) with cursor-based pagination."""
     try:
         query = db.query(Entity)

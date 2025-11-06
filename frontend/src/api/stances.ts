@@ -16,11 +16,9 @@ export type NumRatingsResponse = components["schemas"]["NumRatingsResponse"];
 export type StanceFeedRequest = components["schemas"]["StanceFeedRequest"];
 export type StanceFeedResponse = components["schemas"]["StanceFeedResponse"];
 export type StanceFeedStanceResponse = components["schemas"]["StanceFeedStanceResponse"];
-export type PaginatedStanceByEntityRequest = components["schemas"]["PaginatedStanceByEntityRequest"];
-export type PaginatedStancesByEntityResponse = components["schemas"]["PaginatedStancesByEntityResponse"];
+export type EntityStancesResponse = components["schemas"]["EntityStancesResponse"];
 export type PaginatedStancesByEntityStanceResponse = components["schemas"]["PaginatedStancesByEntityStanceResponse"];
-export type PaginatedStancesByUserRequest = components["schemas"]["PaginatedStancesByUserRequest"];
-export type PaginatedStancesByUserResponse = components["schemas"]["PaginatedStancesByUserResponse"];
+export type UserStancesResponse = components["schemas"]["UserStancesResponse"];
 export type StanceFollowingFeedRequest = components["schemas"]["StanceFollowingFeedRequest"];
 export type StanceFollowingFeedResponse = components["schemas"]["StanceFollowingFeedResponse"];
 
@@ -155,9 +153,18 @@ export async function getNumRatings(
 export async function getStancesByEntity(
   api: AxiosInstance,
   entityId: number,
-  payload: PaginatedStanceByEntityRequest
-): Promise<PaginatedStancesByEntityResponse> {
-  const res = await api.post<PaginatedStancesByEntityResponse>(`/entities/${entityId}/stances/feed`, payload);
+  cursor?: { score: number; id: number },
+  limit?: number
+): Promise<EntityStancesResponse> {
+  const params: any = {};
+  if (cursor) {
+    params.cursor_score = cursor.score;
+    params.cursor_id = cursor.id;
+  }
+  if (limit) {
+    params.limit = limit;
+  }
+  const res = await api.get<EntityStancesResponse>(`/entities/${entityId}/stances`, { params });
   return res.data;
 }
 
@@ -174,16 +181,20 @@ export async function getMyStanceForEntity(
 
 /**
  * Get paginated stances for a specific user
- * Backend: POST /users/{user_id}/stances/feed
  */
 export async function getPaginatedStancesByUser(
   api: AxiosInstance,
   userId: number,
-  data: PaginatedStancesByUserRequest
-): Promise<PaginatedStancesByUserResponse> {
-  const res = await api.post<PaginatedStancesByUserResponse>(
-    `/users/${userId}/stances/feed`,
-    data
+  cursor?: string,
+  limit?: number
+): Promise<UserStancesResponse> {
+  const params: any = {};
+  if (cursor) params.cursor = cursor;
+  if (limit) params.limit = limit;
+
+  const res = await api.get<UserStancesResponse>(
+    `/users/${userId}/stances`,
+    { params }
   );
   return res.data;
 }
@@ -200,7 +211,6 @@ export async function getAllStances(
 
 /**
  * Get the global feed of stances (randomized, not entity/user specific)
- * Backend: POST /stances/feed
  */
 export async function getFeed(
   api: AxiosInstance,

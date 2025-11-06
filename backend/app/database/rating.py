@@ -20,7 +20,7 @@ def create_or_update_rating(db: Session, stance_id: int, user_id: int, rating_va
         logging.error(f"Error creating/updating rating: {e}")
         raise DatabaseError("Failed to create or update rating")
 
-def read_rating_by_user_and_stance(db: Session, stance_id: int, user_id: int) -> Rating:
+def read_rating_by_user_and_stance(db: Session, stance_id: int, user_id: int) -> Rating | None:
     try:
         return db.query(Rating).filter_by(stance_id=stance_id, user_id=user_id).first()
     except Exception as e:

@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import logging
-from typing import Optional, List
 from datetime import datetime
 import json
 import base64
@@ -32,7 +31,7 @@ def create_entity_endpoint(
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
         
         # Upload images and get URLs
-        image_urls: List[str] = []
+        image_urls: list[str] = []
         if request.images:
             for img in request.images:
                 img_bytes: bytes = base64.b64decode(img)
@@ -52,7 +51,7 @@ def create_entity_endpoint(
         )
 
         # handle tags
-        tags_response: List[TagResponse] = []
+        tags_response: list[TagResponse] = []
         for tag_req in request.tags:
             tag: Tag = tag_db.find_tag(db, name=tag_req.name, tag_type=tag_req.tag_type)
             if not tag:
@@ -84,14 +83,14 @@ def create_entity_endpoint(
 def get_home_feed(
     num_entities: int = 10,
     num_stances_per_entity: int = 15,
-    cursor: Optional[str] = None,
+    cursor: str | None = None,
     db: Session = Depends(get_db),
-    current_user_id: Optional[int] = Depends(get_current_user_optional)
+    current_user_id: int | None = Depends(get_current_user_optional)
 ) -> EntityFeedResponse:
     try:
         logging.info(f"Fetching home feed: num_entities={num_entities}, num_stances_per_entity={num_stances_per_entity}, cursor={cursor}, user_id={current_user_id}")
         # if cursor is provided, parse it into datetime
-        cursor_datetime: Optional[datetime] = None
+        cursor_datetime: datetime | None = None
         if cursor:
             try:
                 cursor_datetime = datetime.fromisoformat(cursor)
@@ -99,7 +98,7 @@ def get_home_feed(
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid cursor format")
         
         # fetch n+1 entities to check if there are more
-        entities: List[Entity] = entity_db.get_entities_paginated(db, limit=num_entities + 1, cursor=cursor_datetime)
+        entities: list[Entity] = entity_db.get_entities_paginated(db, limit=num_entities + 1, cursor=cursor_datetime)
         if not entities:
             return EntityFeedResponse(entities=[], next_cursor=None, has_more=False)
 
@@ -107,17 +106,17 @@ def get_home_feed(
         if has_more:
             entities = entities[:num_entities]
 
-        feed_entities: List[EntityFeedEntity] = []
+        feed_entities: list[EntityFeedEntity] = []
         for entity in entities:
             # fetch tags
-            tags: List[Tag] = entity_tag_db.get_tags_for_entity(db, entity.id)
-            feed_tags: List[EntityFeedTag] = [EntityFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+            tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, entity.id)
+            feed_tags: list[EntityFeedTag] = [EntityFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
 
             # stances
-            stances: List[Stance] = stance_db.get_n_stances_by_entity(db, entity.id, num_stances_per_entity)
-            feed_stances: List[EntityFeedStance] = []
+            stances: list[Stance] = stance_db.get_n_stances_by_entity(db, entity.id, num_stances_per_entity)
+            feed_stances: list[EntityFeedStance] = []
             for s in stances:
-                avg_rating: Optional[float] = rating_db.get_average_rating_for_stance(db, s.id)
+                avg_rating: float | None = rating_db.get_average_rating_for_stance(db, s.id)
                 feed_stances.append(EntityFeedStance(id=s.id, headline=s.headline, average_rating=avg_rating))
 
             feed_entity = EntityFeedEntity(
@@ -134,7 +133,7 @@ def get_home_feed(
             feed_entities.append(feed_entity)
 
         # set next_cursor
-        next_cursor: Optional[str] = None
+        next_cursor: str | None = None
         if has_more and entities:
             next_cursor = entities[-1].created_at.isoformat()
 
@@ -152,7 +151,7 @@ def get_entity_endpoint(
 ) -> EntityReadResponse:
     try:
         # get tags
-        tags: List[Tag] = entity_tag_db.get_tags_for_entity(db, entity.id)
+        tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, entity.id)
 
         return EntityReadResponse(
             id=entity.id,
@@ -182,7 +181,7 @@ def update_entity_endpoint(
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
         
         # images
-        image_urls: List[str] = []
+        image_urls: list[str] = []
         if request.images:
             for img in request.images:
                 img_bytes: bytes = base64.b64decode(img)
@@ -192,7 +191,7 @@ def update_entity_endpoint(
 
         # new tags
         entity_tag_db.delete_entity_tags_for_entity(db, entity.id)
-        tags_response: List[TagResponse] = []
+        tags_response: list[TagResponse] = []
         for tag_req in request.tags:
             tag: Tag = tag_db.find_tag(db, name=tag_req.name, tag_type=tag_req.tag_type)
             if not tag:
@@ -243,11 +242,11 @@ def get_all_entities_endpoint(
     db: Session = Depends(get_db)
 ) -> EntityListResponse:
     try:
-        entities: List[Entity] = entity_db.get_all_entities(db)
-        entity_list: List[EntityReadResponse] = []
+        entities: list[Entity] = entity_db.get_all_entities(db)
+        entity_list: list[EntityReadResponse] = []
         for entity in entities:
             # get tags
-            tags: List[Tag] = entity_tag_db.get_tags_for_entity(db, entity.id)
+            tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, entity.id)
             entity_list.append(
                 EntityReadResponse(
                     id=entity.id,

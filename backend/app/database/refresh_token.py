@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from app.database.models import User, RefreshToken
-from typing import Optional, List
 from app.errors import DatabaseError
 import logging
 
@@ -20,21 +19,21 @@ def create_refresh_token(db: Session, user_id: int, hashed_token: str, expires_a
         logging.error(f"Error creating refresh token for user {user_id}: {e}")
         raise DatabaseError("Failed to create refresh token")
 
-def get_refresh_token(db: Session, token_id: int) -> Optional[RefreshToken]:
+def get_refresh_token(db: Session, token_id: int) -> RefreshToken | None:
     try:
         return db.query(RefreshToken).filter(RefreshToken.id == token_id).first()
     except Exception as e:
         logging.error(f"Error getting refresh token {token_id}: {e}")
         raise DatabaseError("Failed to get refresh token")
 
-def get_refresh_token_by_hash(db: Session, hashed_token: str) -> Optional[RefreshToken]:
+def get_refresh_token_by_hash(db: Session, hashed_token: str) -> RefreshToken | None:
     try:
         return db.query(RefreshToken).filter(RefreshToken.hashed_token == hashed_token).first()
     except Exception as e:
         logging.error(f"Error getting refresh token by hash: {e}")
         raise DatabaseError("Failed to get refresh token by hash")
 
-def get_user_refresh_tokens(db: Session, user_id: int) -> List[RefreshToken]:
+def get_user_refresh_tokens(db: Session, user_id: int) -> list[RefreshToken]:
     try:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
@@ -44,7 +43,7 @@ def get_user_refresh_tokens(db: Session, user_id: int) -> List[RefreshToken]:
         logging.error(f"Error getting refresh tokens for user {user_id}: {e}")
         raise DatabaseError("Failed to get user refresh tokens")
 
-def update_refresh_token(db: Session, token_id: int, **kwargs) -> Optional[RefreshToken]:
+def update_refresh_token(db: Session, token_id: int, **kwargs) -> RefreshToken | None:
     try:
         token = db.query(RefreshToken).filter(RefreshToken.id == token_id).first()
         if not token:

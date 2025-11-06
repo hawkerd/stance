@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
 from app.database.models import User
-from typing import Optional
 from app.errors import DatabaseError
 import logging
 
-def create_user(db: Session, username: str, full_name: Optional[str], email: str, password_hash: str, is_admin: bool) -> User:
+def create_user(db: Session, username: str, full_name: str | None, email: str, password_hash: str, is_admin: bool) -> User:
     try:
         user = User(
             username=username,
@@ -21,14 +20,14 @@ def create_user(db: Session, username: str, full_name: Optional[str], email: str
         logging.error(f"Error creating user: {e}")
         raise DatabaseError("Failed to create user")
 
-def read_user(db: Session, user_id: int) -> Optional[User]:
+def read_user(db: Session, user_id: int) -> User | None:
     try:
         return db.query(User).filter(User.id == user_id).first()
     except Exception as e:
         logging.error(f"Error reading user {user_id}: {e}")
         raise DatabaseError("Failed to read user")
 
-def update_user(db: Session, user_id: int, **kwargs) -> Optional[User]:
+def update_user(db: Session, user_id: int, **kwargs) -> User | None:
     try:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
@@ -55,14 +54,14 @@ def delete_user(db: Session, user_id: int) -> bool:
         raise DatabaseError("Failed to delete user")
     return False
 
-def get_user_by_username(db: Session, username: str) -> Optional[User]:
+def get_user_by_username(db: Session, username: str) -> User | None:
     try:
         return db.query(User).filter(User.username == username).first()
     except Exception as e:
         logging.error(f"Error getting user by username {username}: {e}")
         raise DatabaseError("Failed to get user by username")
 
-def get_user_by_email(db: Session, email: str) -> Optional[User]:
+def get_user_by_email(db: Session, email: str) -> User | None:
     try:
         return db.query(User).filter(User.email == email).first()
     except Exception as e:

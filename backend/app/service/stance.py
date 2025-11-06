@@ -1,11 +1,9 @@
 import base64
-import uuid
-from typing import Any, Dict, List, Tuple
 from app.service.storage import upload_image_to_storage
 import json
 
-def process_stance_content_json(content_json: str) -> Tuple[str, List[str]]:
-    image_urls: List[str] = []
+def process_stance_content_json(content_json: str) -> tuple[str, list[str]]:
+    image_urls: list[str] = []
 
     def process_node(node):
         if not isinstance(node, dict):

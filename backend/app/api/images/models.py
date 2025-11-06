@@ -1,9 +1,8 @@
 from pydantic import BaseModel
-from typing import Optional
 
 class ImageCreateRequest(BaseModel):
-    stance_id: Optional[int] = None
-    entity_id: Optional[int] = None
+    stance_id: int | None = None
+    entity_id: int | None = None
     mime_type: str
     image_content: bytes
 

@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import Optional, List
 import logging
 
 from app.dependencies import *
@@ -24,12 +23,12 @@ router = APIRouter(tags=["stances"], prefix="/entities/{entity_id}/stances")
 def get_my_stance_rating_endpoint(
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> ReadStanceRatingResponse:
     try:
         entity, stance = entity_stance
 
-        rating_obj: Optional[Rating] = rating_db.read_rating_by_user_and_stance(db, stance.id, user_id)
+        rating_obj: Rating | None = rating_db.read_rating_by_user_and_stance(db, stance.id, user_id)
         rating = rating_obj.rating if rating_obj else None
         return ReadStanceRatingResponse(rating=rating)
     except HTTPException:
@@ -49,7 +48,7 @@ def create_stance_endpoint(
         logging.info(f"Creating stance for user {user_id} with entity_id {entity.id}")
 
         # check if the user already has a stance for this entity
-        existing_stances: List[Stance] = stance_db.get_stances_by_user(db, user_id)
+        existing_stances: list[Stance] = stance_db.get_stances_by_user(db, user_id)
         for stance in existing_stances:
             if stance.entity_id == entity.id:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already has a stance for this entity")
@@ -81,23 +80,23 @@ def create_stance_endpoint(
         logging.error(f"Error creating stance: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
-@router.get("/me", response_model=Optional[PaginatedStancesByEntityStanceResponse])
+@router.get("/me", response_model=PaginatedStancesByEntityStanceResponse | None)
 def get_my_stance_for_entity(
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user),
     entity: Entity = Depends(validate_entity)
-) -> Optional[PaginatedStancesByEntityStanceResponse]:
+) -> PaginatedStancesByEntityStanceResponse | None:
     try:
-        stance: Optional[Stance] = stance_db.get_user_stance_by_entity(db, entity_id=entity.id, user_id=user_id)
+        stance: Stance | None = stance_db.get_user_stance_by_entity(db, entity_id=entity.id, user_id=user_id)
         if not stance:
             return None
         
         # read user information
-        user: Optional[User] = user_db.read_user(db, stance.user_id)
+        user: User | None = user_db.read_user(db, stance.user_id)
         if not user:
             return None
-        
-        profile: Optional[Profile] = profile_db.get_profile_by_user_id(db, user.id)
+
+        profile: Profile | None = profile_db.get_profile_by_user_id(db, user.id)
 
         stance_user: StanceFeedUser = StanceFeedUser(
             id=user.id,
@@ -105,17 +104,17 @@ def get_my_stance_for_entity(
             avatar_url=profile.avatar_url if profile else None
         )
 
-        tags: List[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
-        stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+        tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
+        stance_tags: list[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
 
-        entity: Optional[Entity] = entity_db.read_entity(db, stance.entity_id)
+        entity: Entity | None = entity_db.read_entity(db, stance.entity_id)
         if not entity:
             return None
 
-        average_rating: Optional[float] = rating_db.get_average_rating_for_stance(db, stance.id)
+        average_rating: float | None = rating_db.get_average_rating_for_stance(db, stance.id)
         num_ratings: int = rating_db.get_num_ratings_for_stance(db, stance.id)
-        my_rating: Optional[int] = None
-        rating: Rating = rating_db.read_rating_by_user_and_stance(db, stance.id, user_id)
+        my_rating: int | None = None
+        rating: Rating | None = rating_db.read_rating_by_user_and_stance(db, stance.id, user_id)
         my_rating = rating.rating if rating else None
 
         comment_count: int = stance_db.get_comment_count_by_stance(db, stance.id)
@@ -144,12 +143,12 @@ def get_my_stance_for_entity(
 @router.get("/{stance_id}", response_model=StanceReadResponse)
 def get_stance_basic_endpoint(
     db: Session = Depends(get_db),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> StanceReadResponse:
     try:
         entity, stance = entity_stance
 
-        avg_rating: Optional[float] = rating_db.get_average_rating_for_stance(db, stance.id)
+        avg_rating: float | None = rating_db.get_average_rating_for_stance(db, stance.id)
         return StanceReadResponse(
             id=stance.id,
             user_id=stance.user_id,
@@ -167,28 +166,28 @@ def get_stance_basic_endpoint(
 @router.get("/{stance_id}/page", response_model=StanceFeedStanceResponse)
 def get_stance_endpoint(
     db: Session = Depends(get_db),
-    current_user_id: Optional[int] = Depends(get_current_user_optional),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    current_user_id: int | None = Depends(get_current_user_optional),
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> StanceFeedStanceResponse:
     try:
         entity, stance = entity_stance
 
         # read user information
-        user: Optional[User] = user_db.read_user(db, stance.user_id)
+        user: User | None = user_db.read_user(db, stance.user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-        profile: Optional[Profile] = profile_db.get_profile_by_user_id(db, user.id)
+        profile: Profile | None = profile_db.get_profile_by_user_id(db, user.id)
         stance_user: StanceFeedUser = StanceFeedUser(
             id=user.id,
             username=user.username,
             avatar_url=profile.avatar_url if profile else None
         )
 
-        tags: List[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
-        stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+        tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
+        stance_tags: list[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
 
-        entity: Optional[Entity] = entity_db.read_entity(db, stance.entity_id)
+        entity: Entity | None = entity_db.read_entity(db, stance.entity_id)
         if not entity:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entity not found")
 
@@ -203,11 +202,11 @@ def get_stance_endpoint(
             end_time=str(entity.end_time) if entity.end_time else None
         )
 
-        average_rating: Optional[float] = rating_db.get_average_rating_for_stance(db, stance.id)
+        average_rating: float | None = rating_db.get_average_rating_for_stance(db, stance.id)
         num_ratings: int = rating_db.get_num_ratings_for_stance(db, stance.id)
-        my_rating: Optional[int] = None
+        my_rating: int | None = None
         if current_user_id:
-            rating: Rating = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
+            rating: Rating | None = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
             my_rating = rating.rating if rating else None
 
         comment_count: int = stance_db.get_comment_count_by_stance(db, stance.id)
@@ -237,7 +236,7 @@ def update_stance_endpoint(
     request: StanceUpdateRequest,
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> StanceUpdateResponse:
     try:
         entity, stance = entity_stance
@@ -276,7 +275,7 @@ def update_stance_endpoint(
 def delete_stance_endpoint(
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> None:
     try:
         entity, stance = entity_stance
@@ -298,7 +297,7 @@ def rate_stance_endpoint(
     request: StanceRateRequest,
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> StanceRateResponse:
     try:
         entity, stance = entity_stance
@@ -314,7 +313,7 @@ def rate_stance_endpoint(
 @router.get("/{stance_id}/num-ratings", response_model=NumRatingsResponse)
 def get_num_ratings_endpoint(
     db: Session = Depends(get_db),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> NumRatingsResponse:
     try:
         entity, stance = entity_stance
@@ -326,31 +325,39 @@ def get_num_ratings_endpoint(
         logging.error(f"Error getting num ratings for stance {stance.id}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
     
-@router.post("/feed", response_model=PaginatedStancesByEntityResponse)
-def get_stances_by_entity_paginated_endpoint(
-    request: PaginatedStanceByEntityRequest,
+@router.get("/", response_model=EntityStancesResponse)
+def get_entity_stances_endpoint(
+    cursor_score: float | None = None,
+    cursor_id: int | None = None,
+    limit: int = Query(20, le=100),
     db: Session = Depends(get_db),
-    current_user_id: Optional[int] = Depends(get_current_user_optional),
+    current_user_id: int | None = Depends(get_current_user_optional),
     entity: Entity = Depends(validate_entity)
-) -> PaginatedStancesByEntityResponse:
+) -> EntityStancesResponse:
     try:
         # get random stances
-        stances: List[Stance] = stance_db.get_stances_by_entity_paginated(
+        stances: list[Stance] = stance_db.get_entity_stances(
             db,
             entity_ids=[entity.id],
-            limit=request.num_stances,
-            cursor_score=request.cursor.score if request.cursor else None,
-            cursor_id=request.cursor.id if request.cursor else None
+            cursor_score=cursor_score,
+            cursor_id=cursor_id,
+            limit=limit,
         )
 
-        feed_stances: List[PaginatedStancesByEntityStance] = []
+        next_cursor: PaginatedStancesByEntityCursor | None = None
+        if limit and stances and len(stances) > limit:
+            stances = stances[:-1] # remove the extra stance used to check for next cursor
+            last_stance = stances[-1]
+            next_cursor = PaginatedStancesByEntityCursor(score=last_stance.engagement_score, id=last_stance.id)
+
+        feed_stances: list[PaginatedStancesByEntityStance] = []
         for stance in stances:
             # read user information
-            user: Optional[User] = user_db.read_user(db, stance.user_id)
+            user: User | None = user_db.read_user(db, stance.user_id)
             if not user:
                 continue
 
-            profile: Optional[Profile] = profile_db.get_profile_by_user_id(db, user.id)
+            profile: Profile | None = profile_db.get_profile_by_user_id(db, user.id)
 
             stance_user: StanceFeedUser = StanceFeedUser(
                 id=user.id,
@@ -358,14 +365,14 @@ def get_stances_by_entity_paginated_endpoint(
                 avatar_url=profile.avatar_url if profile else None
             )
 
-            tags: List[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
-            stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+            tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
+            stance_tags: list[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
 
-            average_rating: Optional[float] = rating_db.get_average_rating_for_stance(db, stance.id)
+            average_rating: float | None = rating_db.get_average_rating_for_stance(db, stance.id)
             num_ratings: int = rating_db.get_num_ratings_for_stance(db, stance.id)
-            my_rating: Optional[int] = None
+            my_rating: int | None = None
             if current_user_id:
-                rating: Rating = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
+                rating: Rating | None = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
                 my_rating = rating.rating if rating else None
 
             comment_count: int = stance_db.get_comment_count_by_stance(db, stance.id)
@@ -385,12 +392,7 @@ def get_stances_by_entity_paginated_endpoint(
             )
             feed_stances.append(stance_stance)
 
-        next_cursor: Optional[PaginatedStancesByEntityCursor] = None
-        if stances and len(stances) == request.num_stances:
-            last_stance = stances[-1]
-            next_cursor = PaginatedStancesByEntityCursor(score=last_stance.engagement_score, id=last_stance.id)
-
-        return PaginatedStancesByEntityResponse(stances=feed_stances, next_cursor=next_cursor)
+        return EntityStancesResponse(stances=feed_stances, next_cursor=next_cursor)
     except HTTPException:
         raise
     except Exception as e:

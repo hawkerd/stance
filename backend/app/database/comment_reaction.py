@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from app.database.models import User, CommentReaction
-from typing import Optional
 from app.errors import DatabaseError
 import logging
 
@@ -19,14 +18,14 @@ def create_comment_reaction(db: Session, user_id: int, comment_id: int, is_like:
         logging.error(f"Error creating comment reaction: {e}")
         raise DatabaseError("Failed to create comment reaction")
     
-def read_comment_reaction(db: Session, reaction_id: int) -> Optional[CommentReaction]:
+def read_comment_reaction(db: Session, reaction_id: int) -> CommentReaction | None:
     try:
         return db.query(CommentReaction).filter(CommentReaction.id == reaction_id).first()
     except Exception as e:
         logging.error(f"Error reading comment reaction {reaction_id}: {e}")
         raise DatabaseError("Failed to read comment reaction")
-    
-def update_comment_reaction(db: Session, reaction_id: int, is_like: bool) -> Optional[CommentReaction]:
+
+def update_comment_reaction(db: Session, reaction_id: int, is_like: bool) -> CommentReaction | None:
     try:
         reaction = db.query(CommentReaction).filter(CommentReaction.id == reaction_id).first()
         if not reaction:
@@ -51,7 +50,7 @@ def delete_comment_reaction(db: Session, reaction_id: int) -> bool:
         raise DatabaseError("Failed to delete comment reaction")
     return False
 
-def read_comment_reaction_by_user_and_comment(db: Session, user_id: int, comment_id: int) -> Optional[CommentReaction]:
+def read_comment_reaction_by_user_and_comment(db: Session, user_id: int, comment_id: int) -> CommentReaction | None:
     try:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:

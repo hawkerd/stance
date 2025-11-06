@@ -4,7 +4,6 @@ import hashlib
 import jwt
 from datetime import datetime, timedelta, timezone
 import os
-from typing import Optional
 
 REFRESH_TOKEN_EXPIRES_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRES_DAYS"))
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
@@ -45,7 +44,7 @@ def create_access_token(user_id: int, is_admin: bool) -> str:
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return token
 
-def verify_access_token(token: str) -> Optional[int]:
+def verify_access_token(token: str) -> int | None:
     """
     Verify a JWT. Returns user_id if valid, None if invalid/expired.
     """

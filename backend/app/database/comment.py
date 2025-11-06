@@ -1,11 +1,10 @@
 from sqlalchemy import asc, func, case, select
 from sqlalchemy.orm import Session
 from app.database.models import Comment
-from typing import Optional, List
 from app.errors import DatabaseError
 import logging
 
-def create_comment(db: Session, user_id: int, stance_id: int, content: str, parent_id: Optional[int] = None) -> Comment:
+def create_comment(db: Session, user_id: int, stance_id: int, content: str, parent_id: int | None = None) -> Comment:
     try:
         comment = Comment(
             user_id=user_id,
@@ -21,14 +20,14 @@ def create_comment(db: Session, user_id: int, stance_id: int, content: str, pare
         logging.error(f"Error creating comment: {e}")
         raise DatabaseError("Failed to create comment")
 
-def read_comment(db: Session, comment_id: int) -> Optional[Comment]:
+def read_comment(db: Session, comment_id: int) -> Comment | None:
     try:
         return db.query(Comment).filter(Comment.id == comment_id).first()
     except Exception as e:
         logging.error(f"Error reading comment {comment_id}: {e}")
         raise DatabaseError("Failed to read comment")
 
-def update_comment(db: Session, comment_id: int, **kwargs) -> Optional[Comment]:
+def update_comment(db: Session, comment_id: int, **kwargs) -> Comment | None:
     try:
         comment = db.query(Comment).filter(Comment.id == comment_id).first()
         if not comment:
@@ -55,7 +54,7 @@ def delete_comment(db: Session, comment_id: int) -> bool:
         raise DatabaseError("Failed to delete comment")
     return False
 
-def get_all_comments(db: Session) -> List[Comment]:
+def get_all_comments(db: Session) -> list[Comment]:
     try:
         return db.query(Comment).all()
     except Exception as e:
@@ -76,7 +75,7 @@ def read_comment_likes_dislikes(db: Session, comment_id: int) -> dict:
         logging.error(f"Error reading likes/dislikes for comment {comment_id}: {e}")
         raise DatabaseError("Failed to read likes/dislikes for comment")
     
-def get_comment_replies(db: Session, comment_id: int) -> List[Comment]:
+def get_comment_replies(db: Session, comment_id: int) -> list[Comment]:
     try:
         # fetch all comments whose parent_id is comment_id or whose ancestor is comment_id
         replies = []

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import logging
+from datetime import datetime
 
 from app.dependencies import *
 from app.database.models import *
@@ -210,7 +211,7 @@ def update_profile_endpoint(
 def get_profile_page_endpoint(
     db: Session = Depends(get_db),
     user: User = Depends(validate_user),
-    current_user: Optional[int] = Depends(get_current_user_optional)
+    current_user: int | None = Depends(get_current_user_optional)
 ) -> ProfilePageResponse:
     try:
         logging.info(f"Fetching profile page for user {user.id}")
@@ -224,7 +225,7 @@ def get_profile_page_endpoint(
         following: Optional[bool] = None
         if current_user:
             following = follow_db.find_follow(db, follower_id=current_user, followed_id=user.id) is not None
-        entity_id: Optional[int] = None
+        entity_id: int | None = None
         if profile.pinned_stance_id:
             pinned_stance: Optional[Stance] = stance_db.read_stance(db, stance_id=profile.pinned_stance_id)
             if pinned_stance:
@@ -299,12 +300,26 @@ def unfollow_user_endpoint(
 @router.get("/{user_id}/followers", response_model=UserListResponse)
 def get_followers_endpoint(
     db: Session = Depends(get_db),
-    user: User = Depends(validate_user)
+    user: User = Depends(validate_user),
+    cursor: str | None = None,
+    limit: int | None = None
 ) -> UserListResponse:
     try:
-        followers: list[User] = [follow.follower for follow in user.followers]
-        user_list = [UserReadResponse(id=follower.id, username=follower.username, full_name=follower.full_name, email=follower.email) for follower in followers]
-        return UserListResponse(users=user_list)
+        cursor_dt: datetime | None = None
+        if cursor:
+            cursor_dt = datetime.fromisoformat(cursor)
+
+        follows: list[Follow] = follow_db.read_user_followers(db, user_id=user.id, cursor=cursor_dt, limit=limit)
+
+        next_cursor: str | None = None
+        if limit and len(follows) > limit:
+            next_cursor = follows[limit - 1].created_at.isoformat()
+            follows = follows[:limit]
+
+        users: list[User] = [follow.follower for follow in follows]
+
+        user_list: list[UserReadResponse] = [UserReadResponse(id=user.id, username=user.username, full_name=user.full_name, email=user.email) for user in users]
+        return UserListResponse(users=user_list, next_cursor=next_cursor)
     except HTTPException:
         raise
     except Exception as e:
@@ -314,18 +329,32 @@ def get_followers_endpoint(
 @router.get("/{user_id}/following", response_model=UserListResponse)
 def get_following_endpoint(
     db: Session = Depends(get_db),
-    user: User = Depends(validate_user)
+    user: User = Depends(validate_user),
+    cursor: str | None = None,
+    limit: int | None = None
 ) -> UserListResponse:
     try:
-        following: list[User] = [follow.followed for follow in user.following]
-        user_list = [UserReadResponse(id=followed.id, username=followed.username, full_name=followed.full_name, email=followed.email) for followed in following]
-        return UserListResponse(users=user_list)
+        cursor_dt: datetime | None = None
+        if cursor:
+            cursor_dt = datetime.fromisoformat(cursor)
+
+        follows: list[Follow] = follow_db.read_user_following(db, user_id=user.id, cursor=cursor_dt, limit=limit)
+
+        next_cursor: str | None = None
+        if limit and len(follows) > limit:
+            next_cursor = follows[limit - 1].created_at.isoformat()
+            follows = follows[:limit]
+
+        users: list[User] = [follow.followed for follow in follows]
+
+        user_list: list[UserReadResponse] = [UserReadResponse(id=user.id, username=user.username, full_name=user.full_name, email=user.email) for user in users]
+        return UserListResponse(users=user_list, next_cursor=next_cursor)
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error fetching following for user {user.id}: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
-    
+
 @router.get("/{user_id}/following/{followed_user_id}", response_model=bool)
 def is_following_endpoint(
     followed_user_id: int,

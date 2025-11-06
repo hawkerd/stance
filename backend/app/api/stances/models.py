@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional, List
 
 class StanceCreateRequest(BaseModel):
     headline: str
@@ -18,11 +17,11 @@ class StanceReadResponse(BaseModel):
     entity_id: int
     headline: str
     content_json: str
-    average_rating: Optional[float]
+    average_rating: float | None
 
 class StanceUpdateRequest(BaseModel):
-    headline: Optional[str] = None
-    content_json: Optional[str] = None
+    headline: str | None = None
+    content_json: str | None = None
 
 class StanceUpdateResponse(BaseModel):
     id: int
@@ -30,7 +29,7 @@ class StanceUpdateResponse(BaseModel):
     entity_id: int
     headline: str
     content_json: str
-    average_rating: Optional[float]
+    average_rating: float | None
 
 class StanceDeleteResponse(BaseModel):
     success: bool
@@ -40,10 +39,10 @@ class StanceListResponse(BaseModel):
 
 
 class ReadStanceRatingResponse(BaseModel):
-    rating: Optional[int] = None
+    rating: int | None = None
 
 class StanceRateRequest(BaseModel):
-    rating: Optional[int] = None
+    rating: int | None = None
 
 class StanceRateResponse(BaseModel):
     success: bool
@@ -53,8 +52,8 @@ class NumRatingsResponse(BaseModel):
 
 
 class StanceFeedCursor(BaseModel):
-    score: Optional[float]
-    id: Optional[int]
+    score: float | None
+    id: int | None
 class StanceFeedTag(BaseModel):
     id: int
     name: str
@@ -62,16 +61,16 @@ class StanceFeedTag(BaseModel):
 class StanceFeedUser(BaseModel):
     id: int
     username: str
-    avatar_url: Optional[str]
+    avatar_url: str | None
 class StanceFeedEntity(BaseModel):
     id: int
     type: int
     title: str
     images_json: str
-    tags: List[StanceFeedTag]
-    description: Optional[str] = None
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
+    tags: list[StanceFeedTag]
+    description: str | None = None
+    start_time: str | None = None
+    end_time: str | None = None
 class StanceFeedStance(BaseModel):
     id: int
     user: StanceFeedUser
@@ -79,19 +78,19 @@ class StanceFeedStance(BaseModel):
     headline: str
     content_json: str
     num_comments: int
-    average_rating: Optional[float]
+    average_rating: float | None
     num_ratings: int
-    my_rating: Optional[int]
-    tags: List[StanceFeedTag]
+    my_rating: int | None
+    tags: list[StanceFeedTag]
     created_at: str
 class StanceFeedRequest(BaseModel):
     num_stances: int = 20
-    initial_stance_id: Optional[int]
-    entities: Optional[List[int]]
-    cursor: Optional[StanceFeedCursor] = None
+    initial_stance_id: int | None
+    entities: list[int] | None
+    cursor: StanceFeedCursor | None = None
 class StanceFeedResponse(BaseModel):
-    stances: List[StanceFeedStance]
-    next_cursor: Optional[StanceFeedCursor] = None
+    stances: list[StanceFeedStance]
+    next_cursor: StanceFeedCursor | None = None
 class StanceFeedStanceResponse(BaseModel):
     stance: StanceFeedStance
 
@@ -99,10 +98,10 @@ class StanceFeedStanceResponse(BaseModel):
 # following feed
 class StanceFollowingFeedRequest(BaseModel):
     num_stances: int = 20
-    cursor: Optional[str] = None
+    cursor: str | None = None
 class StanceFollowingFeedResponse(BaseModel):
-    stances: List[StanceFeedStance]
-    next_cursor: Optional[str] = None
+    stances: list[StanceFeedStance]
+    next_cursor: str | None = None
 
 # paginated stances by entity do not include entity info, and use a str for cursor
 class PaginatedStancesByEntityStance(BaseModel):
@@ -111,20 +110,20 @@ class PaginatedStancesByEntityStance(BaseModel):
     headline: str
     content_json: str
     num_comments: int
-    average_rating: Optional[float]
+    average_rating: float | None
     num_ratings: int
-    my_rating: Optional[int]
-    tags: List[StanceFeedTag]
-    created_at: Optional[str] = None
+    my_rating: int | None
+    tags: list[StanceFeedTag]
+    created_at: str | None = None
 class PaginatedStancesByEntityCursor(BaseModel):
     score: float
     id: int
 class PaginatedStanceByEntityRequest(BaseModel):
     num_stances: int = 20
-    cursor: Optional[PaginatedStancesByEntityCursor]
-class PaginatedStancesByEntityResponse(BaseModel):
-    stances: List[PaginatedStancesByEntityStance]
-    next_cursor: Optional[PaginatedStancesByEntityCursor] = None
+    cursor: PaginatedStancesByEntityCursor | None
+class EntityStancesResponse(BaseModel):
+    stances: list[PaginatedStancesByEntityStance]
+    next_cursor: PaginatedStancesByEntityCursor | None
 class PaginatedStancesByEntityStanceResponse(BaseModel):
     stance: PaginatedStancesByEntityStance
 
@@ -135,14 +134,14 @@ class PaginatedStancesByUserStance(BaseModel):
     headline: str
     content_json: str
     num_comments: int
-    average_rating: Optional[float]
+    average_rating: float | None
     num_ratings: int
-    my_rating: Optional[int]
-    tags: List[StanceFeedTag]
+    my_rating: int | None
+    tags: list[StanceFeedTag]
     created_at: str
 class PaginatedStancesByUserRequest(BaseModel):
     num_stances: int = 20
-    cursor: Optional[str]
-class PaginatedStancesByUserResponse(BaseModel):
-    stances: List[PaginatedStancesByUserStance]
-    next_cursor: Optional[str] = None
+    cursor: str | None
+class UserStancesResponse(BaseModel):
+    stances: list[PaginatedStancesByUserStance]
+    next_cursor: str | None = None

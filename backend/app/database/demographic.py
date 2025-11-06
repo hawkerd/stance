@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
 from app.database.models import User, Demographic
-from typing import Optional, List
 from app.errors import DatabaseError
 import logging
 
-def create_demographic(db: Session, user_id: int, birth_year: Optional[int] = None, gender: Optional[str] = None, zip_code: Optional[str] = None) -> Demographic:
+def create_demographic(db: Session, user_id: int, birth_year: int | None = None, gender: str | None = None, zip_code: str | None = None) -> Demographic:
     try:
         demographic = Demographic(
             user_id=user_id,
@@ -20,14 +19,14 @@ def create_demographic(db: Session, user_id: int, birth_year: Optional[int] = No
         logging.error(f"Error creating demographic: {e}")
         raise DatabaseError("Failed to create demographic")
 
-def read_demographic(db: Session, demographic_id: int) -> Optional[Demographic]:
+def read_demographic(db: Session, demographic_id: int) -> Demographic | None:
     try:
         return db.query(Demographic).filter(Demographic.id == demographic_id).first()
     except Exception as e:
         logging.error(f"Error reading demographic {demographic_id}: {e}")
         raise DatabaseError("Failed to read demographic")
 
-def update_demographic(db: Session, demographic_id: int, **kwargs) -> Optional[Demographic]:
+def update_demographic(db: Session, demographic_id: int, **kwargs) -> Demographic | None:
     try:
         demographic = db.query(Demographic).filter(Demographic.id == demographic_id).first()
         if not demographic:
@@ -54,14 +53,14 @@ def delete_demographic(db: Session, demographic_id: int) -> bool:
         raise DatabaseError("Failed to delete demographic")
     return False
 
-def get_all_demographics(db: Session) -> List[Demographic]:
+def get_all_demographics(db: Session) -> list[Demographic]:
     try:
         return db.query(Demographic).all()
     except Exception as e:
         logging.error(f"Error getting all demographics: {e}")
         raise DatabaseError("Failed to get all demographics")
-    
-def get_demographic_by_user_id(db: Session, user_id: int) -> Optional[Demographic]:
+
+def get_demographic_by_user_id(db: Session, user_id: int) -> Demographic | None:
     try:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:

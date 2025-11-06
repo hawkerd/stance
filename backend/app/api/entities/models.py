@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional, List
 
 class TagRequest(BaseModel):
     name: str
@@ -13,49 +12,49 @@ class TagResponse(BaseModel):
 class EntityCreateRequest(BaseModel):
     type: int
     title: str
-    images: List[str]  # array of b64 images
-    tags: List[TagRequest]
-    description: Optional[str] = None
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
+    images: list[str]  # array of b64 images
+    tags: list[TagRequest]
+    description: str | None = None
+    start_time: str | None = None
+    end_time: str | None = None
 
 class EntityReadResponse(BaseModel):
     id: int
     type: int
     title: str
     images_json: str
-    tags: List[TagResponse]
-    description: Optional[str] = None
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
+    tags: list[TagResponse]
+    description: str | None = None
+    start_time: str | None = None
+    end_time: str | None = None
     
 class EntityUpdateRequest(BaseModel):
-    title: Optional[str] = None
-    images: Optional[List[str]] = None
-    tags: Optional[List[TagRequest]] = None
-    description: Optional[str] = None
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
+    title: str | None = None
+    images: list[str] | None = None
+    tags: list[TagRequest] | None = None
+    description: str | None = None
+    start_time: str | None = None
+    end_time: str | None = None
 
 class EntityUpdateResponse(BaseModel):
     id: int
     type: int
     title: str
     images_json: str
-    description: Optional[str] = None
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
+    description: str | None = None
+    start_time: str | None = None
+    end_time: str | None = None
 
 class EntityDeleteResponse(BaseModel):
     success: bool
 
 class EntityListResponse(BaseModel):
-    entities: List[EntityReadResponse]
+    entities: list[EntityReadResponse]
 
 class EntityFeedStance(BaseModel):
     id: int
     headline: str
-    average_rating: Optional[float]
+    average_rating: float | None
 class EntityFeedTag(BaseModel):
     id: int
     name: str
@@ -65,12 +64,12 @@ class EntityFeedEntity(BaseModel):
     type: int
     title: str
     images_json: str
-    tags: List[EntityFeedTag]
-    stances: List[EntityFeedStance]
-    description: Optional[str] = None
-    start_time: Optional[str] = None
-    end_time: Optional[str] = None
+    tags: list[EntityFeedTag]
+    stances: list[EntityFeedStance]
+    description: str | None = None
+    start_time: str | None = None
+    end_time: str | None = None
 class EntityFeedResponse(BaseModel):
-    entities: List[EntityFeedEntity]
-    next_cursor: Optional[str]
+    entities: list[EntityFeedEntity]
+    next_cursor: str | None
     has_more: bool

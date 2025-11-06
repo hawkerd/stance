@@ -15,11 +15,8 @@ import {
   ReadStanceRatingResponse,
   NumRatingsResponse,
   StanceFeedStanceResponse,
-  PaginatedStanceByEntityRequest,
-  PaginatedStancesByEntityResponse,
+  EntityStancesResponse,
   PaginatedStancesByEntityStanceResponse,
-  PaginatedStancesByUserRequest,
-  PaginatedStancesByUserResponse,
   StanceFollowingFeedRequest,
   StanceFollowingFeedResponse
 } from "@/api/stances";
@@ -182,15 +179,11 @@ export class StanceService {
 
   // get stances by entity with pagination
   async getStancesByEntity(api: AxiosInstance, entityId: number, cursor?: { score: number; id: number }): Promise<{ stances: PaginatedStancesByEntityStance[]; nextCursorScore: number | null; nextCursorId: number | null }> {
-      const request: PaginatedStanceByEntityRequest = {
-          num_stances: 20,
-          cursor: cursor ? { score: cursor.score, id: cursor.id } : null
-      }
-      
-      const response: PaginatedStancesByEntityResponse = await stancesApi.getStancesByEntity(
+      const response: EntityStancesResponse = await stancesApi.getStancesByEntity(
           api,
           entityId,
-          request
+          cursor ? { score: cursor.score, id: cursor.id } : undefined,
+          20
       );
       return {
           stances: response.stances.map((s) => ({
@@ -223,12 +216,8 @@ export class StanceService {
   }
 
 	async getStancesByUser(api: AxiosInstance, userId: number, cursor?: string): Promise<{stances: PaginatedStancesByUserStance[], next_cursor?: string}> {
-		const request: PaginatedStancesByUserRequest = {
-			num_stances: 10,
-			cursor: cursor ?? null,
-		};
 
-		const response = await stancesApi.getPaginatedStancesByUser(api, userId, request);
+		const response = await stancesApi.getPaginatedStancesByUser(api, userId, cursor || undefined, 10);
 		return {stances: response.stances, next_cursor: response.next_cursor || undefined};
 	}
 

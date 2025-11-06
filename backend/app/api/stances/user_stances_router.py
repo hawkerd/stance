@@ -1,6 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from typing import Optional, List
 import logging
 
 from app.dependencies import *
@@ -18,25 +17,31 @@ from .dependencies import *
 
 router = APIRouter(tags=["stances"], prefix="/users/{user_id}/stances")
 
-@router.post("/feed", response_model=PaginatedStancesByUserResponse)
-def get_stances_by_user_paginated_endpoint(
+@router.get("/", response_model=UserStancesResponse)
+def get_user_stances_endpoint(
     user_id: int,
-    request: PaginatedStancesByUserRequest,
     db: Session = Depends(get_db),
-    current_user_id: Optional[int] = Depends(get_current_user_optional)
-) -> PaginatedStancesByUserResponse:
+    current_user_id: int | None = Depends(get_current_user_optional),
+    cursor: str | None = None,
+    limit: int = Query(20, le=100)
+) -> UserStancesResponse:
     try:
         user: Optional[User] = user_db.read_user(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
-        stances: List[Stance] = stance_db.get_stances_by_user_paginated(db, user_id=user_id, limit=request.num_stances, cursor=request.cursor)
+        stances: list[Stance] = stance_db.get_user_stances(db, user_id=user_id, limit=limit, cursor=cursor)
+
+        next_cursor = None
+        if limit and len(stances) > limit:
+            stances = stances[:-1]  # remove the extra stance used to check for next cursor
+            next_cursor = stances[-1].created_at.isoformat()
 
         feed_stances = []
         for stance in stances:
             # read entity tags
-            tags: List[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
-            stance_tags: List[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+            tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
+            stance_tags: list[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
 
             # read entity information
             entity: Optional[Entity] = entity_db.read_entity(db, stance.entity_id)
@@ -55,7 +60,7 @@ def get_stances_by_user_paginated_endpoint(
 
             average_rating: Optional[float] = rating_db.get_average_rating_for_stance(db, stance.id)
             num_ratings: int = rating_db.get_num_ratings_for_stance(db, stance.id)
-            my_rating: Optional[int] = None
+            my_rating: int | None = None
             if current_user_id:
                 rating: Rating = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
                 my_rating = rating.rating if rating else None
@@ -75,11 +80,7 @@ def get_stances_by_user_paginated_endpoint(
             )
             feed_stances.append(stance_stance)
 
-        next_cursor = None
-        if len(stances) == request.num_stances:
-            next_cursor = stances[-1].created_at.isoformat()
-
-        return PaginatedStancesByUserResponse(stances=feed_stances, next_cursor=next_cursor)
+        return UserStancesResponse(stances=feed_stances, next_cursor=next_cursor)
     except HTTPException:
         raise
     except Exception as e:

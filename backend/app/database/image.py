@@ -1,10 +1,9 @@
 from sqlalchemy.orm import Session
 from app.database.models import Image
-from typing import Optional, List
 from app.errors import DatabaseError
 import logging
 
-def create_image(db: Session, stance_id: Optional[int], entity_id: Optional[int], 
+def create_image(db: Session, stance_id: int | None, entity_id: int | None, 
                 public_url: str, file_size: int, file_type: str) -> Image:
     try:
         image = Image(
@@ -23,14 +22,14 @@ def create_image(db: Session, stance_id: Optional[int], entity_id: Optional[int]
         logging.error(f"Error creating image: {e}")
         raise DatabaseError("Failed to create image")
 
-def read_image(db: Session, image_id: int) -> Optional[Image]:
+def read_image(db: Session, image_id: int) -> Image | None:
     try:
         return db.query(Image).filter(Image.id == image_id).first()
     except Exception as e:
         logging.error(f"Error reading image {image_id}: {e}")
         raise DatabaseError("Failed to read image")
 
-def update_image(db: Session, image_id: int, **kwargs) -> Optional[Image]:
+def update_image(db: Session, image_id: int, **kwargs) -> Image | None:
     try:
         image = db.query(Image).filter(Image.id == image_id).first()
         if not image:
@@ -57,14 +56,14 @@ def delete_image(db: Session, image_id: int) -> bool:
         raise DatabaseError("Failed to delete image")
     return False
 
-def get_images_by_stance(db: Session, stance_id: int) -> List[Image]:
+def get_images_by_stance(db: Session, stance_id: int) -> list[Image]:
     try:
         return db.query(Image).filter(Image.stance_id == stance_id).all()
     except Exception as e:
         logging.error(f"Error getting images for stance {stance_id}: {e}")
         raise DatabaseError("Failed to get images by stance")
 
-def get_images_by_entity(db: Session, entity_id: int) -> List[Image]:
+def get_images_by_entity(db: Session, entity_id: int) -> list[Image]:
     try:
         return db.query(Image).filter(Image.entity_id == entity_id).all()
     except Exception as e:

@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from typing import Optional
 
 class UserReadResponse(BaseModel):
     id: int
@@ -9,58 +8,59 @@ class UserReadResponse(BaseModel):
 
 class UserListResponse(BaseModel):
     users: list[UserReadResponse]
+    next_cursor: str | None = None
 
 class DemographicCreateRequest(BaseModel):
-    birth_year: Optional[int]
-    gender: Optional[str]
-    zip_code: Optional[str]
+    birth_year: int | None
+    gender: str | None
+    zip_code: str | None
 
 class DemographicReadResponse(BaseModel):
     user_id: int
-    birth_year: Optional[int]
-    gender: Optional[str]
-    zip_code: Optional[str]
+    birth_year: int | None
+    gender: str | None
+    zip_code: str | None
 
 class DemographicUpdateRequest(BaseModel):
-    birth_year: Optional[int]
-    gender: Optional[str]
-    zip_code: Optional[str]
+    birth_year: int | None
+    gender: str | None
+    zip_code: str | None
 
 class DemographicUpdateResponse(BaseModel):
     user_id: int
-    birth_year: Optional[int]
-    gender: Optional[str]
-    zip_code: Optional[str]
+    birth_year: int | None
+    gender: str | None
+    zip_code: str | None
 
 class ProfileCreateRequest(BaseModel):
-    bio: Optional[str]
-    avatar_url: Optional[str]
-    pinned_stance_id: Optional[int]
+    bio: str | None
+    avatar_url: str | None
+    pinned_stance_id: int | None
 
 class ProfileReadResponse(BaseModel):
     user_id: int
-    bio: Optional[str]
-    avatar_url: Optional[str]
-    pinned_stance_id: Optional[int]
+    bio: str | None
+    avatar_url: str | None
+    pinned_stance_id: int | None
 
 class ProfileUpdateRequest(BaseModel):
-    bio: Optional[str]
-    avatar_url: Optional[str]
-    pinned_stance_id: Optional[int]
+    bio: str | None
+    avatar_url: str | None
+    pinned_stance_id: int | None
 
 class ProfileUpdateResponse(BaseModel):
     user_id: int
-    bio: Optional[str]
-    avatar_url: Optional[str]
-    pinned_stance_id: Optional[int]
+    bio: str | None
+    avatar_url: str | None
+    pinned_stance_id: int | None
 
 class ProfilePageResponse(BaseModel):
     username: str
     full_name: str
     follower_count: int
     following_count: int
-    following: Optional[bool]
-    bio: Optional[str]
-    avatar_url: Optional[str]
-    pinned_stance_id: Optional[int]
-    pinned_stance_id_entity_id: Optional[int]
+    following: bool | None
+    bio: str | None
+    avatar_url: str | None
+    pinned_stance_id: int | None
+    pinned_stance_id_entity_id: int | None

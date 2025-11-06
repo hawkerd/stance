@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { UserService } from "@/service/UserService";
 import UserStancesGrid from "@/components/user-page/UserStancesGrid";
+import FollowersModal from "@/components/modals/FollowersModal";
 import type { ProfilePage as ProfilePageType } from "@/models/index";
 
 interface ProfilePageProps {
@@ -21,6 +22,8 @@ export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) 
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [followLoading, setFollowLoading] = useState(false);
+  const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false);
+  const [followersModalTab, setFollowersModalTab] = useState<"followers" | "following">("followers");
   const userService = new UserService();
 
   useEffect(() => {
@@ -70,6 +73,22 @@ export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) 
     logout();
     router.push('/login');
   };
+
+  const openFollowersModal = () => {
+    setFollowersModalTab("followers");
+    setIsFollowersModalOpen(true);
+  };
+
+  const openFollowingModal = () => {
+    setFollowersModalTab("following");
+    setIsFollowersModalOpen(true);
+  };
+
+  // Memoize pinnedStanceDetails to prevent unnecessary re-renders
+  const pinnedStanceDetails = useMemo(() => ({
+    entityId: profilePage?.pinned_stance_entity_id || undefined,
+    stanceId: profilePage?.pinned_stance_id || undefined,
+  }), [profilePage?.pinned_stance_entity_id, profilePage?.pinned_stance_id]);
 
   if (loading) {
     return (
@@ -159,24 +178,38 @@ export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) 
           </div>
 
           {/* Right Side: Follower/Following Stats */}
-          <div className="flex gap-8 flex-shrink-0">
-            <div className="text-center">
+          <div className="flex gap-0 flex-shrink-0 bg-purple-50 rounded-lg overflow-hidden border border-purple-100">
+            <button
+              onClick={openFollowersModal}
+              className="text-center hover:bg-purple-100 px-6 py-3 transition cursor-pointer border-r border-purple-100"
+            >
               <p className="text-3xl font-bold text-purple-600">{profilePage.follower_count}</p>
               <p className="text-sm text-gray-500 font-medium">Followers</p>
-            </div>
-            <div className="text-center">
+            </button>
+            <button
+              onClick={openFollowingModal}
+              className="text-center hover:bg-purple-100 px-6 py-3 transition cursor-pointer"
+            >
               <p className="text-3xl font-bold text-purple-600">{profilePage.following_count}</p>
               <p className="text-sm text-gray-500 font-medium">Following</p>
-            </div>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Stances Grid */}
       <div className="mb-8">
-        <UserStancesGrid userId={userId} pinnedStanceDetails={{ entityId: profilePage.pinned_stance_entity_id || undefined, stanceId: profilePage.pinned_stance_id || undefined }} />
+        <UserStancesGrid userId={userId} pinnedStanceDetails={pinnedStanceDetails} />
       </div>
     </div>
+
+    {/* Followers Modal */}
+    <FollowersModal
+      userId={userId}
+      initialTab={followersModalTab}
+      isOpen={isFollowersModalOpen}
+      onClose={() => setIsFollowersModalOpen(false)}
+    />
   </main>
   );
 }

@@ -1,4 +1,3 @@
-from typing import Optional
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.dependencies import get_db
@@ -10,7 +9,7 @@ def validate_user(
     user_id: int,
     db: Session = Depends(get_db)
 ) -> User:
-    user: Optional[User] = user_db.read_user(db, user_id)
+    user: User | None = user_db.read_user(db, user_id)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user

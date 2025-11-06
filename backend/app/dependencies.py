@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from app.service.auth import verify_access_token, is_admin_token
-from typing import Optional
 
 def get_db():
     db = SessionLocal()
@@ -18,7 +17,7 @@ def get_current_user(token: str = Depends(OAuth2PasswordBearer(tokenUrl="login")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
     return user_id
 
-def get_current_user_optional(request: Request) -> Optional[int]:
+def get_current_user_optional(request: Request) -> int | None:
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return None

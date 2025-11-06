@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import logging
-from typing import Optional, List, Tuple
 
 from app.dependencies import *
 from app.database.models import *
@@ -26,7 +25,7 @@ def create_comment_endpoint(
     request: CommentCreateRequest,
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> CommentReadResponse:
     try:
         # create the comment (entity and stance already validated)
@@ -54,14 +53,14 @@ def create_comment_endpoint(
 @router.get("/", response_model=CommentListResponse)
 def get_comments_endpoint(
     db: Session = Depends(get_db),
-    current_user_id: Optional[int] = Depends(get_current_user_optional),
-    entity_stance: Tuple[Entity, Stance] = Depends(validate_entity_stance)
+    current_user_id: int | None = Depends(get_current_user_optional),
+    entity_stance: tuple[Entity, Stance] = Depends(validate_entity_stance)
 ) -> CommentListResponse:
     try:
         stance: Stance = entity_stance[1]
 
-        comments: List[Comment] = stance_db.get_comments_by_stance(db, stance.id, False)
-        comment_responses: List[CommentReadResponse] = []
+        comments: list[Comment] = stance_db.get_comments_by_stance(db, stance.id, False)
+        comment_responses: list[CommentReadResponse] = []
 
         for comment in comments:
             likes: int = sum(1 for r in comment.reactions if r.is_like)
@@ -104,8 +103,8 @@ def get_comments_endpoint(
 @router.get("/{comment_id}", response_model=CommentReadResponse)
 def get_comment_endpoint(
     db: Session = Depends(get_db),
-    current_user_id: Optional[int] = Depends(get_current_user_optional),
-    entity_stance_comment: Tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
+    current_user_id: int | None = Depends(get_current_user_optional),
+    entity_stance_comment: tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
 ) -> CommentReadResponse:
     try:
         # read the comment
@@ -147,7 +146,7 @@ def update_comment_endpoint(
     request: CommentUpdateRequest,
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user),
-    entity_stance_comment: Tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
+    entity_stance_comment: tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
 ) -> CommentUpdateResponse:
     try:
         comment: Comment = entity_stance_comment[2]
@@ -156,7 +155,7 @@ def update_comment_endpoint(
         validate_comment_ownership(comment, user_id)
         
         # update the comment
-        updated_comment: Optional[Comment] = comment_db.update_comment(db, comment_id=comment.id, request=request.dict(exclude_unset=True))
+        updated_comment: Comment | None = comment_db.update_comment(db, comment_id=comment.id, request=request.dict(exclude_unset=True))
         if not updated_comment:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to update comment")
         
@@ -180,7 +179,7 @@ def update_comment_endpoint(
 def delete_comment_endpoint(
     db: Session = Depends(get_db),
     user_id: int = Depends(get_current_user),
-    entity_stance_comment: Tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
+    entity_stance_comment: tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
 ) -> None:
     try:
         comment: Comment = entity_stance_comment[2]
@@ -203,15 +202,15 @@ def delete_comment_endpoint(
 @router.get("/{comment_id}/replies", response_model=CommentListResponse)
 def get_comment_replies_endpoint(
     db: Session = Depends(get_db),
-    user_id: Optional[int] = Depends(get_current_user_optional),
-    entity_stance_comment: Tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
+    user_id: int | None = Depends(get_current_user_optional),
+    entity_stance_comment: tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
 ) -> CommentListResponse:
     try:
         comment: Comment = entity_stance_comment[2]
 
         # fetch comment replies
-        replies: List[Comment] = comment_db.get_comment_replies(db, comment_id=comment.id)
-        reply_responses: List[CommentReadResponse] = []
+        replies: list[Comment] = comment_db.get_comment_replies(db, comment_id=comment.id)
+        reply_responses: list[CommentReadResponse] = []
 
         # construct response
         for reply in replies:
@@ -252,13 +251,13 @@ def react_to_comment(
     request: CommentReactionCreateRequest,
     db: Session = Depends(get_db),
     current_user: int = Depends(get_current_user),
-    entity_stance_comment: Tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
+    entity_stance_comment: tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
 ):
     try:
         comment: Comment = entity_stance_comment[2]
 
         # query for existing entry
-        existing_reaction: Optional[CommentReaction] = comment_reaction_db.read_comment_reaction_by_user_and_comment(db, current_user, comment.id)
+        existing_reaction: CommentReaction | None = comment_reaction_db.read_comment_reaction_by_user_and_comment(db, current_user, comment.id)
 
         # create new if needed
         if not existing_reaction:
@@ -270,7 +269,7 @@ def react_to_comment(
             return
 
         # update
-        updated_reaction: Optional[CommentReaction] = comment_reaction_db.update_comment_reaction(db, existing_reaction.id, request.is_like)
+        updated_reaction: CommentReaction | None = comment_reaction_db.update_comment_reaction(db, existing_reaction.id, request.is_like)
         if updated_reaction:
             return
 
@@ -286,13 +285,13 @@ def react_to_comment(
 def remove_comment_reaction(
     db: Session = Depends(get_db),
     current_user: int = Depends(get_current_user),
-    entity_stance_comment: Tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
+    entity_stance_comment: tuple[Entity, Stance, Comment] = Depends(validate_entity_stance_comment)
 ):
     try:
         comment: Comment = entity_stance_comment[2]
 
         # find the reaction
-        reaction: Optional[CommentReaction] = comment_reaction_db.read_comment_reaction_by_user_and_comment(db, current_user, comment.id)
+        reaction: CommentReaction | None = comment_reaction_db.read_comment_reaction_by_user_and_comment(db, current_user, comment.id)
         if not reaction or reaction.user_id != current_user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reaction not found")
         

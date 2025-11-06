@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 import logging
-from typing import Optional
 
 from app.dependencies import *
 from app.database.models import *
@@ -18,8 +17,8 @@ def signup(
     db: Session = Depends(get_db)
 ) -> SignupResponse:
     try:
-        existing_username_user: Optional[User] = user_db.get_user_by_username(db, data.username)
-        existing_email_user: Optional[User] = user_db.get_user_by_email(db, data.email)
+        existing_username_user: User | None = user_db.get_user_by_username(db, data.username)
+        existing_email_user: User | None = user_db.get_user_by_email(db, data.email)
         if existing_username_user or existing_email_user:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username or email already exists")
 
@@ -65,7 +64,7 @@ def refresh_token(
 ) -> RefreshResponse:
     try:
         # verify the refresh token
-        db_token: Optional[RefreshToken] = token_db.get_refresh_token_by_hash(db, hash_refresh_token(data.refresh_token))
+        db_token: RefreshToken | None = token_db.get_refresh_token_by_hash(db, hash_refresh_token(data.refresh_token))
         if not db_token or db_token.revoked:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or revoked refresh token")
         
@@ -94,7 +93,7 @@ def logout(
     db: Session = Depends(get_db)
 ) -> None:
     try:
-        db_token: Optional[RefreshToken] = token_db.get_refresh_token_by_hash(db, hash_refresh_token(data.refresh_token))
+        db_token: RefreshToken | None = token_db.get_refresh_token_by_hash(db, hash_refresh_token(data.refresh_token))
         if not db_token or db_token.revoked:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or revoked refresh token")
         

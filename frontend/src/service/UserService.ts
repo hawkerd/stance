@@ -53,4 +53,14 @@ export class UserService {
 	async unfollowUser(api: AxiosInstance, userId: number): Promise<boolean> {
 		return usersApi.unfollowUser(api, userId);
 	}
+
+	async getFollowers(api: AxiosInstance, userId: number, cursor?: string, limit?: number): Promise<{users: User[], next_cursor?: string}> {
+		const response = await usersApi.getFollowers(api, userId, cursor, limit);
+		return { users: response.users, next_cursor: response.next_cursor || undefined };
+	}
+
+	async getFollowing(api: AxiosInstance, userId: number, cursor?: string, limit?: number): Promise<{users: User[], next_cursor?: string}> {
+		const response = await usersApi.getFollowing(api, userId, cursor, limit);
+		return { users: response.users, next_cursor: response.next_cursor || undefined };
+	}
 }

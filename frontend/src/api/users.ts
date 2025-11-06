@@ -4,8 +4,6 @@ import { components } from "@/api/models/models";
 
 // OpenAPI schema types
 export type UserReadResponse = components["schemas"]["UserReadResponse"];
-export type PaginatedStancesByUserResponse = components["schemas"]["PaginatedStancesByUserResponse"];
-export type PaginatedStancesByUserRequest = components["schemas"]["PaginatedStancesByUserRequest"];
 export type DemographicCreateRequest = components["schemas"]["DemographicCreateRequest"];
 export type DemographicReadResponse = components["schemas"]["DemographicReadResponse"];
 export type DemographicUpdateRequest = components["schemas"]["DemographicUpdateRequest"];
@@ -15,6 +13,7 @@ export type ProfileReadResponse = components["schemas"]["ProfileReadResponse"];
 export type ProfileUpdateRequest = components["schemas"]["ProfileUpdateRequest"];
 export type ProfileUpdateResponse = components["schemas"]["ProfileUpdateResponse"];
 export type ProfilePageResponse = components["schemas"]["ProfilePageResponse"];
+export type UserListResponse = components["schemas"]["UserListResponse"];
 
 /**
  * Fetch the current logged-in user's info
@@ -174,4 +173,36 @@ export async function unfollowUser(
 ): Promise<boolean> {
   const res = await api.delete(`/users/${userId}/follow`);
   return res.status === 204;
+}
+
+/**
+ * Get followers of a user
+ */
+export async function getFollowers(
+  api: AxiosInstance,
+  userId: number,
+  cursor?: string,
+  limit?: number
+): Promise<UserListResponse> {
+  const params: Record<string, string | number> = {};
+  if (cursor) params["cursor"] = cursor;
+  if (limit) params["limit"] = limit;
+  const res = await api.get<UserListResponse>(`/users/${userId}/followers`, { params });
+  return res.data;
+}
+
+/**
+ * Get following of a user
+ */
+export async function getFollowing(
+  api: AxiosInstance,
+  userId: number,
+  cursor?: string,
+  limit?: number
+): Promise<UserListResponse> {
+  const params: Record<string, string | number> = {};
+  if (cursor) params["cursor"] = cursor;
+  if (limit) params["limit"] = limit;
+  const res = await api.get<UserListResponse>(`/users/${userId}/following`, { params });
+  return res.data;
 }

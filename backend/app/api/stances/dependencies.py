@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.dependencies import get_db
@@ -11,7 +11,7 @@ def validate_entity(
     entity_id: int,
     db: Session = Depends(get_db)
 ) -> Entity:
-    entity: Optional[Entity] = entity_db.read_entity(db, entity_id)
+    entity: Entity | None = entity_db.read_entity(db, entity_id)
     if not entity:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entity not found")
     return entity
@@ -21,11 +21,11 @@ def validate_entity_stance(
     entity_id: int,
     stance_id: int,
     db: Session = Depends(get_db)
-) -> Tuple[Entity, Stance]:
-    entity: Optional[Entity] = entity_db.read_entity(db, entity_id)
+) -> tuple[Entity, Stance]:
+    entity: Entity | None = entity_db.read_entity(db, entity_id)
     if not entity:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Entity not found")
-    stance: Optional[Stance] = stance_db.read_stance(db, stance_id)
+    stance: Stance | None = stance_db.read_stance(db, stance_id)
     if not stance:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Stance not found")
     if stance.entity_id != entity_id:
