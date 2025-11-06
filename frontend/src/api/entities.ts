@@ -9,11 +9,9 @@ export type EntityUpdateResponse = components["schemas"]["EntityUpdateResponse"]
 export type EntityDeleteResponse = components["schemas"]["EntityDeleteResponse"];
 export type EntityListResponse = components["schemas"]["EntityListResponse"];
 export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
-export type EntityFeedResponse = components["schemas"]["EntityFeedResponse"];
 export type PaginatedStancesByEntityStanceResponse = components["schemas"]["PaginatedStancesByEntityStanceResponse"];
 export type StanceFeedResponse = components["schemas"]["StanceFeedResponse"];
-export type PaginatedStanceByEntityRequest = components["schemas"]["PaginatedStanceByEntityRequest"];
-export type PaginatedStancesByEntityResponse = components["schemas"]["PaginatedStancesByEntityResponse"];
+
 /**
  * Create a new entity (admin only)-
  */
@@ -26,16 +24,16 @@ export async function createEntity(
 }
 
 /**
- * Fetch the home feed data with cursor-based pagination
+ * Fetch entities
  */
-export async function getFeed(
+export async function getEntities(
   api: AxiosInstance,
-  num_entities: number,
+  limit: number,
   num_stances_per_entity: number,
   cursor?: string
-): Promise<EntityFeedResponse> {
-  const res = await api.get<EntityFeedResponse>("/entities/feed", {
-    params: { num_entities, num_stances_per_entity, cursor }
+): Promise<EntityListResponse> {
+  const res = await api.get<EntityListResponse>("/entities", {
+    params: { limit, num_stances_per_entity, cursor }
   });
   return res.data;
 }
@@ -71,13 +69,5 @@ export async function deleteEntity(
   entityId: number
 ): Promise<EntityDeleteResponse> {
   const res = await api.delete<EntityDeleteResponse>(`/entities/${entityId}`);
-  return res.data;
-}
-
-/**
- * List all entities
- */
-export async function listEntities(api: AxiosInstance): Promise<EntityListResponse> {
-  const res = await api.get<EntityListResponse>("/entities");
   return res.data;
 }

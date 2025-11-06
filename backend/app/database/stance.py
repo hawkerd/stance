@@ -172,12 +172,12 @@ def get_user_stances(db: Session, user_id: int, cursor: str | None, limit: int |
         logging.error(f"Error getting paginated stances for user {user_id}: {e}")
         raise DatabaseError("Failed to get paginated stances by user")
 
-def get_stance_feed_for_user(db: Session, user_id: int, limit: int, cursor: datetime.datetime | None) -> list[Stance]:
+def get_stance_feed_for_user(db: Session, user_id: int, cursor: datetime.datetime | None, limit: int) -> list[Stance]:
     try:
         query = db.query(Stance).join(User).join(Follow, Follow.followed_id == Stance.user_id).filter(Follow.follower_id == user_id)
         if cursor:
             query = query.filter(Stance.created_at < cursor)
-        return query.order_by(Stance.created_at.desc(), Stance.id.desc()).limit(limit).all()
+        return query.order_by(Stance.created_at.desc(), Stance.id.desc()).limit(limit + 1).all()
     except Exception as e:
         logging.error(f"Error getting stance feed for user {user_id}: {e}")
         raise DatabaseError("Failed to get stance feed for user")

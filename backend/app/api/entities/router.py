@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 import logging
 from datetime import datetime
@@ -79,16 +79,14 @@ def create_entity_endpoint(
         logging.error(f"Error creating entity: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
-@router.get("/feed", response_model=EntityFeedResponse)
-def get_home_feed(
-    num_entities: int = 10,
+@router.get("/", response_model=EntityListResponse)
+def get_entities_endpoint(
     num_stances_per_entity: int = 15,
     cursor: str | None = None,
+    limit: int = Query(10, le=100),
     db: Session = Depends(get_db),
-    current_user_id: int | None = Depends(get_current_user_optional)
-) -> EntityFeedResponse:
+) -> EntityListResponse:
     try:
-        logging.info(f"Fetching home feed: num_entities={num_entities}, num_stances_per_entity={num_stances_per_entity}, cursor={cursor}, user_id={current_user_id}")
         # if cursor is provided, parse it into datetime
         cursor_datetime: datetime | None = None
         if cursor:
@@ -97,14 +95,12 @@ def get_home_feed(
             except ValueError:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid cursor format")
         
-        # fetch n+1 entities to check if there are more
-        entities: list[Entity] = entity_db.get_entities_paginated(db, limit=num_entities + 1, cursor=cursor_datetime)
-        if not entities:
-            return EntityFeedResponse(entities=[], next_cursor=None, has_more=False)
+        entities: list[Entity] = entity_db.get_entities(db, limit=limit, cursor=cursor_datetime)
 
-        has_more: bool = len(entities) > num_entities
-        if has_more:
-            entities = entities[:num_entities]
+        next_cursor: str | None = None
+        if len(entities) > limit:
+            entities = entities[:-1]
+            next_cursor = entities[-1].created_at.isoformat()
 
         feed_entities: list[EntityFeedEntity] = []
         for entity in entities:
@@ -132,12 +128,8 @@ def get_home_feed(
             )
             feed_entities.append(feed_entity)
 
-        # set next_cursor
-        next_cursor: str | None = None
-        if has_more and entities:
-            next_cursor = entities[-1].created_at.isoformat()
 
-        return EntityFeedResponse(entities=feed_entities, next_cursor=next_cursor, has_more=has_more)
+        return EntityListResponse(entities=feed_entities, next_cursor=next_cursor)
     except HTTPException:
         raise
     except Exception as e:
@@ -235,33 +227,4 @@ def delete_entity_endpoint(
         raise
     except Exception as e:
         logging.error(f"Error deleting entity {entity.id}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
-
-@router.get("/", response_model=EntityListResponse)
-def get_all_entities_endpoint(
-    db: Session = Depends(get_db)
-) -> EntityListResponse:
-    try:
-        entities: list[Entity] = entity_db.get_all_entities(db)
-        entity_list: list[EntityReadResponse] = []
-        for entity in entities:
-            # get tags
-            tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, entity.id)
-            entity_list.append(
-                EntityReadResponse(
-                    id=entity.id,
-                    type=entity.type,
-                    title=entity.title,
-                    description=entity.description,
-                    images_json=entity.images_json,
-                    start_time=entity.start_time.isoformat() if entity.start_time else None,
-                    end_time=entity.end_time.isoformat() if entity.end_time else None,
-                    tags=[TagResponse(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
-                )
-            )
-        return EntityListResponse(entities=entity_list)
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.error(f"Error fetching entities: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")

@@ -7,14 +7,8 @@ import {
     EntityUpdateResponse,
     EntityDeleteResponse,
     EntityListResponse,
-    EntityFeedResponse,
-    StanceReadResponse,
-    PaginatedStancesByEntityStanceResponse,
-    StanceFeedResponse,
-    PaginatedStanceByEntityRequest,
-    PaginatedStancesByEntityResponse
 } from "@/api/entities";
-import { Entity, Stance, EntityType, EntityFeedEntity, PaginatedStancesByEntityStance } from "@/models";
+import { Entity, EntityType, EntityFeedEntity } from "@/models";
 
 
 export class EntityService {
@@ -102,34 +96,22 @@ export class EntityService {
         return response.success;
     }
 
-    // list all entites
-    async listEntities(
-        api: AxiosInstance
-    ): Promise<Entity[]> {
-        const response: EntityListResponse = await entitiesApi.listEntities(api);
-        const entities: Entity[] = response.entities.map((e) => ({
-            ...e
-        }));
-        return entities;
-    }
-
-    // get feed
-    async getFeed(
+    // get entities
+    async getEntities(
         api: AxiosInstance,
-        num_entities: number,
+        limit: number,
         num_stances_per_entity: number,
         cursor?: string
-    ): Promise<{ entities: EntityFeedEntity[]; nextCursor: string | null; hasMore: boolean }> {
-        const response: EntityFeedResponse = await entitiesApi.getFeed(
+    ): Promise<{ entities: EntityFeedEntity[]; nextCursor: string | null; }> {
+        const response: EntityListResponse = await entitiesApi.getEntities(
             api,
-            num_entities,
+            limit,
             num_stances_per_entity,
             cursor
         );
         return {
             entities: response.entities,
             nextCursor: response.next_cursor,
-            hasMore: response.has_more
         };
     }
 }

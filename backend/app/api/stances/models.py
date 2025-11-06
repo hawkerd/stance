@@ -96,9 +96,6 @@ class StanceFeedStanceResponse(BaseModel):
 
 
 # following feed
-class StanceFollowingFeedRequest(BaseModel):
-    num_stances: int = 20
-    cursor: str | None = None
 class StanceFollowingFeedResponse(BaseModel):
     stances: list[StanceFeedStance]
     next_cursor: str | None = None

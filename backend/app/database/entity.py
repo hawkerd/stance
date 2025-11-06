@@ -58,30 +58,14 @@ def delete_entity(db: Session, entity_id: int) -> bool:
         raise DatabaseError("Failed to delete entity")
     return False
 
-def get_all_entities(db: Session) -> list[Entity]:
-    try:
-        return db.query(Entity).all()
-    except Exception as e:
-        logging.error(f"Error getting all entities: {e}")
-        raise DatabaseError("Failed to get all entities")
-
-def get_random_entities(db: Session, n: int) -> list[Entity]:
-    """Fetch n random entities from the database."""
-    try:
-        entities = db.query(Entity).order_by(func.random()).limit(n).all()
-        return entities
-    except Exception as e:
-        logging.error(f"Error getting {n} random entities: {e}")
-        raise DatabaseError("Failed to get random entities")
-
-def get_entities_paginated(db: Session, limit: int, cursor: datetime | None = None) -> list[Entity]:
+def get_entities(db: Session, limit: int, cursor: datetime | None = None) -> list[Entity]:
     """Fetch entities ordered by created_at (descending) with cursor-based pagination."""
     try:
         query = db.query(Entity)
         if cursor:
             query = query.filter(Entity.created_at < cursor)
         
-        entities = query.order_by(Entity.created_at.desc(), Entity.id.desc()).limit(limit).all()
+        entities = query.order_by(Entity.created_at.desc(), Entity.id.desc()).limit(limit + 1).all()
         return entities
     except Exception as e:
         logging.error(f"Error getting paginated entities (cursor={cursor}, limit={limit}): {e}")

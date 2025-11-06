@@ -48,9 +48,6 @@ class EntityUpdateResponse(BaseModel):
 class EntityDeleteResponse(BaseModel):
     success: bool
 
-class EntityListResponse(BaseModel):
-    entities: list[EntityReadResponse]
-
 class EntityFeedStance(BaseModel):
     id: int
     headline: str
@@ -69,7 +66,6 @@ class EntityFeedEntity(BaseModel):
     description: str | None = None
     start_time: str | None = None
     end_time: str | None = None
-class EntityFeedResponse(BaseModel):
+class EntityListResponse(BaseModel):
     entities: list[EntityFeedEntity]
     next_cursor: str | None
-    has_more: bool

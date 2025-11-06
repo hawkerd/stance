@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 import logging
 import datetime
@@ -129,18 +129,25 @@ def get_stance_feed_endpoint(
         logging.error(f"Error fetching stance feed: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
     
-@router.post("/following-feed", response_model=StanceFollowingFeedResponse)
+@router.get("/following-feed", response_model=StanceFollowingFeedResponse)
 def get_stance_feed_endpoint(
-    request: StanceFollowingFeedRequest,
+    cursor: str | None = None,
+    limit: int = Query(20, le=100),
     db: Session = Depends(get_db),
     current_user_id: int | None = Depends(get_current_user)
 ) -> StanceFollowingFeedResponse:
     try:
         cursor_dt: datetime.datetime | None = None
-        if request.cursor:
-            cursor_dt = datetime.datetime.fromisoformat(request.cursor)
+        if cursor:
+            cursor_dt = datetime.datetime.fromisoformat(cursor)
 
-        stances: list[Stance] = stance_db.get_stance_feed_for_user(db, current_user_id, request.num_stances, cursor_dt)
+        stances: list[Stance] = stance_db.get_stance_feed_for_user(db, current_user_id, cursor_dt, limit)
+
+        next_cursor: str | None = None
+        if stances and len(stances) > limit:
+            stances = stances[:-1]  # remove the extra stance used to check for next cursor
+            last_stance = stances[-1]
+            next_cursor = last_stance.created_at.isoformat()
 
         feed_stances: list[StanceFeedStance] = []
         for stance in stances:
@@ -197,12 +204,6 @@ def get_stance_feed_endpoint(
                 created_at=str(stance.created_at)
             )
             feed_stances.append(stance_stance)
-
-
-        next_cursor: str | None = None
-        if stances and len(stances) == request.num_stances:
-            last_stance = stances[-1]
-            next_cursor = last_stance.created_at.isoformat()
 
         return StanceFollowingFeedResponse(stances=feed_stances, next_cursor=next_cursor)
     except HTTPException:

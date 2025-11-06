@@ -19,7 +19,6 @@ export type StanceFeedStanceResponse = components["schemas"]["StanceFeedStanceRe
 export type EntityStancesResponse = components["schemas"]["EntityStancesResponse"];
 export type PaginatedStancesByEntityStanceResponse = components["schemas"]["PaginatedStancesByEntityStanceResponse"];
 export type UserStancesResponse = components["schemas"]["UserStancesResponse"];
-export type StanceFollowingFeedRequest = components["schemas"]["StanceFollowingFeedRequest"];
 export type StanceFollowingFeedResponse = components["schemas"]["StanceFollowingFeedResponse"];
 
 /**
@@ -222,12 +221,15 @@ export async function getFeed(
 
 /**
  * Get the following feed of stances (from followed users)
- * Backend: POST /stances/following-feed
  */
 export async function getFollowingFeed(
   api: AxiosInstance,
-  data: StanceFollowingFeedRequest
+  limit: number,
+  cursor?: string
 ): Promise<StanceFollowingFeedResponse> {
-  const res = await api.post<StanceFollowingFeedResponse>(`/stances/following-feed`, data);
+  const params: any = {}
+  params.limit = limit;
+  if (cursor) params.cursor = cursor;
+  const res = await api.get<StanceFollowingFeedResponse>(`/stances/following-feed`, { params });
   return res.data;
 }

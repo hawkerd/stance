@@ -33,15 +33,15 @@ export default function EntityFeed() {
     setLoading(true);
 
     try {
-      const response = await entityFeedService.getFeed(
+      const response = await entityFeedService.getEntities(
         api,
-        5,
+        2,
         3,
         cursorRef.current || undefined
       );
 
       setEntities(prev => [...prev, ...response.entities]);
-      setHasMore(response.hasMore);
+      setHasMore(response.nextCursor !== null);
       cursorRef.current = response.nextCursor ?? null;
     } catch (err: any) {
       setError(err.message || "Failed to fetch entities");

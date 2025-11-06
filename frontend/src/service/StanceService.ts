@@ -43,11 +43,7 @@ export class StanceService {
     num_stances: number,
     cursor?: string
   ): Promise<{stances: StanceFeedStance[], next_cursor?: string}> {
-    const request: StanceFollowingFeedRequest = {
-      num_stances,
-      cursor: cursor ?? null,
-    };
-    const response: StanceFollowingFeedResponse = await stancesApi.getFollowingFeed(api, request);
+    const response: StanceFollowingFeedResponse = await stancesApi.getFollowingFeed(api, num_stances, cursor);
     console.log("Fetched stances:", response.stances);
     return {stances: response.stances, next_cursor: response.next_cursor || undefined};
   }

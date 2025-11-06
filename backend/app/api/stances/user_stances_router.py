@@ -33,7 +33,7 @@ def get_user_stances_endpoint(
         stances: list[Stance] = stance_db.get_user_stances(db, user_id=user_id, limit=limit, cursor=cursor)
 
         next_cursor = None
-        if limit and len(stances) > limit:
+        if len(stances) > limit:
             stances = stances[:-1]  # remove the extra stance used to check for next cursor
             next_cursor = stances[-1].created_at.isoformat()
 

@@ -345,7 +345,7 @@ def get_entity_stances_endpoint(
         )
 
         next_cursor: PaginatedStancesByEntityCursor | None = None
-        if limit and stances and len(stances) > limit:
+        if stances and len(stances) > limit:
             stances = stances[:-1] # remove the extra stance used to check for next cursor
             last_stance = stances[-1]
             next_cursor = PaginatedStancesByEntityCursor(score=last_stance.engagement_score, id=last_stance.id)
