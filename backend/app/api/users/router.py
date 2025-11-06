@@ -80,7 +80,7 @@ def create_demographic_endpoint(
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to create demographic for this user")
 
         # read existing demographic to prevent duplicates
-        existing_demographic: Optional[Demographic] = demographic_db.get_demographic_by_user_id(db, user_id=user.id)
+        existing_demographic: Demographic | None = demographic_db.get_demographic_by_user_id(db, user_id=user.id)
         if existing_demographic:
             logging.warning(f"User {user.id} already has a demographic")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already has a demographic")
@@ -104,7 +104,7 @@ def get_demographic_endpoint(
         if user.id != current_user:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this user's demographic")
 
-        demographic: Optional[Demographic] = demographic_db.get_demographic_by_user_id(db, user_id=user.id)
+        demographic: Demographic | None = demographic_db.get_demographic_by_user_id(db, user_id=user.id)
         if not demographic:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Demographic not found")
         return DemographicReadResponse(user_id=demographic.user_id, birth_year=demographic.birth_year, gender=demographic.gender, zip_code=demographic.zip_code)
@@ -127,11 +127,11 @@ def update_demographic_endpoint(
         if user.id != current_user:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to update this user's demographic")
 
-        existing_demographic: Optional[Demographic] = demographic_db.get_demographic_by_user_id(db, user_id=user.id)
+        existing_demographic: Demographic | None = demographic_db.get_demographic_by_user_id(db, user_id=user.id)
         if not existing_demographic:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Demographic not found")
 
-        demographic: Optional[Demographic] = demographic_db.update_demographic(db, demographic_id=existing_demographic.id, **request.model_dump())
+        demographic: Demographic | None = demographic_db.update_demographic(db, demographic_id=existing_demographic.id, **request.model_dump())
         if not demographic:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to update demographic")
         return DemographicUpdateResponse(user_id=demographic.user_id, birth_year=demographic.birth_year, gender=demographic.gender, zip_code=demographic.zip_code)
@@ -152,7 +152,7 @@ def create_profile_endpoint(
         logging.info(f"Creating profile for user {user.id} with data {request.model_dump()}")
         if user.id != current_user:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to create profile for this user")
-        existing_profile: Optional[Profile] = profile_db.get_profile_by_user_id(db, user_id=user.id)
+        existing_profile: Profile | None = profile_db.get_profile_by_user_id(db, user_id=user.id)
         if existing_profile:
             logging.warning(f"User {user.id} already has a profile")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User already has a profile")
@@ -215,19 +215,19 @@ def get_profile_page_endpoint(
 ) -> ProfilePageResponse:
     try:
         logging.info(f"Fetching profile page for user {user.id}")
-        
-        profile: Optional[Profile] = profile_db.get_profile_by_user_id(db, user_id=user.id)
+
+        profile: Profile | None = profile_db.get_profile_by_user_id(db, user_id=user.id)
         if not profile:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
         
         followers_count: int = len(user.followers)
         following_count: int = len(user.following)
-        following: Optional[bool] = None
+        following: bool | None = None
         if current_user:
             following = follow_db.find_follow(db, follower_id=current_user, followed_id=user.id) is not None
         entity_id: int | None = None
         if profile.pinned_stance_id:
-            pinned_stance: Optional[Stance] = stance_db.read_stance(db, stance_id=profile.pinned_stance_id)
+            pinned_stance: Stance | None = stance_db.read_stance(db, stance_id=profile.pinned_stance_id)
             if pinned_stance:
                 entity_id = pinned_stance.entity_id
 
@@ -260,7 +260,7 @@ def follow_user_endpoint(
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot follow yourself")
         
         # check to make sure follow does not already exist
-        follow: Optional[Follow] = follow_db.find_follow(db, follower_id=current_user, followed_id=user_to_follow.id)
+        follow: Follow | None = follow_db.find_follow(db, follower_id=current_user, followed_id=user_to_follow.id)
         if follow:
             return
         
@@ -281,7 +281,7 @@ def unfollow_user_endpoint(
 ) -> None:
     try:
         # check to make sure follow exists
-        follow: Optional[Follow] = follow_db.find_follow(db, follower_id=current_user, followed_id=user_to_unfollow.id)
+        follow: Follow | None = follow_db.find_follow(db, follower_id=current_user, followed_id=user_to_unfollow.id)
         if not follow:
             return
         
@@ -362,11 +362,11 @@ def is_following_endpoint(
     user: User = Depends(validate_user),
 ) -> bool:
     try:
-        followed_user: Optional[User] = user_db.read_user(db, user_id=followed_user_id)
+        followed_user: User | None = user_db.read_user(db, user_id=followed_user_id)
         if not followed_user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User to check follow status not found")
 
-        follow: Optional[Follow] = follow_db.find_follow(db, follower_id=user.id, followed_id=followed_user_id)
+        follow: Follow | None = follow_db.find_follow(db, follower_id=user.id, followed_id=followed_user_id)
         return follow is not None
     except HTTPException:
         raise

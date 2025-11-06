@@ -26,7 +26,7 @@ def get_user_stances_endpoint(
     limit: int = Query(20, le=100)
 ) -> UserStancesResponse:
     try:
-        user: Optional[User] = user_db.read_user(db, user_id)
+        user: User | None = user_db.read_user(db, user_id)
         if not user:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
 
@@ -44,7 +44,7 @@ def get_user_stances_endpoint(
             stance_tags: list[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
 
             # read entity information
-            entity: Optional[Entity] = entity_db.read_entity(db, stance.entity_id)
+            entity: Entity | None = entity_db.read_entity(db, stance.entity_id)
             if not entity:
                 continue
             stance_entity: StanceFeedEntity = StanceFeedEntity(
@@ -58,11 +58,11 @@ def get_user_stances_endpoint(
                 end_time=entity.end_time.isoformat() if entity.end_time else None
             )
 
-            average_rating: Optional[float] = rating_db.get_average_rating_for_stance(db, stance.id)
+            average_rating: float | None = rating_db.get_average_rating_for_stance(db, stance.id)
             num_ratings: int = rating_db.get_num_ratings_for_stance(db, stance.id)
             my_rating: int | None = None
             if current_user_id:
-                rating: Rating = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
+                rating: Rating | None = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
                 my_rating = rating.rating if rating else None
 
             comment_count: int = stance_db.get_comment_count_by_stance(db, stance.id)
