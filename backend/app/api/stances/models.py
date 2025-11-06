@@ -118,9 +118,6 @@ class PaginatedStancesByEntityStance(BaseModel):
 class PaginatedStancesByEntityCursor(BaseModel):
     score: float
     id: int
-class PaginatedStanceByEntityRequest(BaseModel):
-    num_stances: int = 20
-    cursor: PaginatedStancesByEntityCursor | None
 class EntityStancesResponse(BaseModel):
     stances: list[PaginatedStancesByEntityStance]
     next_cursor: PaginatedStancesByEntityCursor | None
@@ -139,9 +136,6 @@ class PaginatedStancesByUserStance(BaseModel):
     my_rating: int | None
     tags: list[StanceFeedTag]
     created_at: str
-class PaginatedStancesByUserRequest(BaseModel):
-    num_stances: int = 20
-    cursor: str | None
 class UserStancesResponse(BaseModel):
     stances: list[PaginatedStancesByUserStance]
     next_cursor: str | None = None
