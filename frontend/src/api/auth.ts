@@ -9,6 +9,7 @@ export type TokenResponse = components["schemas"]["TokenResponse"];
 export type RefreshRequest = components["schemas"]["RefreshRequest"];
 export type RefreshResponse = components["schemas"]["RefreshResponse"];
 export type LogoutRequest = components["schemas"]["LogoutRequest"];
+export type ChangePasswordRequest = components["schemas"]["ChangePasswordRequest"];
 
 /**
  * Signup a new user
@@ -39,5 +40,13 @@ export async function refreshToken(api: AxiosInstance, data: RefreshRequest): Pr
  */
 export async function logout(api: AxiosInstance, data: LogoutRequest): Promise<boolean> {
   const res = await api.post("/auth/logout", data);
+  return res.status === 204;
+}
+
+/**
+ * Change user password
+ */
+export async function changePassword(api: AxiosInstance, data: ChangePasswordRequest): Promise<boolean> {
+  const res = await api.post("/auth/change-password", data);
   return res.status === 204;
 }

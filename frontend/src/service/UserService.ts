@@ -3,6 +3,10 @@ import { usersApi } from "@/api";
 import { User, ProfilePage, Profile } from "@/models/index";
 
 export class UserService {
+	async isUsernameTaken(api: AxiosInstance, username: string): Promise<boolean> {
+		return usersApi.isUsernameTaken(api, username);
+	}
+
 	async getCurrentUser(api: AxiosInstance): Promise<User> {
 		const response = await usersApi.getCurrentUser(api);
 		const user: User = {
@@ -11,6 +15,22 @@ export class UserService {
             full_name: response.full_name,
             email: response.email,
         };
+		return user;
+	}
+
+	async updateCurrentUser(api: AxiosInstance, username?: string, full_name?: string, email?: string): Promise<User> {
+		const payload = {
+			username: username,
+			full_name: full_name,
+			email: email,
+		};
+		const response = await usersApi.updateCurrentUser(api, payload);
+		const user: User = {
+			id: response.id,
+			username: response.username,
+			full_name: response.full_name,
+			email: response.email,
+		};
 		return user;
 	}
 

@@ -27,20 +27,36 @@ def read_user(db: Session, user_id: int) -> User | None:
         logging.error(f"Error reading user {user_id}: {e}")
         raise DatabaseError("Failed to read user")
 
-def update_user(db: Session, user_id: int, **kwargs) -> User | None:
+def update_user(db: Session, user_id: int, username: str | None, full_name: str | None, email: str | None) -> User | None:
     try:
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
             return None
-        for key, value in kwargs.items():
-            if hasattr(user, key):
-                setattr(user, key, value)
+        if username is not None:
+            user.username = username
+        if full_name is not None:
+            user.full_name = full_name
+        if email is not None:
+            user.email = email
         db.commit()
         db.refresh(user)
         return user
     except Exception as e:
         logging.error(f"Error updating user {user_id}: {e}")
         raise DatabaseError("Failed to update user")
+
+def update_user_password(db: Session, user_id: int, new_password_hash: str) -> User | None:
+    try:
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            return None
+        user.password_hash = new_password_hash
+        db.commit()
+        db.refresh(user)
+        return user
+    except Exception as e:
+        logging.error(f"Error updating password for user {user_id}: {e}")
+        raise DatabaseError("Failed to update user password")
 
 def delete_user(db: Session, user_id: int) -> bool:
     try:
@@ -75,3 +91,10 @@ def is_user_admin(db: Session, user_id: int) -> bool:
     except Exception as e:
         logging.error(f"Error checking if user {user_id} is admin: {e}")
         raise DatabaseError("Failed to check if user is admin")
+    
+def is_username_taken(db: Session, username: str) -> bool:
+    try:
+        return db.query(User).filter(User.username == username).count() > 0
+    except Exception as e:
+        logging.error(f"Error checking if username {username} is taken: {e}")
+        raise DatabaseError("Failed to check if username is taken")

@@ -14,6 +14,20 @@ export type ProfileUpdateRequest = components["schemas"]["ProfileUpdateRequest"]
 export type ProfileUpdateResponse = components["schemas"]["ProfileUpdateResponse"];
 export type ProfilePageResponse = components["schemas"]["ProfilePageResponse"];
 export type UserListResponse = components["schemas"]["UserListResponse"];
+export type UserUpdateRequest = components["schemas"]["UserUpdateRequest"];
+
+/**
+ * Check if a username is taken
+ */
+export async function isUsernameTaken(
+  api: AxiosInstance,
+  username: string
+): Promise<boolean> {
+  const res = await api.get<boolean>(`/users/username_taken`, {
+    params: { username }
+  });
+  return res.data;
+}
 
 /**
  * Fetch the current logged-in user's info
@@ -22,6 +36,14 @@ export async function getCurrentUser(
   api: AxiosInstance
 ): Promise<UserReadResponse> {
   const res = await api.get<UserReadResponse>("/users/me");
+  return res.data;
+}
+
+export async function updateCurrentUser(
+  api: AxiosInstance,
+  payload: UserUpdateRequest
+): Promise<UserReadResponse> {
+  const res = await api.put<UserReadResponse>("/users/me", payload);
   return res.data;
 }
 

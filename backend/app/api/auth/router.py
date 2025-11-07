@@ -106,3 +106,30 @@ def logout(
     except Exception as e:
         logging.error(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+    
+@router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
+def reset_password(
+    data: ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user)
+) -> None:
+    try:
+        user: User | None = user_db.read_user(db, user_id)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+        
+        if not verify_password(data.current_password, user.password_hash):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid current password")
+
+        if data.new_password == data.current_password:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="New password must be different from current password")
+
+        new_password_hash: str = hash_password(data.new_password)
+        updated_user: User | None = user_db.update_user_password(db, user.id, new_password_hash)
+        if not updated_user:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to update password")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")

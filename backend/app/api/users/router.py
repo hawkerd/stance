@@ -32,6 +32,37 @@ def get_current_user_endpoint(
     except Exception as e:
         logging.error(f"Error fetching current user: {e}")
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+    
+@router.put("/me", response_model=UserReadResponse)
+def update_current_user_endpoint(
+    request: UserUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: int = Depends(get_current_user)
+) -> UserReadResponse:
+    try:
+        user: User = user_db.read_user(db, user_id=current_user)
+        if not user:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found")
+
+        user = user_db.update_user(db, user_id=current_user, username=request.username, full_name=request.full_name, email=request.email)
+        return UserReadResponse(id=user.id, username=user.username, full_name=user.full_name, email=user.email)
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Error updating current user: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+
+@router.get("/username_taken", response_model=bool)
+def check_username_endpoint(
+    username: str,
+    db: Session = Depends(get_db)
+) -> bool:
+    try:
+        is_taken: bool = user_db.is_username_taken(db, username=username)
+        return is_taken
+    except Exception as e:
+        logging.error(f"Error checking username {username}: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 @router.get("/{user_id}", response_model=UserReadResponse)
 def get_user_endpoint(

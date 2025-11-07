@@ -16,7 +16,7 @@ interface ProfilePageProps {
 
 export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) {
   const api = useAuthApi();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [profilePage, setProfilePage] = useState<ProfilePageType | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -67,11 +67,6 @@ export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) 
     } finally {
       setFollowLoading(false);
     }
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.push('/login');
   };
 
   const openFollowersModal = () => {
@@ -148,10 +143,10 @@ export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) 
                 </h1>
                 {isOwnProfile && (
                   <button
-                    onClick={handleLogout}
-                    className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-red-100 text-red-700 hover:bg-red-200"
+                    onClick={() => router.push('/settings')}
+                    className="px-4 py-1.5 rounded-full text-sm font-semibold transition-all bg-purple-100 text-purple-700 hover:bg-purple-200"
                   >
-                    Logout
+                    Edit Profile
                   </button>
                 )}
                 {isAuthenticated && !isOwnProfile && profilePage.following !== null && (
@@ -178,20 +173,20 @@ export default function ProfilePage({ userId, isOwnProfile }: ProfilePageProps) 
           </div>
 
           {/* Right Side: Follower/Following Stats */}
-          <div className="flex gap-0 flex-shrink-0 bg-purple-50 rounded-lg overflow-hidden border border-purple-100">
+          <div className="flex gap-6 flex-shrink-0">
             <button
               onClick={openFollowersModal}
-              className="text-center hover:bg-purple-100 px-6 py-3 transition cursor-pointer border-r border-purple-100"
+              className="text-center hover:bg-gray-50 px-3 py-2 rounded-lg transition cursor-pointer"
             >
-              <p className="text-3xl font-bold text-purple-600">{profilePage.follower_count}</p>
-              <p className="text-sm text-gray-500 font-medium">Followers</p>
+              <p className="text-xl font-bold text-gray-900">{profilePage.follower_count}</p>
+              <p className="text-xs text-gray-500 font-medium">Followers</p>
             </button>
             <button
               onClick={openFollowingModal}
-              className="text-center hover:bg-purple-100 px-6 py-3 transition cursor-pointer"
+              className="text-center hover:bg-gray-50 px-3 py-2 rounded-lg transition cursor-pointer"
             >
-              <p className="text-3xl font-bold text-purple-600">{profilePage.following_count}</p>
-              <p className="text-sm text-gray-500 font-medium">Following</p>
+              <p className="text-xl font-bold text-gray-900">{profilePage.following_count}</p>
+              <p className="text-xs text-gray-500 font-medium">Following</p>
             </button>
           </div>
         </div>

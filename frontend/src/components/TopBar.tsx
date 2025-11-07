@@ -5,10 +5,12 @@ import SidebarItem from "./SidebarItem";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUser } from "@/contexts/UserContext";
+import { useRouter } from "next/navigation";
 
 const TopBar: React.FC = () => {
   const { isAuthenticated, logout, initialized } = useAuth();
   const { user, profile, loading: userLoading } = useUser();
+  const router = useRouter();
 
   return (
     <aside
@@ -83,21 +85,66 @@ const TopBar: React.FC = () => {
         ) : null}
       </div>
       <div className="flex-1" />
-      {/* Options item at the bottom */}
-      <div className="mb-2">
-        <SidebarItem
-          href="/options"
-          icon={
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5m-16.5 5.25h16.5m-16.5 5.25h16.5" />
-            </svg>
-          }
-          className="font-normal text-black"
+      
+      {/* Bottom options section */}
+      <div className="flex flex-col gap-2 border-t border-purple-200/40 pt-4">
+        {/* Dark Mode Toggle (placeholder) */}
+        <button
+          className="w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-gray-700 hover:bg-purple-50 transition font-normal opacity-50 cursor-not-allowed"
+          disabled
         >
-          Options
-        </SidebarItem>
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+            </svg>
+            <span className="text-sm">Dark Mode</span>
+          </div>
+          <div className="w-8 h-5 bg-gray-200 rounded-full"></div>
+        </button>
+
+        {/* Settings */}
+        <button
+          onClick={() => router.push('/settings')}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition font-normal"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.343 3.94c.09-.542.56-.94 1.11-.94h1.093c.55 0 1.02.398 1.11.94l.149.894c.07.424.384.764.78.93.398.164.855.142 1.205-.108l.737-.527a1.125 1.125 0 011.45.12l.773.774c.39.389.44 1.002.12 1.45l-.527.737c-.25.35-.272.806-.107 1.204.165.397.505.71.93.78l.893.15c.543.09.94.56.94 1.109v1.094c0 .55-.397 1.02-.94 1.11l-.893.149c-.425.07-.765.383-.93.78-.165.398-.143.854.107 1.204l.527.738c.32.447.27 1.06-.12 1.45l-.774.773a1.125 1.125 0 01-1.449.12l-.738-.527c-.35-.25-.806-.272-1.203-.107-.397.165-.71.505-.781.929l-.149.894c-.09.542-.56.94-1.11.94h-1.094c-.55 0-1.019-.398-1.11-.94l-.148-.894c-.071-.424-.384-.764-.781-.93-.398-.164-.854-.142-1.204.108l-.738.527c-.447.32-1.06.27-1.45-.12l-.773-.774a1.125 1.125 0 01-.12-1.45l.527-.737c.25-.35.273-.806.108-1.204-.165-.397-.505-.71-.93-.78l-.894-.15c-.542-.09-.94-.56-.94-1.109v-1.094c0-.55.398-1.02.94-1.11l.894-.149c.424-.07.765-.383.93-.78.165-.398.143-.854-.107-1.204l-.527-.738a1.125 1.125 0 01.12-1.45l.773-.773a1.125 1.125 0 011.45-.12l.737.527c.35.25.807.272 1.204.107.397-.165.71-.505.78-.929l.15-.894z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>Settings</span>
+        </button>
+
+        {/* Report */}
+        <button
+          onClick={() => router.push('/report')}
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition font-normal"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v1.5M3 21v-6m0 0l2.77-.693a9 9 0 016.208.682l.108.054a9 9 0 006.086.71l3.114-.732a48.524 48.524 0 01-.005-10.499l-3.11.732a9 9 0 01-6.085-.711l-.108-.054a9 9 0 00-6.208-.682L3 4.5M3 15V4.5" />
+          </svg>
+          <span>Report</span>
+        </button>
+
+        {/* Logout (only if logged in) */}
+        {isAuthenticated ? (
+          <button
+            onClick={() => {
+              logout();
+              router.push('/login');
+            }}
+            className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-red-600 hover:bg-red-50 transition font-normal"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+            </svg>
+            <span>Logout</span>
+          </button>
+        ) : (
+          <div className="w-full h-11"></div>
+        )}
       </div>
-        {/*
+
+      {/*
         {isAuthenticated && (
           <button
             onClick={logout}

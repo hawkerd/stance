@@ -240,6 +240,24 @@ export interface paths {
         };
         /** Get Current User Endpoint */
         get: operations["get_current_user_endpoint_users_me_get"];
+        /** Update Current User Endpoint */
+        put: operations["update_current_user_endpoint_users_me_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/username_taken": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Check Username Endpoint */
+        get: operations["check_username_endpoint_users_username_taken_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -458,6 +476,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/change-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset Password */
+        post: operations["reset_password_auth_change_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/entities/{entity_id}/stances/{stance_id}/comments/": {
         parameters: {
             query?: never;
@@ -551,6 +586,13 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** ChangePasswordRequest */
+        ChangePasswordRequest: {
+            /** Current Password */
+            current_password: string;
+            /** New Password */
+            new_password: string;
+        };
         /** CommentCreateRequest */
         CommentCreateRequest: {
             /** Content */
@@ -1198,6 +1240,15 @@ export interface components {
             stances: components["schemas"]["PaginatedStancesByUserStance"][];
             /** Next Cursor */
             next_cursor?: string | null;
+        };
+        /** UserUpdateRequest */
+        UserUpdateRequest: {
+            /** Username */
+            username?: string | null;
+            /** Full Name */
+            full_name?: string | null;
+            /** Email */
+            email?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -1850,6 +1901,70 @@ export interface operations {
             };
         };
     };
+    update_current_user_endpoint_users_me_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserReadResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_username_endpoint_users_username_taken_get: {
+        parameters: {
+            query: {
+                username: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": boolean;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_user_endpoint_users__user_id__get: {
         parameters: {
             query?: never;
@@ -2412,6 +2527,37 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["LogoutRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_password_auth_change_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"];
             };
         };
         responses: {

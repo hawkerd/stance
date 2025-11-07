@@ -6,6 +6,11 @@ class UserReadResponse(BaseModel):
     full_name: str
     email: str
 
+class UserUpdateRequest(BaseModel):
+    username: str | None = None
+    full_name: str | None = None
+    email: str | None = None
+
 class UserListResponse(BaseModel):
     users: list[UserReadResponse]
     next_cursor: str | None = None

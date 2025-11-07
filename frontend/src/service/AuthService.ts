@@ -6,7 +6,8 @@ import {
   TokenResponse,
   RefreshRequest,
   RefreshResponse,
-  LogoutRequest
+  LogoutRequest,
+  ChangePasswordRequest
 } from "@/api/auth";
 import { authApi } from "@/api";
 import { User } from "@/models/index";
@@ -45,6 +46,15 @@ export class AuthService {
   async logout(api: AxiosInstance, refreshToken: string): Promise<boolean> {
     const request: LogoutRequest = { refresh_token: refreshToken };
     const response: boolean = await authApi.logout(api, request);
+    return response;
+  }
+
+  async changePassword(api: AxiosInstance, oldPassword: string, newPassword: string): Promise<boolean> {
+    const request: ChangePasswordRequest = {
+      current_password: oldPassword,
+      new_password: newPassword,
+    };
+    const response: boolean = await authApi.changePassword(api, request);
     return response;
   }
 }
