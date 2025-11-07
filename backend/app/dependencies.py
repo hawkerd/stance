@@ -11,7 +11,7 @@ def get_db():
     finally:
         db.close()
 
-def get_current_user(token: str = Depends(OAuth2PasswordBearer(tokenUrl="login"))) -> int:
+def get_current_user(token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token"))) -> int:
     user_id = verify_access_token(token)
     if user_id is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
@@ -27,5 +27,5 @@ def get_current_user_optional(request: Request) -> int | None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
     return user_id
 
-def get_is_admin(token: str = Depends(OAuth2PasswordBearer(tokenUrl="login"))) -> bool:
+def get_is_admin(token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token"))) -> bool:
     return is_admin_token(token)

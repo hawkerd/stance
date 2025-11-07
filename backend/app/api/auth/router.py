@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import logging
 
@@ -33,6 +34,33 @@ def signup(
         logging.error(e)
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
+@router.post("/token", response_model=Token)
+def token(
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    db: Session = Depends(get_db)
+) -> Token:
+    try:
+        logging.info(f"Attempting to authenticate user: {form_data.username} with password {form_data.password}")
+
+        # get the user and verify the password
+        user: User | None = user_db.get_user_by_username(db, form_data.username)
+        logging.info(f"Retrieved user: {user}")
+        if not user or not verify_password(form_data.password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail="Incorrect username or password",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+        
+        # create access token
+        access_token: str = create_access_token(user.id, user.is_admin)
+
+        return Token(access_token=access_token, token_type="bearer")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(e)
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
 
 @router.post("/login", response_model=TokenResponse)
 def login(
