@@ -172,6 +172,12 @@ export interface User {
     email: string;
 }
 
+export interface Profile {
+    bio?: string | null;
+    avatar_url?: string | null;
+    pinned_stance_id?: number | null;
+}
+
 export interface ProfilePage {
     username: string;
     full_name: string;

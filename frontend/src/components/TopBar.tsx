@@ -4,9 +4,11 @@ import React from "react";
 import SidebarItem from "./SidebarItem";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUser } from "@/contexts/UserContext";
 
 const TopBar: React.FC = () => {
   const { isAuthenticated, logout, initialized } = useAuth();
+  const { user, profile, loading: userLoading } = useUser();
 
   return (
     <aside
@@ -52,8 +54,20 @@ const TopBar: React.FC = () => {
           </SidebarItem>
         {initialized && isAuthenticated ? (
           <SidebarItem href="/profile" icon={
-            <span className="w-6 h-6 flex items-center justify-center overflow-hidden rounded-full bg-gray-200">
-              <Image src="/profile.png" alt="Profile" width={24} height={24} className="object-cover w-full h-full" />
+            <span className="w-6 h-6 flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-400 to-pink-400">
+              {!userLoading && profile?.avatar_url ? (
+                <Image 
+                  src={profile.avatar_url} 
+                  alt="Profile" 
+                  width={24} 
+                  height={24} 
+                  className="object-cover w-full h-full" 
+                />
+              ) : !userLoading ? (
+                <span className="text-white text-xs font-bold">
+                  {user?.username?.charAt(0).toUpperCase() || "?"}
+                </span>
+              ) : null}
             </span>
           }>
             Profile

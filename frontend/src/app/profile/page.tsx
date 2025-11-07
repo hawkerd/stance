@@ -1,39 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { useAuth } from "@/contexts/AuthContext";
-import { UserService } from "@/service/UserService";
+import { useUser } from "@/contexts/UserContext";
 import ProfilePage from "@/components/user-page/ProfilePage";
 
 export default function ProfileRoute() {
-  const api = useAuthApi();
   const { initialized, isAuthenticated } = useAuth();
-  const [userId, setUserId] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const userService = new UserService();
-
-  useEffect(() => {
-    if (!initialized) return;
-    
-    if (!isAuthenticated) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchCurrentUser = async () => {
-      try {
-        const currentUser = await userService.getCurrentUser(api);
-        setUserId(currentUser.id);
-      } catch (err: any) {
-        console.error("Failed to fetch current user:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCurrentUser();
-  }, [api, initialized, isAuthenticated, userService]);
+  const { user, loading } = useUser();
 
   if (!initialized || loading) {
     return (
@@ -43,7 +16,7 @@ export default function ProfileRoute() {
     );
   }
 
-  if (!userId) {
+  if (!isAuthenticated || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-gray-500">Not logged in</p>
@@ -51,5 +24,5 @@ export default function ProfileRoute() {
     );
   }
 
-  return <ProfilePage userId={userId} isOwnProfile={true} />;
+  return <ProfilePage userId={user.id} isOwnProfile={true} />;
 }

@@ -5,7 +5,7 @@ import logging
 from app.dependencies import *
 from app.database.models import *
 from app.service.auth import *
-from app.database import user as user_db, refresh_token as token_db
+from app.database import user as user_db, refresh_token as token_db, profile as profile_db
 from .models import *
 
 router = APIRouter(tags=["auth"], prefix="/auth")
@@ -24,6 +24,8 @@ def signup(
 
         password_hash: str = hash_password(data.password)
         user: User = user_db.create_user(db, data.username, data.full_name, data.email, password_hash, False)
+        profile: Profile = profile_db.create_profile(db, user.id, bio="", avatar_url=None, pinned_stance_id=None)
+
         return SignupResponse(id=user.id, username=user.username, full_name=user.full_name, email=user.email)
     except HTTPException:
         raise

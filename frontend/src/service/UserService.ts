@@ -1,6 +1,6 @@
 import { AxiosInstance } from "axios";
 import { usersApi } from "@/api";
-import { User, ProfilePage } from "@/models/index";
+import { User, ProfilePage, Profile } from "@/models/index";
 
 export class UserService {
 	async getCurrentUser(api: AxiosInstance): Promise<User> {
@@ -44,6 +44,16 @@ export class UserService {
 			pinned_stance_entity_id: response.pinned_stance_id_entity_id,
 		};
 		return profilePage;
+	}
+
+	async getProfile(api: AxiosInstance, userId: number): Promise<Profile> {
+		const response = await usersApi.getProfile(api, userId);
+		const profile: Profile = {
+			bio: response.bio,
+			avatar_url: response.avatar_url,
+			pinned_stance_id: response.pinned_stance_id,
+		};
+		return profile;
 	}
 
 	async followUser(api: AxiosInstance, userId: number): Promise<boolean> {
