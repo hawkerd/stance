@@ -1,6 +1,10 @@
 import { AxiosInstance } from "axios";
 import { usersApi } from "@/api";
 import { User, ProfilePage, Profile } from "@/models/index";
+import { 
+	ProfileUpdateRequest,
+	UserUpdateRequest
+ } from "@/api/users";
 
 export class UserService {
 	async isUsernameTaken(api: AxiosInstance, username: string): Promise<boolean> {
@@ -19,7 +23,7 @@ export class UserService {
 	}
 
 	async updateCurrentUser(api: AxiosInstance, username?: string, full_name?: string, email?: string): Promise<User> {
-		const payload = {
+		const payload: UserUpdateRequest = {
 			username: username,
 			full_name: full_name,
 			email: email,
@@ -69,6 +73,24 @@ export class UserService {
 	async getProfile(api: AxiosInstance, userId: number): Promise<Profile> {
 		const response = await usersApi.getProfile(api, userId);
 		const profile: Profile = {
+			id: response.profile_id,
+			bio: response.bio,
+			avatar_url: response.avatar_url,
+			pinned_stance_id: response.pinned_stance_id,
+		};
+		return profile;
+	}
+
+	async updateProfile(api: AxiosInstance, userId: number, bio?: string, avatar_url?: string, pinned_stance_id?: number): Promise<Profile> {
+		const payload: ProfileUpdateRequest = {
+			bio: bio,
+			avatar_url: avatar_url,
+			pinned_stance_id: pinned_stance_id,	
+		}
+
+		const response = await usersApi.updateProfile(api, userId, payload);
+		const profile: Profile = {
+			id: response.profile_id,
 			bio: response.bio,
 			avatar_url: response.avatar_url,
 			pinned_stance_id: response.pinned_stance_id,

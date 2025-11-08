@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuthApi } from "@/app/hooks/useAuthApi";
 import { UserService } from "@/service/UserService";
 import { AuthService } from "@/service/AuthService";
+import { ImageService } from "@/service/ImageService";
 import SettingsTabs from "@/components/settings/SettingsTabs";
 import AccountInfoSection from "@/components/settings/AccountInfoSection";
 import PasswordChangeSection from "@/components/settings/PasswordChangeSection";
@@ -23,6 +24,7 @@ export default function SettingsPage() {
   const api = useAuthApi();
   const userService = new UserService();
   const authService = new AuthService();
+  const imageService = new ImageService();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>("account");
 
@@ -212,13 +214,71 @@ export default function SettingsPage() {
   };
 
   const handleSaveProfile = async () => {
-    // TODO: Wire up API call to save profile
-    console.log("Saving profile:", {
-      bio,
-      avatarFile,
-    });
-    alert("Save functionality not yet implemented!");
-    setProfileEdited(false);
+    if (!user || !profile) {
+      return;
+    }
+
+    try {
+      let newAvatarUrl = avatarUrl;
+
+      // If there's a new avatar file, upload it first
+      if (avatarFile) {
+        // Convert file to base64
+        const reader = new FileReader();
+        const base64Promise = new Promise<string>((resolve, reject) => {
+          reader.onload = () => {
+            const base64 = reader.result as string;
+            // Remove data URL prefix (e.g., "data:image/png;base64,")
+            const base64Content = base64.split(',')[1];
+            resolve(base64Content);
+          };
+          reader.onerror = reject;
+        });
+        
+        reader.readAsDataURL(avatarFile);
+        const base64Content = await base64Promise;
+
+        // Upload image with profile_id
+        const imageResponse = await imageService.createImage(
+          api,
+          avatarFile.type,
+          base64Content,
+          undefined, // entityId
+          undefined, // stanceId
+          profile.id  // profileId
+        );
+
+        newAvatarUrl = imageResponse.publicUrl;
+      }
+
+      // Only pass fields that have changed
+      const bioChanged = bio !== originalBio;
+      const avatarChanged = newAvatarUrl !== originalAvatarUrl;
+
+      // Update profile with only changed fields
+      await userService.updateProfile(
+        api, 
+        user.id, 
+        bioChanged ? bio : undefined,
+        avatarChanged ? newAvatarUrl : undefined,
+        undefined // pinned_stance_id not changed here
+      );
+
+      // Refresh user context to get updated profile data
+      await refreshUser();
+
+      // Update original values
+      setOriginalBio(bio);
+      setOriginalAvatarUrl(newAvatarUrl);
+      setAvatarUrl(newAvatarUrl);
+      setAvatarFile(null);
+      setAvatarPreview(null);
+      setProfileEdited(false);
+
+    } catch (error: any) {
+      console.error("Error saving profile:", error);
+      alert(error.response?.data?.detail || "Failed to save profile. Please try again.");
+    }
   };
 
   const handleCancelAccount = () => {

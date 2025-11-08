@@ -425,6 +425,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Token */
+        post: operations["token_auth_token_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/auth/login": {
         parameters: {
             query?: never;
@@ -586,6 +603,30 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Body_token_auth_token_post */
+        Body_token_auth_token_post: {
+            /** Grant Type */
+            grant_type?: string | null;
+            /** Username */
+            username: string;
+            /**
+             * Password
+             * Format: password
+             */
+            password: string;
+            /**
+             * Scope
+             * @default
+             */
+            scope: string;
+            /** Client Id */
+            client_id?: string | null;
+            /**
+             * Client Secret
+             * Format: password
+             */
+            client_secret?: string | null;
+        };
         /** ChangePasswordRequest */
         ChangePasswordRequest: {
             /** Current Password */
@@ -839,13 +880,12 @@ export interface components {
             stance_id?: number | null;
             /** Entity Id */
             entity_id?: number | null;
+            /** Profile Id */
+            profile_id?: number | null;
             /** Mime Type */
             mime_type: string;
-            /**
-             * Image Content
-             * Format: binary
-             */
-            image_content: string;
+            /** B64 Image Content */
+            b64_image_content: string;
         };
         /** ImageCreateResponse */
         ImageCreateResponse: {
@@ -958,6 +998,8 @@ export interface components {
         ProfileReadResponse: {
             /** User Id */
             user_id: number;
+            /** Profile Id */
+            profile_id: number;
             /** Bio */
             bio: string | null;
             /** Avatar Url */
@@ -968,16 +1010,18 @@ export interface components {
         /** ProfileUpdateRequest */
         ProfileUpdateRequest: {
             /** Bio */
-            bio: string | null;
+            bio?: string | null;
             /** Avatar Url */
-            avatar_url: string | null;
+            avatar_url?: string | null;
             /** Pinned Stance Id */
-            pinned_stance_id: number | null;
+            pinned_stance_id?: number | null;
         };
         /** ProfileUpdateResponse */
         ProfileUpdateResponse: {
             /** User Id */
             user_id: number;
+            /** Profile Id */
+            profile_id: number;
             /** Bio */
             bio: string | null;
             /** Avatar Url */
@@ -1208,6 +1252,13 @@ export interface components {
             name: string;
             /** Tag Type */
             tag_type: number;
+        };
+        /** Token */
+        Token: {
+            /** Access Token */
+            access_token: string;
+            /** Token Type */
+            token_type: string;
         };
         /** TokenResponse */
         TokenResponse: {
@@ -2438,6 +2489,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SignupResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    token_auth_token_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/x-www-form-urlencoded": components["schemas"]["Body_token_auth_token_post"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Token"];
                 };
             };
             /** @description Validation Error */

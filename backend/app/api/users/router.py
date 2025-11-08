@@ -190,7 +190,7 @@ def create_profile_endpoint(
         profile = profile_db.create_profile(db, user_id=user.id, bio=request.bio, avatar_url=request.avatar_url, pinned_stance_id=request.pinned_stance_id)
         if not profile:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to create profile")
-        return ProfileReadResponse(user_id=profile.user_id, bio=profile.bio, avatar_url=profile.avatar_url, pinned_stance_id=profile.pinned_stance_id)
+        return ProfileReadResponse(user_id=profile.user_id, profile_id=profile.id, bio=profile.bio, avatar_url=profile.avatar_url, pinned_stance_id=profile.pinned_stance_id)
     except HTTPException:
         raise
     except Exception as e:
@@ -207,7 +207,7 @@ def get_profile_endpoint(
         profile = profile_db.get_profile_by_user_id(db, user_id=user.id)
         if not profile:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found")
-        return ProfileReadResponse(user_id=profile.user_id, bio=profile.bio, avatar_url=profile.avatar_url, pinned_stance_id=profile.pinned_stance_id)
+        return ProfileReadResponse(user_id=profile.user_id, profile_id=profile.id, bio=profile.bio, avatar_url=profile.avatar_url, pinned_stance_id=profile.pinned_stance_id)
     except HTTPException:
         raise
     except Exception as e:
@@ -231,7 +231,7 @@ def update_profile_endpoint(
         profile = profile_db.update_profile(db, profile_id=existing_profile.id, **request.model_dump())
         if not profile:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to update profile")
-        return ProfileUpdateResponse(user_id=profile.user_id, bio=profile.bio, avatar_url=profile.avatar_url, pinned_stance_id=profile.pinned_stance_id)
+        return ProfileUpdateResponse(user_id=profile.user_id, profile_id=profile.id, bio=profile.bio, avatar_url=profile.avatar_url, pinned_stance_id=profile.pinned_stance_id)
     except HTTPException:
         raise
     except Exception as e:

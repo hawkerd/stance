@@ -10,8 +10,19 @@ export type ImageCreateResponse = components["schemas"]["ImageCreateResponse"];
  */
 export async function createImage(
   api: AxiosInstance,
-  payload: ImageCreateRequest
+  b64ImageContent: string,
+  mimeType: string,
+  entityId?: number,
+  stanceId?: number,
+  profileId?: number
 ): Promise<ImageCreateResponse> {
+  const payload: ImageCreateRequest = {
+    mime_type: mimeType,
+    b64_image_content: b64ImageContent,
+    entity_id: entityId,
+    stance_id: stanceId,
+    profile_id: profileId,
+  };
   const res = await api.post<ImageCreateResponse>("/images", payload);
   return res.data;
 }

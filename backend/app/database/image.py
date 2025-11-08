@@ -4,11 +4,12 @@ from app.errors import DatabaseError
 import logging
 
 def create_image(db: Session, stance_id: int | None, entity_id: int | None, 
-                public_url: str, file_size: int, file_type: str) -> Image:
+                profile_id: int | None, public_url: str, file_size: int, file_type: str) -> Image:
     try:
         image = Image(
             stance_id=stance_id,
             entity_id=entity_id,
+            profile_id=profile_id,
             public_url=public_url,
             file_size=file_size,
             file_type=file_type
@@ -69,3 +70,10 @@ def get_images_by_entity(db: Session, entity_id: int) -> list[Image]:
     except Exception as e:
         logging.error(f"Error getting images for entity {entity_id}: {e}")
         raise DatabaseError("Failed to get images by entity")
+
+def get_images_by_profile(db: Session, profile_id: int) -> list[Image]:
+    try:
+        return db.query(Image).filter(Image.profile_id == profile_id).all()
+    except Exception as e:
+        logging.error(f"Error getting images for profile {profile_id}: {e}")
+        raise DatabaseError("Failed to get images by profile")

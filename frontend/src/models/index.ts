@@ -173,6 +173,7 @@ export interface User {
 }
 
 export interface Profile {
+    id: number;
     bio?: string | null;
     avatar_url?: string | null;
     pinned_stance_id?: number | null;

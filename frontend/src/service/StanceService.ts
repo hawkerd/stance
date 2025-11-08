@@ -17,7 +17,6 @@ import {
   StanceFeedStanceResponse,
   EntityStancesResponse,
   PaginatedStancesByEntityStanceResponse,
-  StanceFollowingFeedRequest,
   StanceFollowingFeedResponse
 } from "@/api/stances";
 

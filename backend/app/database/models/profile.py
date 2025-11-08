@@ -16,3 +16,4 @@ class Profile(Base):
 
     user = relationship("User", back_populates="profile")
     pinned_stance = relationship("Stance", backref="pinned_by_profiles", foreign_keys=[pinned_stance_id])
+    images = relationship("Image", back_populates="profile")

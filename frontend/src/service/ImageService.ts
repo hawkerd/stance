@@ -4,18 +4,13 @@ import { imagesApi } from "@/api";
 export class ImageService {
 	async createImage(
 		api: AxiosInstance,
-		entityId: number,
 		mimeType: string,
-		imageContent: string,
-		stanceId?: number | null
+		b64ImageContent: string,
+		entityId?: number,
+		stanceId?: number,
+		profileId?: number,
 	): Promise<{ publicUrl: string }> {
-		const payload = {
-			entity_id: entityId,
-			mime_type: mimeType,
-			image_content: imageContent,
-			stance_id: stanceId ?? null,
-		};
-		const res = await imagesApi.createImage(api, payload);
+		const res = await imagesApi.createImage(api, b64ImageContent, mimeType, entityId, stanceId, profileId);
 		return {
 			publicUrl: res.public_url,
 		};

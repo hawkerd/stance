@@ -44,17 +44,19 @@ class ProfileCreateRequest(BaseModel):
 
 class ProfileReadResponse(BaseModel):
     user_id: int
+    profile_id: int
     bio: str | None
     avatar_url: str | None
     pinned_stance_id: int | None
 
 class ProfileUpdateRequest(BaseModel):
-    bio: str | None
-    avatar_url: str | None
-    pinned_stance_id: int | None
+    bio: str | None = None
+    avatar_url: str | None = None
+    pinned_stance_id: int | None = None
 
 class ProfileUpdateResponse(BaseModel):
     user_id: int
+    profile_id: int
     bio: str | None
     avatar_url: str | None
     pinned_stance_id: int | None
