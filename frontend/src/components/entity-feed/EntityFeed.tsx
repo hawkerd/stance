@@ -3,11 +3,13 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import IssueCard from "./EntityFeedIssue";
 import EventCard from "./EntityFeedEvent";
+import LegislationCard from "./EntityFeedLegislation";
 import {
   EntityFeedEntity,
   EntityType,
   EntityFeedEvent,
   EntityFeedIssue,
+  EntityFeedLegislation,
 } from "@/models";
 import { useApi } from "@/app/hooks/useApi";
 import { EntityService } from "@/service/EntityService";
@@ -91,6 +93,8 @@ export default function EntityFeed() {
             <EventCard event={entity as EntityFeedEvent} />
           ) : entity.type === EntityType.ISSUE ? (
             <IssueCard issue={entity as EntityFeedIssue} />
+          ) : entity.type === EntityType.LEGISLATION ? (
+            <LegislationCard legislation={entity as EntityFeedLegislation} />
           ) : null}
         </div>
       ))}

@@ -5,15 +5,18 @@ from app.errors import DatabaseError
 import logging
 from datetime import datetime
 
-def create_entity(db: Session, type: int, title: str, images_json: str, description: str = None, start_time: datetime | None = None, end_time: datetime | None = None) -> Entity:
+def create_entity(db: Session, unique_id: str, type: int, title: str, images_json: str, description: str = None, start_time: datetime | None = None, end_time: datetime | None = None, latest_action_date: datetime | None = None, latest_action_text: str | None = None) -> Entity:
     try:
         entity = Entity(
+            unique_id=unique_id,
             type=type,
             title=title,
             images_json=images_json,
             description=description,
             start_time=start_time,
-            end_time=end_time
+            end_time=end_time,
+            latest_action_date=latest_action_date,
+            latest_action_text=latest_action_text
         )
         db.add(entity)
         db.commit()
@@ -31,7 +34,7 @@ def read_entity(db: Session, entity_id: int) -> Entity | None:
         raise DatabaseError("Failed to read entity")
 
 def update_entity(db: Session, entity_id: int, **kwargs) -> Entity | None:
-    ALLOWED_FIELDS = {"title", "description", "start_time", "end_time", "images_json"}
+    ALLOWED_FIELDS = {"title", "description", "start_time", "end_time", "images_json", "latest_action_date", "latest_action_text", "unique_id"}
     try:
         entity = db.query(Entity).filter(Entity.id == entity_id).first()
         if not entity:
@@ -71,3 +74,9 @@ def get_entities(db: Session, limit: int, cursor: datetime | None = None) -> lis
         logging.error(f"Error getting paginated entities (cursor={cursor}, limit={limit}): {e}")
         raise DatabaseError("Failed to get paginated entities")
     
+def get_entity_by_unique_id(db: Session, unique_id: str) -> Entity | None:
+    try:
+        return db.query(Entity).filter(Entity.unique_id == unique_id).first()
+    except Exception as e:
+        logging.error(f"Error fetching entity by unique_id {unique_id}: {e}")
+        raise DatabaseError("Failed to fetch entity by unique_id")

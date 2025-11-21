@@ -42,12 +42,15 @@ def create_entity_endpoint(
         # create the entity
         entity: Entity = entity_db.create_entity(
             db,
+            unique_id=request.unique_id,
             type=request.type,
             title=request.title,
             description=request.description,
             start_time=datetime.fromisoformat(request.start_time) if request.start_time else None,
             end_time=datetime.fromisoformat(request.end_time) if request.end_time else None,
-            images_json=images_json
+            images_json=images_json,
+            latest_action_date=datetime.fromisoformat(request.latest_action_date) if request.latest_action_date else None,
+            latest_action_text=request.latest_action_text
         )
 
         # handle tags
@@ -65,13 +68,16 @@ def create_entity_endpoint(
 
         return EntityReadResponse(
             id=entity.id,
+            unique_id=entity.unique_id,
             type=entity.type,
             title=entity.title,
             description=entity.description,
             start_time=entity.start_time.isoformat() if entity.start_time else None,
             end_time=entity.end_time.isoformat() if entity.end_time else None,
             images_json=entity.images_json,
-            tags=tags_response
+            tags=tags_response,
+            latest_action_date=entity.latest_action_date.isoformat() if entity.latest_action_date else None,
+            latest_action_text=entity.latest_action_text
         )
     except HTTPException:
         raise
@@ -124,7 +130,9 @@ def get_entities_endpoint(
                 stances=feed_stances,
                 description=entity.description,
                 start_time=entity.start_time.isoformat() if entity.start_time else None,
-                end_time=entity.end_time.isoformat() if entity.end_time else None
+                end_time=entity.end_time.isoformat() if entity.end_time else None,
+                latest_action_date=entity.latest_action_date.isoformat() if entity.latest_action_date else None,
+                latest_action_text=entity.latest_action_text
             )
             feed_entities.append(feed_entity)
 
@@ -147,6 +155,7 @@ def get_entity_endpoint(
 
         return EntityReadResponse(
             id=entity.id,
+            unique_id=entity.unique_id,
             type=entity.type,
             title=entity.title,
             images_json=entity.images_json,
@@ -154,6 +163,8 @@ def get_entity_endpoint(
             description=entity.description,
             start_time=entity.start_time.isoformat() if entity.start_time else None,
             end_time=entity.end_time.isoformat() if entity.end_time else None,
+            latest_action_date=entity.latest_action_date.isoformat() if entity.latest_action_date else None,
+            latest_action_text=entity.latest_action_text
         )
     except HTTPException:
         raise
@@ -193,16 +204,31 @@ def update_entity_endpoint(
                 entity_tag = entity_tag_db.create_entity_tag(db, entity_id=entity.id, tag_id=tag.id)
             tags_response.append(TagResponse(id=tag.id, name=tag.name, tag_type=tag.tag_type))
 
-        entity: Entity = entity_db.update_entity(db, entity_id=entity.id, images_json=images_json, description=request.description, start_time=datetime.fromisoformat(request.start_time) if request.start_time else None, end_time=datetime.fromisoformat(request.end_time) if request.end_time else None, title=request.title)
+        entity: Entity = entity_db.update_entity(
+            db,
+            entity_id=entity.id,
+            unique_id=request.unique_id,
+            images_json=images_json,
+            description=request.description,
+            start_time=datetime.fromisoformat(request.start_time) if request.start_time else None,
+            end_time=datetime.fromisoformat(request.end_time) if request.end_time else None,
+            title=request.title,
+            latest_action_date=datetime.fromisoformat(request.latest_action_date) if request.latest_action_date else None,
+            latest_action_text=request.latest_action_text
+        )
+
         return EntityUpdateResponse(
             id=entity.id,
+            unique_id=entity.unique_id,
             type=entity.type,
             title=entity.title,
             description=entity.description,
             start_time=entity.start_time.isoformat() if entity.start_time else None,
             end_time=entity.end_time.isoformat() if entity.end_time else None,
             images_json=entity.images_json,
-            tags=tags_response
+            tags=tags_response,
+            latest_action_date=entity.latest_action_date.isoformat() if entity.latest_action_date else None,
+            latest_action_text=entity.latest_action_text
         )
     except HTTPException:
         raise

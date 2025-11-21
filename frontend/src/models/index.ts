@@ -19,12 +19,19 @@ export interface EntityFeedEntity {
     description?: string | null;
     start_time?: string | null;
     end_time?: string | null;
+    latest_action_date?: string | null;
+    latest_action_text?: string | null;
 }
 export interface EntityFeedIssue extends EntityFeedEntity {
     type: EntityType.ISSUE;
 }
 export interface EntityFeedEvent extends EntityFeedEntity {
     type: EntityType.EVENT;
+    start_time: string | null;
+    end_time: string | null;
+}
+export interface EntityFeedLegislation extends EntityFeedEntity {
+    type: EntityType.LEGISLATION;
     start_time: string | null;
     end_time: string | null;
 }
@@ -156,6 +163,7 @@ export interface Tag {
 
 export interface Entity {
     id: number;
+    unique_id: string;
     type: EntityType;
     title: string;
     description?: string | null;
@@ -163,6 +171,8 @@ export interface Entity {
     end_time?: string | null;
     images_json: string;
     tags: Tag[];
+    latest_action_date?: string | null;
+    latest_action_text?: string | null;
 }
 
 export interface User {

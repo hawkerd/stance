@@ -119,49 +119,43 @@ export default function EntityPage({ params }: EntityPageProps) {
                             const hasImages = imageUrls.length > 0;
                             const handlePrev = () => setCurrentImage(idx => Math.max(idx - 1, 0));
                             const handleNext = () => setCurrentImage(idx => Math.min(idx + 1, imageUrls.length - 1));
-                            return (
+                            return hasImages ? (
                                 <div
                                     className="w-full aspect-video mb-8 flex items-center justify-center relative overflow-hidden"
                                     onMouseEnter={() => setHovered(true)}
                                     onMouseLeave={() => setHovered(false)}
                                 >
-                                    {hasImages ? (
-                                        <>
-                                            {imageUrls.length > 1 && hovered && currentImage > 0 && (
-                                                <button
-                                                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
-                                                    onClick={handlePrev}
-                                                    aria-label="Previous image"
-                                                >
-                                                    &#8592;
-                                                </button>
-                                            )}
-                                            <img
-                                                src={imageUrls[currentImage]}
-                                                alt={`Entity image ${currentImage + 1}`}
-                                                className="object-contain rounded w-full h-full mx-auto"
-                                                style={{ maxHeight: "100%", maxWidth: "100%" }}
-                                            />
-                                            {imageUrls.length > 1 && hovered && currentImage < imageUrls.length - 1 && (
-                                                <button
-                                                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
-                                                    onClick={handleNext}
-                                                    aria-label="Next image"
-                                                >
-                                                    &#8594;
-                                                </button>
-                                            )}
-                                            {imageUrls.length > 1 && hovered && (
-                                                <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs bg-white bg-opacity-70 rounded px-2 py-1">
-                                                    {currentImage + 1} / {imageUrls.length}
-                                                </span>
-                                            )}
-                                        </>
-                                    ) : (
-                                        <span className="text-gray-400 text-2xl font-bold">Image(s) coming soon</span>
+                                    {imageUrls.length > 1 && hovered && currentImage > 0 && (
+                                        <button
+                                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
+                                            onClick={handlePrev}
+                                            aria-label="Previous image"
+                                        >
+                                            &#8592;
+                                        </button>
+                                    )}
+                                    <img
+                                        src={imageUrls[currentImage]}
+                                        alt={`Entity image ${currentImage + 1}`}
+                                        className="object-contain rounded w-full h-full mx-auto"
+                                        style={{ maxHeight: "100%", maxWidth: "100%" }}
+                                    />
+                                    {imageUrls.length > 1 && hovered && currentImage < imageUrls.length - 1 && (
+                                        <button
+                                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-white bg-opacity-70 rounded-full px-2 py-1 text-lg shadow hover:bg-opacity-100"
+                                            onClick={handleNext}
+                                            aria-label="Next image"
+                                        >
+                                            &#8594;
+                                        </button>
+                                    )}
+                                    {imageUrls.length > 1 && hovered && (
+                                        <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs bg-white bg-opacity-70 rounded px-2 py-1">
+                                            {currentImage + 1} / {imageUrls.length}
+                                        </span>
                                     )}
                                 </div>
-                            );
+                            ) : null;
                         })()}
                         {/* Title */}
                         <h1 className="text-3xl font-bold text-gray-900 mb-6 tracking-tight text-left">
@@ -175,17 +169,60 @@ export default function EntityPage({ params }: EntityPageProps) {
                             ))}
                             </div>
                         )}
-                        {/* Description */}
-                        <p className="text-gray-700 leading-relaxed text-base mb-10">
-                            {entity.description || "No description provided."}
-                        </p>
                         {/* Type-specific fields */}
+                        {entity.type === EntityType.LEGISLATION && (
+                            <div className="mb-6">
+                                <div className="flex items-center mb-3 text-gray-600">
+                                    <svg className="w-5 h-5 text-gray-400 mr-2" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                    </svg>
+                                    <span className="text-sm">
+                                        {entity.start_time && `Introduced ${entity.start_time.split('T')[0]}`}
+                                        {entity.end_time && (
+                                            <>
+                                                <span className="mx-1">•</span>
+                                                {`Enacted ${entity.end_time.split('T')[0]}`}
+                                            </>
+                                        )}
+                                        {!entity.start_time && !entity.end_time && "Pending"}
+                                    </span>
+                                </div>
+                                {entity.latest_action_text && (
+                                    <div className="flex items-start gap-2 bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                        <svg className="w-5 h-5 text-purple-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                        </svg>
+                                        <div>
+                                            <div className="font-semibold text-purple-700 mb-1">Latest Action</div>
+                                            <div className="text-gray-700">{entity.latest_action_text}</div>
+                                            {entity.latest_action_date && (
+                                                <div className="text-gray-500 text-sm mt-1">
+                                                    {new Date(entity.latest_action_date).toLocaleDateString('en-US', { 
+                                                        year: 'numeric', 
+                                                        month: 'long', 
+                                                        day: 'numeric' 
+                                                    })}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                         {entity.type === EntityType.EVENT && (
                             <div className="mb-6 text-gray-600 text-sm">
                                 <span>Start: {entity.start_time || "N/A"}</span>
                                 <span className="mx-2">|</span>
                                 <span>End: {entity.end_time || "N/A"}</span>
                             </div>
+                        )}
+                        {/* Description */}
+                        {entity.type === EntityType.LEGISLATION ? (
+                            <div className="text-gray-700 leading-relaxed text-base mb-10" dangerouslySetInnerHTML={{ __html: entity.description || "No description provided." }} />
+                        ) : (
+                            <p className="text-gray-700 leading-relaxed text-base mb-10">
+                                {entity.description || "No description provided."}
+                            </p>
                         )}
                         {/* Take your stance button (only if signed in and no stance) */}
                         {isAuthenticated && !hasUserStance && (

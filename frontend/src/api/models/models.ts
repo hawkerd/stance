@@ -746,6 +746,8 @@ export interface components {
         };
         /** EntityCreateRequest */
         EntityCreateRequest: {
+            /** Unique Id */
+            unique_id: string;
             /** Type */
             type: number;
             /** Title */
@@ -760,6 +762,10 @@ export interface components {
             start_time?: string | null;
             /** End Time */
             end_time?: string | null;
+            /** Latest Action Date */
+            latest_action_date?: string | null;
+            /** Latest Action Text */
+            latest_action_text?: string | null;
         };
         /** EntityDeleteResponse */
         EntityDeleteResponse: {
@@ -786,6 +792,10 @@ export interface components {
             start_time?: string | null;
             /** End Time */
             end_time?: string | null;
+            /** Latest Action Date */
+            latest_action_date?: string | null;
+            /** Latest Action Text */
+            latest_action_text?: string | null;
         };
         /** EntityFeedStance */
         EntityFeedStance: {
@@ -816,6 +826,8 @@ export interface components {
         EntityReadResponse: {
             /** Id */
             id: number;
+            /** Unique Id */
+            unique_id: string;
             /** Type */
             type: number;
             /** Title */
@@ -830,6 +842,10 @@ export interface components {
             start_time?: string | null;
             /** End Time */
             end_time?: string | null;
+            /** Latest Action Date */
+            latest_action_date?: string | null;
+            /** Latest Action Text */
+            latest_action_text?: string | null;
         };
         /** EntityStancesResponse */
         EntityStancesResponse: {
@@ -839,6 +855,8 @@ export interface components {
         };
         /** EntityUpdateRequest */
         EntityUpdateRequest: {
+            /** Unique Id */
+            unique_id?: string | null;
             /** Title */
             title?: string | null;
             /** Images */
@@ -851,11 +869,17 @@ export interface components {
             start_time?: string | null;
             /** End Time */
             end_time?: string | null;
+            /** Latest Action Date */
+            latest_action_date?: string | null;
+            /** Latest Action Text */
+            latest_action_text?: string | null;
         };
         /** EntityUpdateResponse */
         EntityUpdateResponse: {
             /** Id */
             id: number;
+            /** Unique Id */
+            unique_id: string;
             /** Type */
             type: number;
             /** Title */
@@ -868,6 +892,10 @@ export interface components {
             start_time?: string | null;
             /** End Time */
             end_time?: string | null;
+            /** Latest Action Date */
+            latest_action_date?: string | null;
+            /** Latest Action Text */
+            latest_action_text?: string | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {

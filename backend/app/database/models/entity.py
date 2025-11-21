@@ -14,12 +14,18 @@ class Entity(Base):
     __tablename__ = "entities"
 
     id = Column(Integer, primary_key=True, index=True)
+    unique_id = Column(String(50), unique=True, nullable=False, index=True)
     type = Column(Integer, nullable=False)
-    title = Column(String(100), nullable=False)
+    title = Column(Text, nullable=False)
     description = Column(Text, nullable=True)
     start_time = Column(DateTime(timezone=True), nullable=True)  # event, legislation, quote
     end_time = Column(DateTime(timezone=True), nullable=True)    # event/legislation
     images_json = Column(Text, nullable=True)  # JSON array of image URLs
+    
+    # legislation specific
+    latest_action_date = Column(DateTime(timezone=True), nullable=True)
+    latest_action_text = Column(Text, nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

@@ -10,6 +10,7 @@ class TagResponse(BaseModel):
     tag_type: int
 
 class EntityCreateRequest(BaseModel):
+    unique_id: str
     type: int
     title: str
     images: list[str]  # array of b64 images
@@ -17,9 +18,12 @@ class EntityCreateRequest(BaseModel):
     description: str | None = None
     start_time: str | None = None
     end_time: str | None = None
+    latest_action_date: str | None = None
+    latest_action_text: str | None = None
 
 class EntityReadResponse(BaseModel):
     id: int
+    unique_id: str
     type: int
     title: str
     images_json: str
@@ -27,23 +31,31 @@ class EntityReadResponse(BaseModel):
     description: str | None = None
     start_time: str | None = None
     end_time: str | None = None
+    latest_action_date: str | None = None
+    latest_action_text: str | None = None
     
 class EntityUpdateRequest(BaseModel):
+    unique_id: str | None = None
     title: str | None = None
     images: list[str] | None = None
     tags: list[TagRequest] | None = None
     description: str | None = None
     start_time: str | None = None
     end_time: str | None = None
+    latest_action_date: str | None = None
+    latest_action_text: str | None = None
 
 class EntityUpdateResponse(BaseModel):
     id: int
+    unique_id: str
     type: int
     title: str
     images_json: str
     description: str | None = None
     start_time: str | None = None
     end_time: str | None = None
+    latest_action_date: str | None = None
+    latest_action_text: str | None = None
 
 class EntityDeleteResponse(BaseModel):
     success: bool
@@ -66,6 +78,8 @@ class EntityFeedEntity(BaseModel):
     description: str | None = None
     start_time: str | None = None
     end_time: str | None = None
+    latest_action_date: str | None = None
+    latest_action_text: str | None = None
 class EntityListResponse(BaseModel):
     entities: list[EntityFeedEntity]
     next_cursor: str | None
