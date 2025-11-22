@@ -19,6 +19,7 @@ from .dependencies import *
 
 router = APIRouter(tags=["stances"], prefix="/stances")
 
+
 @router.get("/", response_model=StanceListResponse)
 def get_stances_endpoint(
     db: Session = Depends(get_db),
@@ -33,21 +34,28 @@ def get_stances_endpoint(
                     entity_id=stance.entity_id,
                     headline=stance.headline,
                     content_json=stance.content_json,
-                    average_rating=rating_db.get_average_rating_for_stance(db, stance.id)
-                ) for stance in stances
+                    average_rating=rating_db.get_average_rating_for_stance(
+                        db, stance.id
+                    ),
+                )
+                for stance in stances
             ]
         )
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error retrieving all stances: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
+
 
 @router.post("/feed", response_model=StanceFeedResponse)
 def get_stance_feed_endpoint(
     request: StanceFeedRequest,
     db: Session = Depends(get_db),
-    current_user_id: int | None = Depends(get_current_user_optional)
+    current_user_id: int | None = Depends(get_current_user_optional),
 ) -> StanceFeedResponse:
     try:
         # get random stances
@@ -56,7 +64,9 @@ def get_stance_feed_endpoint(
         # get the initial stance if provided
         if request.initial_stance_id:
             stances = [s for s in stances if str(s.id) != request.initial_stance_id]
-            initial_stance: Stance | None = stance_db.read_stance(db, int(request.initial_stance_id))
+            initial_stance: Stance | None = stance_db.read_stance(
+                db, int(request.initial_stance_id)
+            )
             if initial_stance:
                 stances.insert(0, initial_stance)
 
@@ -72,11 +82,13 @@ def get_stance_feed_endpoint(
             stance_user: StanceFeedUser = StanceFeedUser(
                 id=user.id,
                 username=user.username,
-                avatar_url=profile.avatar_url if profile else None
+                avatar_url=profile.avatar_url if profile else None,
             )
 
             tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
-            stance_tags: list[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+            stance_tags: list[StanceFeedTag] = [
+                StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags
+            ]
 
             entity: Entity | None = entity_db.read_entity(db, stance.entity_id)
             if not entity:
@@ -89,18 +101,21 @@ def get_stance_feed_endpoint(
                 tags=stance_tags,
                 description=entity.description,
                 start_time=str(entity.start_time) if entity.start_time else None,
-                end_time=str(entity.end_time) if entity.end_time else None
+                end_time=str(entity.end_time) if entity.end_time else None,
             )
 
-            average_rating: float | None = rating_db.get_average_rating_for_stance(db, stance.id)
+            average_rating: float | None = rating_db.get_average_rating_for_stance(
+                db, stance.id
+            )
             num_ratings: int = rating_db.get_num_ratings_for_stance(db, stance.id)
             my_rating: int | None = None
             if current_user_id:
-                rating: Rating = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
+                rating: Rating = rating_db.read_rating_by_user_and_stance(
+                    db, stance.id, current_user_id
+                )
                 my_rating = rating.rating if rating else None
 
             comment_count: int = stance_db.get_comment_count_by_stance(db, stance.id)
-            
 
             stance_stance: StanceFeedStance = StanceFeedStance(
                 id=stance.id,
@@ -113,39 +128,49 @@ def get_stance_feed_endpoint(
                 num_ratings=num_ratings,
                 my_rating=my_rating,
                 tags=stance_tags,
-                created_at=str(stance.created_at)
+                created_at=str(stance.created_at),
             )
             feed_stances.append(stance_stance)
 
         next_cursor: StanceFeedCursor | None = None
         if stances and len(stances) == request.num_stances:
             last_stance = stances[-1]
-            next_cursor = StanceFeedCursor(score=last_stance.engagement_score, id=last_stance.id)
+            next_cursor = StanceFeedCursor(
+                score=last_stance.engagement_score, id=last_stance.id
+            )
 
         return StanceFeedResponse(stances=feed_stances, next_cursor=next_cursor)
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error fetching stance feed: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
-    
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
+
+
 @router.get("/following-feed", response_model=StanceFollowingFeedResponse)
 def get_stance_feed_endpoint(
     cursor: str | None = None,
     limit: int = Query(20, le=100),
     db: Session = Depends(get_db),
-    current_user_id: int | None = Depends(get_current_user)
+    current_user_id: int | None = Depends(get_current_user),
 ) -> StanceFollowingFeedResponse:
     try:
         cursor_dt: datetime.datetime | None = None
         if cursor:
             cursor_dt = datetime.datetime.fromisoformat(cursor)
 
-        stances: list[Stance] = stance_db.get_stance_feed_for_user(db, current_user_id, cursor_dt, limit)
+        stances: list[Stance] = stance_db.get_stance_feed_for_user(
+            db, current_user_id, cursor_dt, limit
+        )
 
         next_cursor: str | None = None
         if stances and len(stances) > limit:
-            stances = stances[:-1]  # remove the extra stance used to check for next cursor
+            stances = stances[
+                :-1
+            ]  # remove the extra stance used to check for next cursor
             last_stance = stances[-1]
             next_cursor = last_stance.created_at.isoformat()
 
@@ -161,11 +186,13 @@ def get_stance_feed_endpoint(
             stance_user: StanceFeedUser = StanceFeedUser(
                 id=user.id,
                 username=user.username,
-                avatar_url=profile.avatar_url if profile else None
+                avatar_url=profile.avatar_url if profile else None,
             )
 
             tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
-            stance_tags: list[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+            stance_tags: list[StanceFeedTag] = [
+                StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags
+            ]
 
             entity: Entity | None = entity_db.read_entity(db, stance.entity_id)
             if not entity:
@@ -178,18 +205,22 @@ def get_stance_feed_endpoint(
                 tags=stance_tags,
                 description=entity.description,
                 start_time=str(entity.start_time) if entity.start_time else None,
-                end_time=str(entity.end_time) if entity.end_time else None
+                end_time=str(entity.end_time) if entity.end_time else None,
             )
 
-            average_rating: float | None = rating_db.get_average_rating_for_stance(db, stance.id)
+            average_rating: float | None = rating_db.get_average_rating_for_stance(
+                db, stance.id
+            )
             num_ratings: int = rating_db.get_num_ratings_for_stance(db, stance.id)
             my_rating: int | None = None
             if current_user_id:
-                rating: Rating | None = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
+                rating: Rating | None = rating_db.read_rating_by_user_and_stance(
+                    db, stance.id, current_user_id
+                )
                 my_rating = rating.rating if rating else None
 
             comment_count: int = stance_db.get_comment_count_by_stance(db, stance.id)
-            
+
             stance_stance: StanceFeedStance = StanceFeedStance(
                 id=stance.id,
                 user=stance_user,
@@ -201,13 +232,18 @@ def get_stance_feed_endpoint(
                 num_ratings=num_ratings,
                 my_rating=my_rating,
                 tags=stance_tags,
-                created_at=str(stance.created_at)
+                created_at=str(stance.created_at),
             )
             feed_stances.append(stance_stance)
 
-        return StanceFollowingFeedResponse(stances=feed_stances, next_cursor=next_cursor)
+        return StanceFollowingFeedResponse(
+            stances=feed_stances, next_cursor=next_cursor
+        )
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error fetching following stance feed: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )

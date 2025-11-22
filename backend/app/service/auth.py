@@ -10,25 +10,32 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
 
+
 # hash and verify passwords
 def hash_password(password: str) -> str:
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
+
 def verify_password(password: str, hashed: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed.encode())
+
 
 # generate, hash, and verify refresh tokens
 def generate_refresh_token() -> str:
     return secrets.token_urlsafe(32)
 
+
 def hash_refresh_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
+
 
 def refresh_token_expires_at() -> datetime:
     return datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRES_DAYS)
 
+
 def verify_refresh_token(token: str, hashed: str) -> bool:
     return hash_refresh_token(token) == hashed
+
 
 # generate/ verify JWT access tokens
 def create_access_token(user_id: int, is_admin: bool) -> str:
@@ -37,12 +44,13 @@ def create_access_token(user_id: int, is_admin: bool) -> str:
     """
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     payload = {
-        "sub": str(user_id),    # subject = user ID
-        "admin": is_admin,      # is admin flag
-        "exp": expire           # expiration timestamp
+        "sub": str(user_id),  # subject = user ID
+        "admin": is_admin,  # is admin flag
+        "exp": expire,  # expiration timestamp
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     return token
+
 
 def verify_access_token(token: str) -> int | None:
     """
@@ -54,7 +62,8 @@ def verify_access_token(token: str) -> int | None:
         return user_id
     except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
         return None
-    
+
+
 def is_admin_token(token: str) -> bool:
     """
     Check if the JWT token belongs to an admin user.

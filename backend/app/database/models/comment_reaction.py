@@ -3,12 +3,17 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database.connect import Base
 
+
 class CommentReaction(Base):
     __tablename__ = "comment_reactions"
 
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    comment_id = Column(Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    comment_id = Column(
+        Integer, ForeignKey("comments.id", ondelete="CASCADE"), nullable=False
+    )
     is_like = Column(Boolean, nullable=False)
 
     __table_args__ = (

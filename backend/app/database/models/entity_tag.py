@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 from app.database.connect import Base
 
+
 class EntityTag(Base):
     __tablename__ = "entity_tags"
 

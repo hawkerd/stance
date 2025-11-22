@@ -4,6 +4,7 @@ from app.database.connect import Base
 
 from enum import Enum
 
+
 class TagType(Enum):
     LOCATION = 1
     TOPIC = 2
@@ -17,5 +18,6 @@ class Tag(Base):
     tag_type = Column(Integer, nullable=False, index=True)
 
     # Relationships (optional, for join table)
-    entities = relationship("EntityTag", back_populates="tag", cascade="all, delete-orphan")
-
+    entities = relationship(
+        "EntityTag", back_populates="tag", cascade="all, delete-orphan"
+    )

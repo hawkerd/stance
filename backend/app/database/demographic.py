@@ -3,13 +3,17 @@ from app.database.models import User, Demographic
 from app.errors import DatabaseError
 import logging
 
-def create_demographic(db: Session, user_id: int, birth_year: int | None = None, gender: str | None = None, zip_code: str | None = None) -> Demographic:
+
+def create_demographic(
+    db: Session,
+    user_id: int,
+    birth_year: int | None = None,
+    gender: str | None = None,
+    zip_code: str | None = None,
+) -> Demographic:
     try:
         demographic = Demographic(
-            user_id=user_id,
-            birth_year=birth_year,
-            gender=gender,
-            zip_code=zip_code
+            user_id=user_id, birth_year=birth_year, gender=gender, zip_code=zip_code
         )
         db.add(demographic)
         db.commit()
@@ -19,6 +23,7 @@ def create_demographic(db: Session, user_id: int, birth_year: int | None = None,
         logging.error(f"Error creating demographic: {e}")
         raise DatabaseError("Failed to create demographic")
 
+
 def read_demographic(db: Session, demographic_id: int) -> Demographic | None:
     try:
         return db.query(Demographic).filter(Demographic.id == demographic_id).first()
@@ -26,9 +31,14 @@ def read_demographic(db: Session, demographic_id: int) -> Demographic | None:
         logging.error(f"Error reading demographic {demographic_id}: {e}")
         raise DatabaseError("Failed to read demographic")
 
-def update_demographic(db: Session, demographic_id: int, **kwargs) -> Demographic | None:
+
+def update_demographic(
+    db: Session, demographic_id: int, **kwargs
+) -> Demographic | None:
     try:
-        demographic = db.query(Demographic).filter(Demographic.id == demographic_id).first()
+        demographic = (
+            db.query(Demographic).filter(Demographic.id == demographic_id).first()
+        )
         if not demographic:
             return None
         for key, value in kwargs.items():
@@ -41,9 +51,12 @@ def update_demographic(db: Session, demographic_id: int, **kwargs) -> Demographi
         logging.error(f"Error updating demographic {demographic_id}: {e}")
         raise DatabaseError("Failed to update demographic")
 
+
 def delete_demographic(db: Session, demographic_id: int) -> bool:
     try:
-        demographic = db.query(Demographic).filter(Demographic.id == demographic_id).first()
+        demographic = (
+            db.query(Demographic).filter(Demographic.id == demographic_id).first()
+        )
         if demographic:
             db.delete(demographic)
             db.commit()
@@ -53,12 +66,14 @@ def delete_demographic(db: Session, demographic_id: int) -> bool:
         raise DatabaseError("Failed to delete demographic")
     return False
 
+
 def get_all_demographics(db: Session) -> list[Demographic]:
     try:
         return db.query(Demographic).all()
     except Exception as e:
         logging.error(f"Error getting all demographics: {e}")
         raise DatabaseError("Failed to get all demographics")
+
 
 def get_demographic_by_user_id(db: Session, user_id: int) -> Demographic | None:
     try:

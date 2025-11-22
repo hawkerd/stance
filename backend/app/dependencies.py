@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, status, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from app.service.auth import verify_access_token, is_admin_token
 
+
 def get_db():
     db = SessionLocal()
     try:
@@ -11,11 +12,17 @@ def get_db():
     finally:
         db.close()
 
-def get_current_user(token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token"))) -> int:
+
+def get_current_user(
+    token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")),
+) -> int:
     user_id = verify_access_token(token)
     if user_id is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
+        )
     return user_id
+
 
 def get_current_user_optional(request: Request) -> int | None:
     auth_header = request.headers.get("Authorization")
@@ -24,8 +31,13 @@ def get_current_user_optional(request: Request) -> int | None:
     token = auth_header.split(" ")[1]
     user_id = verify_access_token(token)
     if user_id is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid or expired token"
+        )
     return user_id
 
-def get_is_admin(token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token"))) -> bool:
+
+def get_is_admin(
+    token: str = Depends(OAuth2PasswordBearer(tokenUrl="/auth/token")),
+) -> bool:
     return is_admin_token(token)

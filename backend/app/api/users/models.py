@@ -1,24 +1,29 @@
 from pydantic import BaseModel
 
+
 class UserReadResponse(BaseModel):
     id: int
     username: str
     full_name: str
     email: str
 
+
 class UserUpdateRequest(BaseModel):
     username: str | None = None
     full_name: str | None = None
     email: str | None = None
 
+
 class UserListResponse(BaseModel):
     users: list[UserReadResponse]
     next_cursor: str | None = None
+
 
 class DemographicCreateRequest(BaseModel):
     birth_year: int | None
     gender: str | None
     zip_code: str | None
+
 
 class DemographicReadResponse(BaseModel):
     user_id: int
@@ -26,10 +31,12 @@ class DemographicReadResponse(BaseModel):
     gender: str | None
     zip_code: str | None
 
+
 class DemographicUpdateRequest(BaseModel):
     birth_year: int | None
     gender: str | None
     zip_code: str | None
+
 
 class DemographicUpdateResponse(BaseModel):
     user_id: int
@@ -37,10 +44,12 @@ class DemographicUpdateResponse(BaseModel):
     gender: str | None
     zip_code: str | None
 
+
 class ProfileCreateRequest(BaseModel):
     bio: str | None
     avatar_url: str | None
     pinned_stance_id: int | None
+
 
 class ProfileReadResponse(BaseModel):
     user_id: int
@@ -49,10 +58,12 @@ class ProfileReadResponse(BaseModel):
     avatar_url: str | None
     pinned_stance_id: int | None
 
+
 class ProfileUpdateRequest(BaseModel):
     bio: str | None = None
     avatar_url: str | None = None
     pinned_stance_id: int | None = None
+
 
 class ProfileUpdateResponse(BaseModel):
     user_id: int
@@ -60,6 +71,7 @@ class ProfileUpdateResponse(BaseModel):
     bio: str | None
     avatar_url: str | None
     pinned_stance_id: int | None
+
 
 class ProfilePageResponse(BaseModel):
     username: str

@@ -3,6 +3,7 @@ from app.database.models import Entity, Tag, EntityTag
 from app.errors import DatabaseError
 import logging
 
+
 def create_entity_tag(db: Session, entity_id: int, tag_id: int) -> EntityTag:
     try:
         entity_tag = EntityTag(entity_id=entity_id, tag_id=tag_id)
@@ -15,6 +16,7 @@ def create_entity_tag(db: Session, entity_id: int, tag_id: int) -> EntityTag:
         logging.error(f"Error creating entity_tag: {e}")
         raise DatabaseError("Failed to create entity_tag")
 
+
 def get_entity_tag(db: Session, entity_tag_id: int) -> EntityTag | None:
     try:
         return db.query(EntityTag).filter(EntityTag.id == entity_tag_id).first()
@@ -22,12 +24,14 @@ def get_entity_tag(db: Session, entity_tag_id: int) -> EntityTag | None:
         logging.error(f"Error reading entity_tag {entity_tag_id}: {e}")
         raise DatabaseError("Failed to read entity_tag")
 
+
 def get_entity_tags(db: Session) -> list[EntityTag]:
     try:
         return db.query(EntityTag).all()
     except Exception as e:
         logging.error(f"Error getting entity_tags: {e}")
         raise DatabaseError("Failed to get entity_tags")
+
 
 def update_entity_tag(db: Session, entity_tag_id: int, **kwargs) -> EntityTag | None:
     try:
@@ -45,6 +49,7 @@ def update_entity_tag(db: Session, entity_tag_id: int, **kwargs) -> EntityTag | 
         logging.error(f"Error updating entity_tag {entity_tag_id}: {e}")
         raise DatabaseError("Failed to update entity_tag")
 
+
 def delete_entity_tag(db: Session, entity_tag_id: int) -> bool:
     try:
         entity_tag = db.query(EntityTag).filter(EntityTag.id == entity_tag_id).first()
@@ -58,8 +63,14 @@ def delete_entity_tag(db: Session, entity_tag_id: int) -> bool:
         raise DatabaseError("Failed to delete entity_tag")
     return False
 
+
 def find_entity_tag(db: Session, entity_id: int, tag_id: int) -> EntityTag | None:
-    return db.query(EntityTag).filter(EntityTag.entity_id == entity_id, EntityTag.tag_id == tag_id).first()
+    return (
+        db.query(EntityTag)
+        .filter(EntityTag.entity_id == entity_id, EntityTag.tag_id == tag_id)
+        .first()
+    )
+
 
 def get_entity_tags_for_entity(db: Session, entity_id: int) -> list[EntityTag]:
     try:
@@ -68,13 +79,15 @@ def get_entity_tags_for_entity(db: Session, entity_id: int) -> list[EntityTag]:
         logging.error(f"Error getting tags for entity {entity_id}: {e}")
         raise DatabaseError("Failed to get tags for entity")
 
+
 def get_entity_tags_for_tag(db: Session, tag_id: int) -> list[EntityTag]:
     try:
         return db.query(EntityTag).filter(EntityTag.tag_id == tag_id).all()
     except Exception as e:
         logging.error(f"Error getting entities for tag {tag_id}: {e}")
         raise DatabaseError("Failed to get entities for tag")
-    
+
+
 def get_entities_for_tag(db: Session, tag_id: int) -> list[Entity]:
     try:
         entity_tags = db.query(EntityTag).filter(EntityTag.tag_id == tag_id).all()
@@ -83,7 +96,8 @@ def get_entities_for_tag(db: Session, tag_id: int) -> list[Entity]:
     except Exception as e:
         logging.error(f"Error getting entities for tag {tag_id}: {e}")
         raise DatabaseError("Failed to get entities for tag")
-    
+
+
 def get_tags_for_entity(db: Session, entity_id: int) -> list[Tag]:
     try:
         entity_tags = db.query(EntityTag).filter(EntityTag.entity_id == entity_id).all()
@@ -92,6 +106,7 @@ def get_tags_for_entity(db: Session, entity_id: int) -> list[Tag]:
     except Exception as e:
         logging.error(f"Error getting tags for entity {entity_id}: {e}")
         raise DatabaseError("Failed to get tags for entity")
+
 
 def delete_entity_tags_for_entity(db: Session, entity_id: int) -> None:
     db.query(EntityTag).filter(EntityTag.entity_id == entity_id).delete()

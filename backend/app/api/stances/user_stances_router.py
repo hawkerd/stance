@@ -17,31 +17,40 @@ from .dependencies import *
 
 router = APIRouter(tags=["stances"], prefix="/users/{user_id}/stances")
 
+
 @router.get("/", response_model=UserStancesResponse)
 def get_user_stances_endpoint(
     user_id: int,
     db: Session = Depends(get_db),
     current_user_id: int | None = Depends(get_current_user_optional),
     cursor: str | None = None,
-    limit: int = Query(20, le=100)
+    limit: int = Query(20, le=100),
 ) -> UserStancesResponse:
     try:
         user: User | None = user_db.read_user(db, user_id)
         if not user:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
+            )
 
-        stances: list[Stance] = stance_db.get_user_stances(db, user_id=user_id, limit=limit, cursor=cursor)
+        stances: list[Stance] = stance_db.get_user_stances(
+            db, user_id=user_id, limit=limit, cursor=cursor
+        )
 
         next_cursor = None
         if len(stances) > limit:
-            stances = stances[:-1]  # remove the extra stance used to check for next cursor
+            stances = stances[
+                :-1
+            ]  # remove the extra stance used to check for next cursor
             next_cursor = stances[-1].created_at.isoformat()
 
         feed_stances = []
         for stance in stances:
             # read entity tags
             tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, stance.entity_id)
-            stance_tags: list[StanceFeedTag] = [StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+            stance_tags: list[StanceFeedTag] = [
+                StanceFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags
+            ]
 
             # read entity information
             entity: Entity | None = entity_db.read_entity(db, stance.entity_id)
@@ -55,14 +64,18 @@ def get_user_stances_endpoint(
                 tags=stance_tags,
                 description=entity.description,
                 start_time=entity.start_time.isoformat() if entity.start_time else None,
-                end_time=entity.end_time.isoformat() if entity.end_time else None
+                end_time=entity.end_time.isoformat() if entity.end_time else None,
             )
 
-            average_rating: float | None = rating_db.get_average_rating_for_stance(db, stance.id)
+            average_rating: float | None = rating_db.get_average_rating_for_stance(
+                db, stance.id
+            )
             num_ratings: int = rating_db.get_num_ratings_for_stance(db, stance.id)
             my_rating: int | None = None
             if current_user_id:
-                rating: Rating | None = rating_db.read_rating_by_user_and_stance(db, stance.id, current_user_id)
+                rating: Rating | None = rating_db.read_rating_by_user_and_stance(
+                    db, stance.id, current_user_id
+                )
                 my_rating = rating.rating if rating else None
 
             comment_count: int = stance_db.get_comment_count_by_stance(db, stance.id)
@@ -76,7 +89,7 @@ def get_user_stances_endpoint(
                 num_ratings=num_ratings,
                 my_rating=my_rating,
                 tags=stance_tags,
-                created_at=stance.created_at.isoformat()
+                created_at=stance.created_at.isoformat(),
             )
             feed_stances.append(stance_stance)
 
@@ -85,5 +98,7 @@ def get_user_stances_endpoint(
         raise
     except Exception as e:
         logging.error(f"Error fetching stance feed: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
-    
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )

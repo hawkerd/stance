@@ -12,7 +12,7 @@ from app.database import (
     rating as rating_db,
     stance as stance_db,
     tag as tag_db,
-    entity_tag as entity_tag_db
+    entity_tag as entity_tag_db,
 )
 from app.service.storage import *
 from .models import *
@@ -20,16 +20,20 @@ from .dependencies import *
 
 router = APIRouter(tags=["entities"], prefix="/entities")
 
+
 @router.post("/", response_model=EntityReadResponse)
 def create_entity_endpoint(
     request: EntityCreateRequest,
     db: Session = Depends(get_db),
-    is_admin: bool = Depends(get_is_admin)
+    is_admin: bool = Depends(get_is_admin),
 ) -> EntityReadResponse:
     try:
         if not is_admin:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
-        
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin privileges required",
+            )
+
         # Upload images and get URLs
         image_urls: list[str] = []
         if request.images:
@@ -46,11 +50,21 @@ def create_entity_endpoint(
             type=request.type,
             title=request.title,
             description=request.description,
-            start_time=datetime.fromisoformat(request.start_time) if request.start_time else None,
-            end_time=datetime.fromisoformat(request.end_time) if request.end_time else None,
+            start_time=(
+                datetime.fromisoformat(request.start_time)
+                if request.start_time
+                else None
+            ),
+            end_time=(
+                datetime.fromisoformat(request.end_time) if request.end_time else None
+            ),
             images_json=images_json,
-            latest_action_date=datetime.fromisoformat(request.latest_action_date) if request.latest_action_date else None,
-            latest_action_text=request.latest_action_text
+            latest_action_date=(
+                datetime.fromisoformat(request.latest_action_date)
+                if request.latest_action_date
+                else None
+            ),
+            latest_action_text=request.latest_action_text,
         )
 
         # handle tags
@@ -58,13 +72,20 @@ def create_entity_endpoint(
         for tag_req in request.tags:
             tag: Tag = tag_db.find_tag(db, name=tag_req.name, tag_type=tag_req.tag_type)
             if not tag:
-                tag = tag_db.create_tag(db, name=tag_req.name, tag_type=tag_req.tag_type)
+                tag = tag_db.create_tag(
+                    db, name=tag_req.name, tag_type=tag_req.tag_type
+                )
             # Check if the entity_tag already exists to avoid duplicates
-            entity_tag: EntityTag = entity_tag_db.find_entity_tag(db, entity_id=entity.id, tag_id=tag.id)
+            entity_tag: EntityTag = entity_tag_db.find_entity_tag(
+                db, entity_id=entity.id, tag_id=tag.id
+            )
             if not entity_tag:
-                entity_tag = entity_tag_db.create_entity_tag(db, entity_id=entity.id, tag_id=tag.id)
-            tags_response.append(TagResponse(id=tag.id, name=tag.name, tag_type=tag.tag_type))
-
+                entity_tag = entity_tag_db.create_entity_tag(
+                    db, entity_id=entity.id, tag_id=tag.id
+                )
+            tags_response.append(
+                TagResponse(id=tag.id, name=tag.name, tag_type=tag.tag_type)
+            )
 
         return EntityReadResponse(
             id=entity.id,
@@ -76,14 +97,22 @@ def create_entity_endpoint(
             end_time=entity.end_time.isoformat() if entity.end_time else None,
             images_json=entity.images_json,
             tags=tags_response,
-            latest_action_date=entity.latest_action_date.isoformat() if entity.latest_action_date else None,
-            latest_action_text=entity.latest_action_text
+            latest_action_date=(
+                entity.latest_action_date.isoformat()
+                if entity.latest_action_date
+                else None
+            ),
+            latest_action_text=entity.latest_action_text,
         )
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error creating entity: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
+
 
 @router.get("/", response_model=EntityListResponse)
 def get_entities_endpoint(
@@ -99,9 +128,14 @@ def get_entities_endpoint(
             try:
                 cursor_datetime = datetime.fromisoformat(cursor)
             except ValueError:
-                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid cursor format")
-        
-        entities: list[Entity] = entity_db.get_entities(db, limit=limit, cursor=cursor_datetime)
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid cursor format",
+                )
+
+        entities: list[Entity] = entity_db.get_entities(
+            db, limit=limit, cursor=cursor_datetime
+        )
 
         next_cursor: str | None = None
         if len(entities) > limit:
@@ -112,14 +146,24 @@ def get_entities_endpoint(
         for entity in entities:
             # fetch tags
             tags: list[Tag] = entity_tag_db.get_tags_for_entity(db, entity.id)
-            feed_tags: list[EntityFeedTag] = [EntityFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags]
+            feed_tags: list[EntityFeedTag] = [
+                EntityFeedTag(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags
+            ]
 
             # stances
-            stances: list[Stance] = stance_db.get_n_stances_by_entity(db, entity.id, num_stances_per_entity)
+            stances: list[Stance] = stance_db.get_n_stances_by_entity(
+                db, entity.id, num_stances_per_entity
+            )
             feed_stances: list[EntityFeedStance] = []
             for s in stances:
-                avg_rating: float | None = rating_db.get_average_rating_for_stance(db, s.id)
-                feed_stances.append(EntityFeedStance(id=s.id, headline=s.headline, average_rating=avg_rating))
+                avg_rating: float | None = rating_db.get_average_rating_for_stance(
+                    db, s.id
+                )
+                feed_stances.append(
+                    EntityFeedStance(
+                        id=s.id, headline=s.headline, average_rating=avg_rating
+                    )
+                )
 
             feed_entity = EntityFeedEntity(
                 id=entity.id,
@@ -131,23 +175,29 @@ def get_entities_endpoint(
                 description=entity.description,
                 start_time=entity.start_time.isoformat() if entity.start_time else None,
                 end_time=entity.end_time.isoformat() if entity.end_time else None,
-                latest_action_date=entity.latest_action_date.isoformat() if entity.latest_action_date else None,
-                latest_action_text=entity.latest_action_text
+                latest_action_date=(
+                    entity.latest_action_date.isoformat()
+                    if entity.latest_action_date
+                    else None
+                ),
+                latest_action_text=entity.latest_action_text,
             )
             feed_entities.append(feed_entity)
-
 
         return EntityListResponse(entities=feed_entities, next_cursor=next_cursor)
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error fetching home feed: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
+
 
 @router.get("/{entity_id}", response_model=EntityReadResponse)
 def get_entity_endpoint(
-    db: Session = Depends(get_db),
-    entity: Entity = Depends(validate_entity)
+    db: Session = Depends(get_db), entity: Entity = Depends(validate_entity)
 ) -> EntityReadResponse:
     try:
         # get tags
@@ -163,26 +213,37 @@ def get_entity_endpoint(
             description=entity.description,
             start_time=entity.start_time.isoformat() if entity.start_time else None,
             end_time=entity.end_time.isoformat() if entity.end_time else None,
-            latest_action_date=entity.latest_action_date.isoformat() if entity.latest_action_date else None,
-            latest_action_text=entity.latest_action_text
+            latest_action_date=(
+                entity.latest_action_date.isoformat()
+                if entity.latest_action_date
+                else None
+            ),
+            latest_action_text=entity.latest_action_text,
         )
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error fetching entity {entity.id}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
+
 
 @router.put("/{entity_id}", response_model=EntityUpdateResponse)
 def update_entity_endpoint(
     request: EntityUpdateRequest,
     db: Session = Depends(get_db),
     is_admin: bool = Depends(get_is_admin),
-    entity: Entity = Depends(validate_entity)
+    entity: Entity = Depends(validate_entity),
 ) -> EntityUpdateResponse:
     try:
         if not is_admin:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
-        
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin privileges required",
+            )
+
         # images
         image_urls: list[str] = []
         if request.images:
@@ -198,11 +259,19 @@ def update_entity_endpoint(
         for tag_req in request.tags:
             tag: Tag = tag_db.find_tag(db, name=tag_req.name, tag_type=tag_req.tag_type)
             if not tag:
-                tag = tag_db.create_tag(db, name=tag_req.name, tag_type=tag_req.tag_type)
-            entity_tag: EntityTag = entity_tag_db.find_entity_tag(db, entity_id=entity.id, tag_id=tag.id)
+                tag = tag_db.create_tag(
+                    db, name=tag_req.name, tag_type=tag_req.tag_type
+                )
+            entity_tag: EntityTag = entity_tag_db.find_entity_tag(
+                db, entity_id=entity.id, tag_id=tag.id
+            )
             if not entity_tag:
-                entity_tag = entity_tag_db.create_entity_tag(db, entity_id=entity.id, tag_id=tag.id)
-            tags_response.append(TagResponse(id=tag.id, name=tag.name, tag_type=tag.tag_type))
+                entity_tag = entity_tag_db.create_entity_tag(
+                    db, entity_id=entity.id, tag_id=tag.id
+                )
+            tags_response.append(
+                TagResponse(id=tag.id, name=tag.name, tag_type=tag.tag_type)
+            )
 
         entity: Entity = entity_db.update_entity(
             db,
@@ -210,11 +279,21 @@ def update_entity_endpoint(
             unique_id=request.unique_id,
             images_json=images_json,
             description=request.description,
-            start_time=datetime.fromisoformat(request.start_time) if request.start_time else None,
-            end_time=datetime.fromisoformat(request.end_time) if request.end_time else None,
+            start_time=(
+                datetime.fromisoformat(request.start_time)
+                if request.start_time
+                else None
+            ),
+            end_time=(
+                datetime.fromisoformat(request.end_time) if request.end_time else None
+            ),
             title=request.title,
-            latest_action_date=datetime.fromisoformat(request.latest_action_date) if request.latest_action_date else None,
-            latest_action_text=request.latest_action_text
+            latest_action_date=(
+                datetime.fromisoformat(request.latest_action_date)
+                if request.latest_action_date
+                else None
+            ),
+            latest_action_text=request.latest_action_text,
         )
 
         return EntityUpdateResponse(
@@ -227,30 +306,47 @@ def update_entity_endpoint(
             end_time=entity.end_time.isoformat() if entity.end_time else None,
             images_json=entity.images_json,
             tags=tags_response,
-            latest_action_date=entity.latest_action_date.isoformat() if entity.latest_action_date else None,
-            latest_action_text=entity.latest_action_text
+            latest_action_date=(
+                entity.latest_action_date.isoformat()
+                if entity.latest_action_date
+                else None
+            ),
+            latest_action_text=entity.latest_action_text,
         )
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error updating entity {entity.id}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )
+
 
 @router.delete("/{entity_id}", response_model=EntityDeleteResponse)
 def delete_entity_endpoint(
     db: Session = Depends(get_db),
     is_admin: bool = Depends(get_is_admin),
-    entity: Entity = Depends(validate_entity)
+    entity: Entity = Depends(validate_entity),
 ) -> EntityDeleteResponse:
     try:
         if not is_admin:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin privileges required",
+            )
         success: bool = entity_db.delete_entity(db, entity_id=entity.id)
         if not success:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to delete entity")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Failed to delete entity",
+            )
         return EntityDeleteResponse(success=True)
     except HTTPException:
         raise
     except Exception as e:
         logging.error(f"Error deleting entity {entity.id}: {e}")
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Internal server error")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error",
+        )

@@ -3,8 +3,16 @@ from app.database.models import Image
 from app.errors import DatabaseError
 import logging
 
-def create_image(db: Session, stance_id: int | None, entity_id: int | None, 
-                profile_id: int | None, public_url: str, file_size: int, file_type: str) -> Image:
+
+def create_image(
+    db: Session,
+    stance_id: int | None,
+    entity_id: int | None,
+    profile_id: int | None,
+    public_url: str,
+    file_size: int,
+    file_type: str,
+) -> Image:
     try:
         image = Image(
             stance_id=stance_id,
@@ -12,7 +20,7 @@ def create_image(db: Session, stance_id: int | None, entity_id: int | None,
             profile_id=profile_id,
             public_url=public_url,
             file_size=file_size,
-            file_type=file_type
+            file_type=file_type,
         )
         db.add(image)
         db.commit()
@@ -23,12 +31,14 @@ def create_image(db: Session, stance_id: int | None, entity_id: int | None,
         logging.error(f"Error creating image: {e}")
         raise DatabaseError("Failed to create image")
 
+
 def read_image(db: Session, image_id: int) -> Image | None:
     try:
         return db.query(Image).filter(Image.id == image_id).first()
     except Exception as e:
         logging.error(f"Error reading image {image_id}: {e}")
         raise DatabaseError("Failed to read image")
+
 
 def update_image(db: Session, image_id: int, **kwargs) -> Image | None:
     try:
@@ -45,6 +55,7 @@ def update_image(db: Session, image_id: int, **kwargs) -> Image | None:
         logging.error(f"Error updating image {image_id}: {e}")
         raise DatabaseError("Failed to update image")
 
+
 def delete_image(db: Session, image_id: int) -> bool:
     try:
         image = db.query(Image).filter(Image.id == image_id).first()
@@ -57,6 +68,7 @@ def delete_image(db: Session, image_id: int) -> bool:
         raise DatabaseError("Failed to delete image")
     return False
 
+
 def get_images_by_stance(db: Session, stance_id: int) -> list[Image]:
     try:
         return db.query(Image).filter(Image.stance_id == stance_id).all()
@@ -64,12 +76,14 @@ def get_images_by_stance(db: Session, stance_id: int) -> list[Image]:
         logging.error(f"Error getting images for stance {stance_id}: {e}")
         raise DatabaseError("Failed to get images by stance")
 
+
 def get_images_by_entity(db: Session, entity_id: int) -> list[Image]:
     try:
         return db.query(Image).filter(Image.entity_id == entity_id).all()
     except Exception as e:
         logging.error(f"Error getting images for entity {entity_id}: {e}")
         raise DatabaseError("Failed to get images by entity")
+
 
 def get_images_by_profile(db: Session, profile_id: int) -> list[Image]:
     try:

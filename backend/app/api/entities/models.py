@@ -1,13 +1,16 @@
 from pydantic import BaseModel
 
+
 class TagRequest(BaseModel):
     name: str
     tag_type: int
+
 
 class TagResponse(BaseModel):
     id: int
     name: str
     tag_type: int
+
 
 class EntityCreateRequest(BaseModel):
     unique_id: str
@@ -21,6 +24,7 @@ class EntityCreateRequest(BaseModel):
     latest_action_date: str | None = None
     latest_action_text: str | None = None
 
+
 class EntityReadResponse(BaseModel):
     id: int
     unique_id: str
@@ -33,7 +37,8 @@ class EntityReadResponse(BaseModel):
     end_time: str | None = None
     latest_action_date: str | None = None
     latest_action_text: str | None = None
-    
+
+
 class EntityUpdateRequest(BaseModel):
     unique_id: str | None = None
     title: str | None = None
@@ -44,6 +49,7 @@ class EntityUpdateRequest(BaseModel):
     end_time: str | None = None
     latest_action_date: str | None = None
     latest_action_text: str | None = None
+
 
 class EntityUpdateResponse(BaseModel):
     id: int
@@ -57,17 +63,23 @@ class EntityUpdateResponse(BaseModel):
     latest_action_date: str | None = None
     latest_action_text: str | None = None
 
+
 class EntityDeleteResponse(BaseModel):
     success: bool
+
 
 class EntityFeedStance(BaseModel):
     id: int
     headline: str
     average_rating: float | None
+
+
 class EntityFeedTag(BaseModel):
     id: int
     name: str
     tag_type: int
+
+
 class EntityFeedEntity(BaseModel):
     id: int
     type: int
@@ -80,6 +92,8 @@ class EntityFeedEntity(BaseModel):
     end_time: str | None = None
     latest_action_date: str | None = None
     latest_action_text: str | None = None
+
+
 class EntityListResponse(BaseModel):
     entities: list[EntityFeedEntity]
     next_cursor: str | None

@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, ForeignKey, UniqueConstraint, CheckConst
 from sqlalchemy.orm import relationship
 from app.database.connect import Base
 
+
 class Rating(Base):
     __tablename__ = "ratings"
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -11,7 +12,7 @@ class Rating(Base):
 
     __table_args__ = (
         UniqueConstraint("stance_id", "user_id", name="unique_stance_user_rating"),
-        CheckConstraint('rating >= 1 AND rating <= 5', name='rating_range_1_5'),
+        CheckConstraint("rating >= 1 AND rating <= 5", name="rating_range_1_5"),
     )
 
     stance = relationship("Stance", back_populates="ratings")
