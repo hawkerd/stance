@@ -758,6 +758,8 @@ export interface components {
             tags: components["schemas"]["TagRequest"][];
             /** Description */
             description?: string | null;
+            /** Location */
+            location?: string | null;
             /** Start Time */
             start_time?: string | null;
             /** End Time */
@@ -788,6 +790,8 @@ export interface components {
             stances: components["schemas"]["EntityFeedStance"][];
             /** Description */
             description?: string | null;
+            /** Location */
+            location?: string | null;
             /** Start Time */
             start_time?: string | null;
             /** End Time */
@@ -838,6 +842,8 @@ export interface components {
             tags: components["schemas"]["TagResponse"][];
             /** Description */
             description?: string | null;
+            /** Location */
+            location?: string | null;
             /** Start Time */
             start_time?: string | null;
             /** End Time */
@@ -865,6 +871,8 @@ export interface components {
             tags?: components["schemas"]["TagRequest"][] | null;
             /** Description */
             description?: string | null;
+            /** Location */
+            location?: string | null;
             /** Start Time */
             start_time?: string | null;
             /** End Time */
@@ -888,6 +896,8 @@ export interface components {
             images_json: string;
             /** Description */
             description?: string | null;
+            /** Location */
+            location?: string | null;
             /** Start Time */
             start_time?: string | null;
             /** End Time */

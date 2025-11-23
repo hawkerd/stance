@@ -19,6 +19,7 @@ class EntityCreateRequest(BaseModel):
     images: list[str]  # array of b64 images
     tags: list[TagRequest]
     description: str | None = None
+    location: str | None = None
     start_time: str | None = None
     end_time: str | None = None
     latest_action_date: str | None = None
@@ -33,6 +34,7 @@ class EntityReadResponse(BaseModel):
     images_json: str
     tags: list[TagResponse]
     description: str | None = None
+    location: str | None = None
     start_time: str | None = None
     end_time: str | None = None
     latest_action_date: str | None = None
@@ -45,6 +47,7 @@ class EntityUpdateRequest(BaseModel):
     images: list[str] | None = None
     tags: list[TagRequest] | None = None
     description: str | None = None
+    location: str | None = None
     start_time: str | None = None
     end_time: str | None = None
     latest_action_date: str | None = None
@@ -58,6 +61,7 @@ class EntityUpdateResponse(BaseModel):
     title: str
     images_json: str
     description: str | None = None
+    location: str | None = None
     start_time: str | None = None
     end_time: str | None = None
     latest_action_date: str | None = None
@@ -88,6 +92,7 @@ class EntityFeedEntity(BaseModel):
     tags: list[EntityFeedTag]
     stances: list[EntityFeedStance]
     description: str | None = None
+    location: str | None = None
     start_time: str | None = None
     end_time: str | None = None
     latest_action_date: str | None = None

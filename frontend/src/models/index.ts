@@ -17,6 +17,7 @@ export interface EntityFeedEntity {
     tags: EntityFeedTag[];
     stances: EntityFeedStance[];
     description?: string | null;
+    location?: string | null;
     start_time?: string | null;
     end_time?: string | null;
     latest_action_date?: string | null;
@@ -167,6 +168,7 @@ export interface Entity {
     type: EntityType;
     title: string;
     description?: string | null;
+    location?: string | null;
     start_time?: string | null;
     end_time?: string | null;
     images_json: string;

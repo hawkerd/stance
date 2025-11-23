@@ -50,6 +50,7 @@ def create_entity_endpoint(
             type=request.type,
             title=request.title,
             description=request.description,
+            location=request.location,
             start_time=(
                 datetime.fromisoformat(request.start_time)
                 if request.start_time
@@ -93,6 +94,7 @@ def create_entity_endpoint(
             type=entity.type,
             title=entity.title,
             description=entity.description,
+            location=entity.location,
             start_time=entity.start_time.isoformat() if entity.start_time else None,
             end_time=entity.end_time.isoformat() if entity.end_time else None,
             images_json=entity.images_json,
@@ -173,6 +175,7 @@ def get_entities_endpoint(
                 tags=feed_tags,
                 stances=feed_stances,
                 description=entity.description,
+                location=entity.location,
                 start_time=entity.start_time.isoformat() if entity.start_time else None,
                 end_time=entity.end_time.isoformat() if entity.end_time else None,
                 latest_action_date=(
@@ -211,6 +214,7 @@ def get_entity_endpoint(
             images_json=entity.images_json,
             tags=[TagResponse(id=t.id, name=t.name, tag_type=t.tag_type) for t in tags],
             description=entity.description,
+            location=entity.location,
             start_time=entity.start_time.isoformat() if entity.start_time else None,
             end_time=entity.end_time.isoformat() if entity.end_time else None,
             latest_action_date=(
@@ -279,6 +283,7 @@ def update_entity_endpoint(
             unique_id=request.unique_id,
             images_json=images_json,
             description=request.description,
+            location=request.location,
             start_time=(
                 datetime.fromisoformat(request.start_time)
                 if request.start_time
@@ -302,6 +307,7 @@ def update_entity_endpoint(
             type=entity.type,
             title=entity.title,
             description=entity.description,
+            location=entity.location,
             start_time=entity.start_time.isoformat() if entity.start_time else None,
             end_time=entity.end_time.isoformat() if entity.end_time else None,
             images_json=entity.images_json,

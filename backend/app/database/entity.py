@@ -13,6 +13,7 @@ def create_entity(
     title: str,
     images_json: str,
     description: str | None = None,
+    location: str | None = None,
     start_time: datetime | None = None,
     end_time: datetime | None = None,
     latest_action_date: datetime | None = None,
@@ -25,6 +26,7 @@ def create_entity(
             title=title,
             images_json=images_json,
             description=description,
+            location=location,
             start_time=start_time,
             end_time=end_time,
             latest_action_date=latest_action_date,
@@ -57,6 +59,7 @@ def update_entity(db: Session, entity_id: int, **kwargs) -> Entity | None:
         "latest_action_date",
         "latest_action_text",
         "unique_id",
+        "location",
     }
     try:
         entity = db.query(Entity).filter(Entity.id == entity_id).first()

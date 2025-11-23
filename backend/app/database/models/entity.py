@@ -20,6 +20,7 @@ class Entity(Base):
     type = Column(Integer, nullable=False)
     title = Column(Text, nullable=False)
     description = Column(Text, nullable=True)
+    location = Column(Text, nullable=True)  # event, legislation
     start_time = Column(
         DateTime(timezone=True), nullable=True
     )  # event, legislation, quote
