@@ -39,6 +39,7 @@ class Entity(Base):
         server_default=func.now(),
         onupdate=func.now(),
         nullable=False,
+        index=True,
     )
 
     stances = relationship(

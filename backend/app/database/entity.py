@@ -92,14 +92,14 @@ def delete_entity(db: Session, entity_id: int) -> bool:
 def get_entities(
     db: Session, limit: int, cursor: datetime | None = None
 ) -> list[Entity]:
-    """Fetch entities ordered by created_at (descending) with cursor-based pagination."""
+    """Fetch entities ordered by updated_at (descending) with cursor-based pagination."""
     try:
         query = db.query(Entity)
         if cursor:
-            query = query.filter(Entity.created_at < cursor)
+            query = query.filter(Entity.updated_at < cursor)
 
         entities = (
-            query.order_by(Entity.created_at.desc(), Entity.id.desc())
+            query.order_by(Entity.updated_at.desc(), Entity.id.desc())
             .limit(limit + 1)
             .all()
         )

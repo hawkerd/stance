@@ -142,7 +142,7 @@ def get_entities_endpoint(
         next_cursor: str | None = None
         if len(entities) > limit:
             entities = entities[:-1]
-            next_cursor = entities[-1].created_at.isoformat()
+            next_cursor = entities[-1].updated_at.isoformat()
 
         feed_entities: list[EntityFeedEntity] = []
         for entity in entities:
