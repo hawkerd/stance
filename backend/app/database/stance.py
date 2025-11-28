@@ -121,29 +121,6 @@ def get_user_stance_by_entity(
         raise DatabaseError("Failed to get user stance by entity")
 
 
-def get_comments_by_stance(db: Session, stance_id: int, nested: bool) -> list[Comment]:
-    try:
-        stance = db.query(Stance).filter(Stance.id == stance_id).first()
-        if not stance:
-            return []
-
-        if nested:
-            return stance.comments
-        else:
-            return [comment for comment in stance.comments if comment.parent_id is None]
-    except Exception as e:
-        logging.error(f"Error getting comments for stance {stance_id}: {e}")
-        raise DatabaseError("Failed to get comments by stance")
-
-
-def get_comment_count_by_stance(db: Session, stance_id: int) -> int:
-    try:
-        return db.query(Comment).filter(Comment.stance_id == stance_id).count()
-    except Exception as e:
-        logging.error(f"Error getting comment count for stance {stance_id}: {e}")
-        raise DatabaseError("Failed to get comment count by stance")
-
-
 def get_random_stances(db: Session, n: int) -> list[Stance]:
     try:
         return db.query(Stance).order_by(func.random()).limit(n).all()

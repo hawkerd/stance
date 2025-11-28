@@ -78,13 +78,11 @@ def get_user_stances_endpoint(
                 )
                 my_rating = rating.rating if rating else None
 
-            comment_count: int = stance_db.get_comment_count_by_stance(db, stance.id)
             stance_stance: PaginatedStancesByUserStance = PaginatedStancesByUserStance(
                 id=stance.id,
                 entity=stance_entity,
                 headline=stance.headline,
                 content_json=stance.content_json,
-                num_comments=comment_count,
                 average_rating=average_rating,
                 num_ratings=num_ratings,
                 my_rating=my_rating,

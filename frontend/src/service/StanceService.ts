@@ -1,7 +1,7 @@
-import { Stance, StanceFeedEntity, StanceFeedStance, Comment, PaginatedStancesByEntityStance, PaginatedStancesByUserStance } from "@/models";
+import { Stance, StanceFeedStance, PaginatedStancesByEntityStance, PaginatedStancesByUserStance } from "@/models";
 import { stancesApi } from "@/api";
 import { AxiosInstance } from "axios";
-import { 
+import {
   StanceFeedRequest,
   StanceFeedResponse,
   StanceReadResponse,
@@ -41,10 +41,10 @@ export class StanceService {
     api: AxiosInstance,
     num_stances: number,
     cursor?: string
-  ): Promise<{stances: StanceFeedStance[], next_cursor?: string}> {
+  ): Promise<{ stances: StanceFeedStance[], next_cursor?: string }> {
     const response: StanceFollowingFeedResponse = await stancesApi.getFollowingFeed(api, num_stances, cursor);
     console.log("Fetched stances:", response.stances);
-    return {stances: response.stances, next_cursor: response.next_cursor || undefined};
+    return { stances: response.stances, next_cursor: response.next_cursor || undefined };
   }
 
   async createStance(
@@ -64,7 +64,6 @@ export class StanceService {
       entity_id: response.entity_id,
       headline: response.headline,
       content_json: response.content_json,
-      comments: [],
       average_rating: null,
       num_ratings: 0,
     };
@@ -82,7 +81,6 @@ export class StanceService {
       entity_id: response.entity_id,
       headline: response.headline,
       content_json: response.content_json,
-      comments: [],
       average_rating: response.average_rating,
       num_ratings: 0,
     };
@@ -105,7 +103,6 @@ export class StanceService {
       entity_id: s.entity_id,
       headline: s.headline,
       content_json: s.content_json,
-      comments: [],
       average_rating: s.average_rating,
       num_ratings: 0,
     }));
@@ -129,7 +126,6 @@ export class StanceService {
       entity_id: response.entity_id,
       headline: response.headline,
       content_json: response.content_json,
-      comments: [],
       average_rating: response.average_rating,
       num_ratings: 0,
     };
@@ -174,46 +170,45 @@ export class StanceService {
 
   // get stances by entity with pagination
   async getStancesByEntity(api: AxiosInstance, entityId: number, cursor?: { score: number; id: number }): Promise<{ stances: PaginatedStancesByEntityStance[]; nextCursorScore: number | null; nextCursorId: number | null }> {
-      const response: EntityStancesResponse = await stancesApi.getStancesByEntity(
-          api,
-          entityId,
-          cursor ? { score: cursor.score, id: cursor.id } : undefined,
-          20
-      );
-      return {
-          stances: response.stances.map((s) => ({
-              id: s.id,
-              user: s.user,
-              headline: s.headline,
-              content_json: s.content_json,
-              num_comments: s.num_comments,
-              average_rating: s.average_rating,
-              num_ratings: s.num_ratings,
-              my_rating: s.my_rating,
-              tags: s.tags,
-              created_at: s.created_at,
-          })),
-          nextCursorScore: response.next_cursor?.score ?? null,
-          nextCursorId: response.next_cursor?.id ?? null,
-      };
+    const response: EntityStancesResponse = await stancesApi.getStancesByEntity(
+      api,
+      entityId,
+      cursor ? { score: cursor.score, id: cursor.id } : undefined,
+      20
+    );
+    return {
+      stances: response.stances.map((s) => ({
+        id: s.id,
+        user: s.user,
+        headline: s.headline,
+        content_json: s.content_json,
+        average_rating: s.average_rating,
+        num_ratings: s.num_ratings,
+        my_rating: s.my_rating,
+        tags: s.tags,
+        created_at: s.created_at,
+      })),
+      nextCursorScore: response.next_cursor?.score ?? null,
+      nextCursorId: response.next_cursor?.id ?? null,
+    };
   }
 
   // get my stance for entity
   async getMyStanceForEntity(
-      api: AxiosInstance,
-      entityId: number
+    api: AxiosInstance,
+    entityId: number
   ): Promise<PaginatedStancesByEntityStance | null> {
-      const response: PaginatedStancesByEntityStanceResponse | null = await stancesApi.getMyStanceForEntity(api, entityId);
-      if (response === null) {
-          return null;
-      }
-      return response.stance;
+    const response: PaginatedStancesByEntityStanceResponse | null = await stancesApi.getMyStanceForEntity(api, entityId);
+    if (response === null) {
+      return null;
+    }
+    return response.stance;
   }
 
-	async getStancesByUser(api: AxiosInstance, userId: number, cursor?: string): Promise<{stances: PaginatedStancesByUserStance[], next_cursor?: string}> {
+  async getStancesByUser(api: AxiosInstance, userId: number, cursor?: string): Promise<{ stances: PaginatedStancesByUserStance[], next_cursor?: string }> {
 
-		const response = await stancesApi.getPaginatedStancesByUser(api, userId, cursor || undefined, 10);
-		return {stances: response.stances, next_cursor: response.next_cursor || undefined};
-	}
+    const response = await stancesApi.getPaginatedStancesByUser(api, userId, cursor || undefined, 10);
+    return { stances: response.stances, next_cursor: response.next_cursor || undefined };
+  }
 
 }

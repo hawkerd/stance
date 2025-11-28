@@ -6,7 +6,6 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from app.dependencies import get_db
 import logging
-from app.api.comments import router as comments_router
 from app.api.auth import router as auth_router
 from app.api.entities import router as entities_router
 from app.api.stances import stance_router, user_stances_router, entity_stances_router
@@ -36,5 +35,4 @@ app.include_router(user_stances_router.router)
 app.include_router(entity_stances_router.router)
 app.include_router(users_router.router)
 app.include_router(auth_router.router)
-app.include_router(comments_router.router)
 app.include_router(images_router.router)

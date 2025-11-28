@@ -95,7 +95,6 @@ class StanceFeedStance(BaseModel):
     entity: StanceFeedEntity
     headline: str
     content_json: str
-    num_comments: int
     average_rating: float | None
     num_ratings: int
     my_rating: int | None
@@ -131,7 +130,6 @@ class PaginatedStancesByEntityStance(BaseModel):
     user: StanceFeedUser
     headline: str
     content_json: str
-    num_comments: int
     average_rating: float | None
     num_ratings: int
     my_rating: int | None
@@ -159,7 +157,6 @@ class PaginatedStancesByUserStance(BaseModel):
     entity: StanceFeedEntity
     headline: str
     content_json: str
-    num_comments: int
     average_rating: float | None
     num_ratings: int
     my_rating: int | None

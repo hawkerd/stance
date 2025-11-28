@@ -23,9 +23,8 @@ export default function StanceCard({ stance, isUserStance, onStanceClick, onUser
   return (
     <div
       onClick={handleStanceClick}
-      className={`aspect-square bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer overflow-hidden group ${
-        isUserStance ? 'ring-2 ring-purple-400' : ''
-      }`}
+      className={`aspect-square bg-white rounded-2xl shadow-lg border border-purple-100 hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer overflow-hidden group ${isUserStance ? 'ring-2 ring-purple-400' : ''
+        }`}
     >
       <div className="h-full p-4 flex flex-col">
         {/* User info */}
@@ -93,14 +92,6 @@ export default function StanceCard({ stance, isUserStance, onStanceClick, onUser
             ) : (
               <span className="text-gray-400 text-[10px]">No ratings</span>
             )}
-          </div>
-
-          {/* Comments */}
-          <div className="flex items-center gap-1">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-            <span>{stance.num_comments}</span>
           </div>
         </div>
       </div>

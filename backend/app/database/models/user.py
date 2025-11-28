@@ -28,12 +28,6 @@ class User(Base):
     refresh_tokens = relationship(
         "RefreshToken", back_populates="user", cascade="all, delete-orphan"
     )
-    comments = relationship(
-        "Comment", back_populates="user", cascade="all, delete-orphan"
-    )
-    comment_reactions = relationship(
-        "CommentReaction", back_populates="user", cascade="all, delete-orphan"
-    )
     stances = relationship(
         "Stance", back_populates="user", cascade="all, delete-orphan"
     )

@@ -64,7 +64,6 @@ export interface StanceFeedStance {
     entity: StanceFeedEntity;
     headline: string;
     content_json: string;
-    num_comments: number;
     average_rating?: number | null;
     num_ratings: number;
     my_rating?: number | null;
@@ -91,7 +90,6 @@ export interface PaginatedStancesByEntityStance {
     user: StanceFeedUser;
     headline: string;
     content_json: string;
-    num_comments: number;
     average_rating?: number | null;
     num_ratings: number;
     my_rating?: number | null;
@@ -104,7 +102,6 @@ export interface PaginatedStancesByUserStance {
     entity: StanceFeedEntity;
     headline: string;
     content_json: string;
-    num_comments: number;
     average_rating?: number | null;
     num_ratings: number;
     my_rating?: number | null;
@@ -134,24 +131,12 @@ export enum TagType {
     TOPIC = 2
 }
 
-export interface Comment {
-    id: number;
-    user_id: number;
-    parent_id?: number;
-    content: string;
-    likes: number;
-    dislikes: number;
-    user_reaction: "like" | "dislike" | null;
-    count_nested_replies: number;
-}
-
 export interface Stance {
     id: number;
     user_id: number;
     entity_id: number;
     headline: string;
     content_json: string;
-    comments: Comment[];
     average_rating: number | null;
     num_ratings: number;
 }

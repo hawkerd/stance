@@ -6,7 +6,6 @@ export type StanceReadResponse = components["schemas"]["StanceReadResponse"];
 export type StanceCreateResponse = components["schemas"]["StanceCreateResponse"];
 export type StanceUpdateResponse = components["schemas"]["StanceUpdateResponse"];
 export type StanceListResponse = components["schemas"]["StanceListResponse"];
-export type CommentListResponse = components["schemas"]["CommentListResponse"];
 export type StanceCreateRequest = components["schemas"]["StanceCreateRequest"];
 export type StanceUpdateRequest = components["schemas"]["StanceUpdateRequest"];
 export type StanceRateRequest = components["schemas"]["StanceRateRequest"];
