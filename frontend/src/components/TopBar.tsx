@@ -17,7 +17,7 @@ const TopBar: React.FC = () => {
       className="h-screen w-56 bg-white text-purple-700 shadow-md flex flex-col items-stretch border-r border-purple-200/40 py-8 px-4 sticky top-0"
       style={{ minWidth: 200 }}
     >
-  <div className="mb-6 text-2xl tracking-tight text-purple-700 select-none pl-4" style={{ fontWeight: 'normal' }}>Stance</div>
+      <div className="mb-6 text-2xl tracking-tight text-purple-700 select-none pl-4" style={{ fontWeight: 'normal' }}>Stance</div>
       <div className="flex flex-col gap-2">
         <SidebarItem href="/" icon={
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -47,23 +47,16 @@ const TopBar: React.FC = () => {
         }>
           Following
         </SidebarItem>
-          <SidebarItem href="/admin" icon={
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-            </svg>
-          }>
-            Admin
-          </SidebarItem>
         {initialized && isAuthenticated ? (
           <SidebarItem href="/profile" icon={
             <span className="w-6 h-6 flex items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-purple-400 to-pink-400">
               {!userLoading && profile?.avatar_url ? (
-                <Image 
-                  src={profile.avatar_url} 
-                  alt="Profile" 
-                  width={24} 
-                  height={24} 
-                  className="object-cover w-full h-full" 
+                <Image
+                  src={profile.avatar_url}
+                  alt="Profile"
+                  width={24}
+                  height={24}
+                  className="object-cover w-full h-full"
                 />
               ) : !userLoading ? (
                 <span className="text-white text-xs font-bold">
@@ -85,7 +78,7 @@ const TopBar: React.FC = () => {
         ) : null}
       </div>
       <div className="flex-1" />
-      
+
       {/* Bottom options section */}
       <div className="flex flex-col gap-2 border-t border-purple-200/40 pt-4">
         {/* Dark Mode Toggle (placeholder) */}
